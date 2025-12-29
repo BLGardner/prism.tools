@@ -1,4 +1,684 @@
-<html>
-<head></head>
-<body><h1>PRISM.TOOLS Coming Soon!</h1></body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prism.Tools - Developer Utilities, Refined</title>
+  <meta name="description" content="Free developer utilities. 38+ tools including JSON formatter, hash generator, Base64, regex tester. Privacy-focused, no tracking.">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+    }
+    
+    .navbar {
+      position: sticky;
+      top: 0;
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+      border-bottom: 1px solid #27272a;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      cursor: pointer;
+      letter-spacing: -0.5px;
+    }
+    
+    .nav-right {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    
+    .search-mini {
+      position: relative;
+    }
+    
+    .search-mini input {
+      width: 200px;
+      padding: 0.4rem 0.75rem 0.4rem 2rem;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+    }
+    
+    .search-mini input:focus {
+      outline: none;
+      border-color: #a78bfa;
+      width: 280px;
+    }
+    
+    .search-icon {
+      position: absolute;
+      left: 0.6rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #71717a;
+      font-size: 0.875rem;
+    }
+    
+    .donate-btn {
+      padding: 0.4rem 1rem;
+      background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%);
+      color: white;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.875rem;
+      transition: transform 0.2s;
+      white-space: nowrap;
+    }
+    
+    .donate-btn:hover { transform: translateY(-1px); }
+    
+    .hero {
+      padding: 2rem 1.5rem 1rem;
+      text-align: center;
+      background: linear-gradient(180deg, #0a0a0f 0%, #18181b 100%);
+    }
+    
+    .hero h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #ffffff 0%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -1px;
+    }
+    
+    .hero p {
+      color: #a1a1aa;
+      font-size: 0.95rem;
+    }
+    
+    .privacy-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.4rem 0.9rem;
+      background: rgba(167, 139, 250, 0.1);
+      border: 1px solid rgba(167, 139, 250, 0.2);
+      border-radius: 20px;
+      color: #a78bfa;
+      font-weight: 600;
+      font-size: 0.8rem;
+      margin-top: 0.75rem;
+    }
+    
+    .categories {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem 1.5rem 0;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    .category-btn {
+      padding: 0.5rem 1rem;
+      background: rgba(167, 139, 250, 0.1);
+      border: 1px solid rgba(167, 139, 250, 0.3);
+      color: #a78bfa;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    
+    .category-btn:hover {
+      background: rgba(167, 139, 250, 0.2);
+      transform: translateY(-1px);
+    }
+    
+    .category-btn.active {
+      background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%);
+      color: white;
+      border-color: transparent;
+    }
+    
+    .main-layout {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 250px;
+      gap: 1.5rem;
+    }
+    
+    .tools-container {
+      min-width: 0;
+    }
+    
+    .section-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #71717a;
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+    }
+    
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 0.625rem;
+    }
+    
+    .tool-card {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 0.625rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--tool-color);
+      transform: scaleX(0);
+      transition: transform 0.2s;
+    }
+    
+    .tool-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--tool-color);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    .tool-card:hover::before {
+      transform: scaleX(1);
+    }
+    
+    .tool-card:hover .tool-actions {
+      opacity: 1;
+    }
+    
+    .tool-header-mini {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.3rem;
+    }
+    
+    .tool-icon {
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+    
+    .tool-name {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--tool-color);
+      line-height: 1.2;
+      flex: 1;
+    }
+    
+    .tool-desc {
+      color: #a1a1aa;
+      font-size: 0.7rem;
+      line-height: 1.3;
+      margin-bottom: 0.4rem;
+    }
+    
+    .tool-actions {
+      display: flex;
+      gap: 0.25rem;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    
+    .tool-action-btn {
+      padding: 0.2rem 0.4rem;
+      background: rgba(167, 139, 250, 0.1);
+      border: 1px solid rgba(167, 139, 250, 0.3);
+      color: #a78bfa;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    
+    .tool-action-btn:hover {
+      background: rgba(167, 139, 250, 0.2);
+    }
+    
+    .sidebar {
+      min-width: 0;
+    }
+    
+    .sidebar-section {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .sidebar-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #a78bfa;
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .recent-tool {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    
+    .recent-tool:hover {
+      border-color: #a78bfa;
+      transform: translateX(2px);
+    }
+    
+    .recent-tool-icon {
+      font-size: 1rem;
+    }
+    
+    .recent-tool-name {
+      font-size: 0.75rem;
+      color: #e4e4e7;
+      font-weight: 600;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .stats-bar {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 0.75rem;
+      display: flex;
+      justify-content: space-around;
+      gap: 1rem;
+    }
+    
+    .stat {
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #a78bfa;
+      line-height: 1;
+    }
+    
+    .stat-label {
+      font-size: 0.65rem;
+      color: #71717a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 0.25rem;
+    }
+    
+    .footer {
+      text-align: center;
+      padding: 2rem 1.5rem;
+      background: #18181b;
+      border-top: 1px solid #27272a;
+      margin-top: 3rem;
+    }
+    
+    .footer p {
+      color: #71717a;
+      font-size: 0.8rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .footer-links {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 0.75rem;
+    }
+    
+    .footer-links a {
+      color: #a78bfa;
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.2s;
+    }
+    
+    .footer-links a:hover { color: #ec4899; }
+    
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: #18181b;
+      border: 1px solid #a78bfa;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: #e4e4e7;
+      z-index: 3000;
+      animation: slideIn 0.3s ease-out;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateY(100px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    @media (max-width: 1024px) {
+      .main-layout {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        order: -1;
+      }
+      .sidebar-section {
+        display: none;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 1.5rem; }
+      .tools-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+      .search-mini input { width: 150px; }
+      .search-mini input:focus { width: 200px; }
+      .categories { padding: 0.75rem; }
+      .main-layout { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo" onclick="window.location.href='index.html'">PRISM.TOOLS</div>
+    <div class="nav-right">
+      <div class="search-mini">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="tool-search" placeholder="Search tools...">
+      </div>
+      <a href="https://www.paypal.com/paypalme/BLGApps" target="_blank" class="donate-btn">☕ Donate</a>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <h1>Every Dev Tool You Need</h1>
+    <p>Fast. Private. Free forever.</p>
+    <div class="privacy-badge">🔒 Data never leaves your browser</div>
+  </div>
+
+  <div class="categories">
+    <button class="category-btn active" data-category="all">All Tools</button>
+    <button class="category-btn" data-category="formatters">Formatters & Parsers</button>
+    <button class="category-btn" data-category="security">Security & Dev</button>
+    <button class="category-btn" data-category="visual">Visual & CSS</button>
+    <button class="category-btn" data-category="generators">Generators & Content</button>
+    <button class="category-btn" data-category="encoders">Encoders & Transformers</button>
+  </div>
+
+  <div class="main-layout">
+    <div class="tools-container">
+      <div class="section-title" id="category-title">🛠️ All Tools</div>
+      <div id="tools" class="tools-grid"></div>
+    </div>
+
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-title">Recent Tools</div>
+        <div id="recent-tools"></div>
+      </div>
+
+      <div class="sidebar-section stats-bar" id="usage-stats" style="display: none;">
+        <div class="stat">
+          <div class="stat-value" id="usage-count">0</div>
+          <div class="stat-label">Tools Used</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="tools-count">38</div>
+          <div class="stat-label">Available</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>Made with 💜 by developers, for developers</p>
+    <p style="font-size: 0.75rem;">- Your donations fund development time -</p>
+    <div class="footer-links">
+      <a href="https://github.com/blgardner/prism.tools" target="_blank">GitHub</a>
+      <a href="https://www.paypal.com/paypalme/BLGApps" target="_blank">Donate</a>
+      <a href="#" onclick="showSupporters(); return false;">💜 Supporters</a>
+    </div>
+    <p style="font-size: 0.7rem; margin-top: 1rem; color: #555;">
+      Available on: <a href="https://blgardner.github.io/prism.tools/" target="_blank" style="color: #a78bfa;">GitHub Pages</a> • Netlify: Coming Soon
+    </p>
+  </footer>
+
+  <script>
+    const tools = [
+      // Formatters & Parsers
+      { id: 'code-formatter', name: 'Code Formatter', icon: '📋', description: 'Format & beautify code', color: '#a78bfa', file: 'tools/code-formatter.html', category: 'formatters' },
+      { id: 'json-formatter', name: 'JSON Formatter', icon: '📋', description: 'Format & validate JSON', color: '#FFA500', file: 'tools/json-formatter.html', category: 'formatters' },
+      { id: 'sql-formatter', name: 'SQL Formatter', icon: '🗄️', description: 'Format SQL queries', color: '#82AAFF', file: 'tools/sql-formatter.html', category: 'formatters' },
+      { id: 'yaml-json-converter', name: 'YAML ↔ JSON', icon: '🔄', description: 'Convert YAML & JSON', color: '#FFB86C', file: 'tools/yaml-json-converter.html', category: 'formatters' },
+      { id: 'curl-to-fetch', name: 'CURL to Fetch', icon: '🔄', description: 'Convert CURL to JS', color: '#ec4899', file: 'tools/curl-to-fetch.html', category: 'formatters' },
+      
+      // Security & Dev
+      { id: 'jwt-decoder', name: 'JWT Decoder', icon: '🎫', description: 'Decode JWT tokens', color: '#6BCF7F', file: 'tools/jwt-decoder.html', category: 'security' },
+      { id: 'password-generator', name: 'Password', icon: '🔐', description: 'Generate secure passwords', color: '#FF5555', file: 'tools/password-generator.html', category: 'security' },
+      { id: 'hash-generator', name: 'Hash Generator', icon: '🔒', description: 'MD5, SHA-256, SHA-512', color: '#FFD93D', file: 'tools/hash-generator.html', category: 'security' },
+      { id: 'uuid-generator', name: 'UUID Generator', icon: '🆔', description: 'Generate UUIDs v1/v4', color: '#82AAFF', file: 'tools/uuid-generator.html', category: 'security' },
+      { id: 'subnet-calculator', name: 'Subnet Calculator', icon: '🌐', description: 'IP & network calculations', color: '#3b82f6', file: 'tools/subnet-calculator.html', category: 'security' },
+      
+      // Visual & CSS
+      { id: 'svg-editor', name: 'SVG Editor', icon: '🎨', description: 'Create & edit SVG graphics', color: '#a78bfa', file: 'tools/svg-editor.html', category: 'visual' },
+      { id: 'css-gradient-generator', name: 'CSS Gradient', icon: '🌈', description: 'Create CSS gradients', color: '#FF6B9D', file: 'tools/css-gradient-generator.html', category: 'visual' },
+      { id: 'css-shadow-generator', name: 'CSS Shadow', icon: '💎', description: 'Create box shadows', color: '#BD93F9', file: 'tools/css-shadow-generator.html', category: 'visual' },
+      { id: 'clippath-maker', name: 'Clip-path Maker', icon: '✂️', description: 'Create polygon clip-paths', color: '#89DDFF', file: 'tools/clippath-maker.html', category: 'visual' },
+      { id: 'glassmorphism-generator', name: 'Glassmorphism', icon: '💎', description: 'Frosted glass effects', color: '#FFCB6B', file: 'tools/glassmorphism-generator.html', category: 'visual' },
+      { id: 'favicon-generator', name: 'Favicon Generator', icon: '📱', description: 'Create favicons', color: '#C77DFF', file: 'tools/favicon-generator.html', category: 'visual' },
+      { id: 'color-converter', name: 'Color Converter', icon: '🎨', description: 'HEX, RGB, HSL converter', color: '#FF6B9D', file: 'tools/color-converter.html', category: 'visual' },
+      
+      // Generators & Content
+      { id: 'lorem-ipsum', name: 'Lorem Ipsum', icon: '📄', description: 'Generate placeholder text', color: '#FF79C6', file: 'tools/lorem-ipsum.html', category: 'generators' },
+      { id: 'random-data', name: 'Random Data', icon: '🎲', description: 'Generate test data', color: '#F1FA8C', file: 'tools/random-data.html', category: 'generators' },
+      { id: 'qr-generator', name: 'QR Code', icon: '📱', description: 'Generate QR codes', color: '#C77DFF', file: 'tools/qr-generator.html', category: 'generators' },
+      { id: 'ascii-art-generator', name: 'ASCII Art', icon: '🎨', description: 'Convert images to ASCII', color: '#50FA7B', file: 'tools/ascii-art-generator.html', category: 'generators' },
+      { id: 'slug-generator', name: 'Slug Generator', icon: '🔗', description: 'Generate URL-safe slugs', color: '#8BE9FD', file: 'tools/slug-generator.html', category: 'generators' },
+      { id: 'meta-tag-generator', name: 'Meta Tags', icon: '🏷️', description: 'Generate SEO meta tags', color: '#FF79C6', file: 'tools/meta-tag-generator.html', category: 'generators' },
+      { id: 'robots-txt-generator', name: 'Robots.txt', icon: '🤖', description: 'Generate robots.txt', color: '#50FA7B', file: 'tools/robots-txt-generator.html', category: 'generators' },
+      
+      // Encoders & Transformers
+      { id: 'base64', name: 'Base64', icon: '📄', description: 'Encode/decode Base64', color: '#4ECDC4', file: 'tools/base64.html', category: 'encoders' },
+      { id: 'url-encoder', name: 'URL Encoder', icon: '🔗', description: 'Encode/decode URLs', color: '#8BE9FD', file: 'tools/url-encoder.html', category: 'encoders' },
+      { id: 'html-encoder', name: 'HTML Encoder', icon: '🏷️', description: 'Encode/decode HTML entities', color: '#FFCB6B', file: 'tools/html-encoder.html', category: 'encoders' },
+      { id: 'case-converter', name: 'Case Converter', icon: '🔤', description: 'Convert text case', color: '#C3E88D', file: 'tools/case-converter.html', category: 'encoders' },
+      { id: 'string-escaper', name: 'String Escaper', icon: '🔤', description: 'Escape strings for code', color: '#C3E88D', file: 'tools/string-escaper.html', category: 'encoders' },
+      { id: 'minifier', name: 'Minifier', icon: '📦', description: 'Minify CSS/JS/HTML', color: '#BD93F9', file: 'tools/minifier.html', category: 'encoders' },
+      { id: 'timestamp-converter', name: 'Timestamp', icon: '⏰', description: 'Unix timestamp converter', color: '#FFB86C', file: 'tools/timestamp-converter.html', category: 'encoders' },
+      { id: 'list-sorter', name: 'List Sorter', icon: '📋', description: 'Sort & filter lists', color: '#F1FA8C', file: 'tools/list-sorter.html', category: 'encoders' },
+      
+      // Other tools
+      { id: 'regex-tester', name: 'Regex Tester', icon: '🎯', description: 'Test regex patterns', color: '#A78BFA', file: 'tools/regex-tester.html', category: 'encoders' },
+      { id: 'diff-checker', name: 'Diff Checker', icon: '⚖️', description: 'Compare text differences', color: '#FF6B6B', file: 'tools/diff-checker.html', category: 'encoders' },
+      { id: 'markdown-preview', name: 'Markdown', icon: '📝', description: 'Live markdown preview', color: '#50FA7B', file: 'tools/markdown-preview.html', category: 'encoders' },
+      { id: 'image-tools', name: 'Image Tools', icon: '🖼️', description: 'Resize, convert images', color: '#F07178', file: 'tools/image-tools.html', category: 'visual' },
+      { id: 'cron-builder', name: 'Cron Builder', icon: '⏱️', description: 'Build cron expressions', color: '#89DDFF', file: 'tools/cron-builder.html', category: 'security' },
+      { id: 'unit-converter', name: 'Unit Converter', icon: '📏', description: 'Convert units', color: '#10b981', file: 'tools/unit-converter.html', category: 'encoders' }
+    ];
+
+    const categoryTitles = {
+      all: '🛠️ All Tools',
+      formatters: '📋 Formatters & Parsers',
+      security: '🔒 Security & Dev',
+      visual: '🎨 Visual & CSS',
+      generators: '✨ Generators & Content',
+      encoders: '🔄 Encoders & Transformers'
+    };
+
+    let currentCategory = 'all';
+
+    function loadTools(category = 'all') {
+      const grid = document.getElementById('tools');
+      const filtered = category === 'all' ? tools : tools.filter(t => t.category === category);
+      
+      grid.innerHTML = filtered.map(tool => `
+        <a href="${tool.file}" class="tool-card" style="--tool-color: ${tool.color};" onclick="addToRecent('${tool.id}')">
+          <div class="tool-header-mini">
+            <div class="tool-icon">${tool.icon}</div>
+            <div class="tool-name">${tool.name}</div>
+          </div>
+          <div class="tool-desc">${tool.description}</div>
+          <div class="tool-actions">
+            <button class="tool-action-btn" onclick="copyToolLink(event, '${tool.file}')">🔗 Link</button>
+          </div>
+        </a>
+      `).join('');
+      
+      document.getElementById('tools-count').textContent = tools.length;
+      document.getElementById('category-title').textContent = categoryTitles[category];
+    }
+
+    function copyToolLink(event, file) {
+      event.preventDefault();
+      event.stopPropagation();
+      const url = window.location.origin + window.location.pathname.replace('index.html', '') + file;
+      navigator.clipboard.writeText(url).then(() => {
+        showToast('Link copied to clipboard!');
+      });
+    }
+
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2000);
+    }
+
+    function addToRecent(toolId) {
+      let recent = JSON.parse(localStorage.getItem('prism-recent-tools') || '[]');
+      recent = recent.filter(id => id !== toolId);
+      recent.unshift(toolId);
+      recent = recent.slice(0, 5);
+      localStorage.setItem('prism-recent-tools', JSON.stringify(recent));
+    }
+
+    function loadRecentTools() {
+      const recent = JSON.parse(localStorage.getItem('prism-recent-tools') || '[]');
+      const container = document.getElementById('recent-tools');
+      
+      if (recent.length === 0) {
+        container.innerHTML = '<p style="color: #71717a; font-size: 0.75rem; text-align: center;">No recent tools</p>';
+        return;
+      }
+      
+      container.innerHTML = recent.map(id => {
+        const tool = tools.find(t => t.id === id);
+        if (!tool) return '';
+        return `
+          <a href="${tool.file}" class="recent-tool" onclick="addToRecent('${tool.id}')">
+            <span class="recent-tool-icon">${tool.icon}</span>
+            <span class="recent-tool-name">${tool.name}</span>
+          </a>
+        `;
+      }).join('');
+    }
+
+    // Category filtering
+    document.querySelectorAll('.category-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentCategory = btn.dataset.category;
+        loadTools(currentCategory);
+      });
+    });
+
+    // Search functionality
+    document.getElementById('tool-search').addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      const cards = document.querySelectorAll('.tool-card');
+      
+      cards.forEach(card => {
+      const name = card.querySelector('.tool-name').textContent.toLowerCase();
+      const desc = card.querySelector('.tool-desc').textContent.toLowerCase();
+      card.style.display = (name.includes(query) || desc.includes(query)) ? 'flex' : 'none';
+      });
+    });
+	
+	// Keyboard shortcut: / to focus search
+    document.addEventListener('keydown', (e) => {
+      if (e.key === '/' && !['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
+        e.preventDefault();
+        document.getElementById('tool-search').focus();
+      }
+    });
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+      
+      if (count >= 5) {
+        document.getElementById('usage-stats').style.display = 'flex';
+        document.getElementById('usage-count').textContent = count;
+      }
+    }
+
+    function showSupporters() {
+      alert('💜 Thank you to all our supporters!\n\nYour contributions help keep Prism.Tools free and ad-free for everyone.');
+    }
+
+    // Initialize
+    loadTools();
+    loadRecentTools();
+    trackUsage();
+	
+</script>
+</body>
 </html>
