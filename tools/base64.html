@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Base64 Encoder/Decoder - Prism.Tools</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #e4e4e7; }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #4ECDC4;
+    }
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    .tool-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .panel-header {
+      background: #1f1f23;
+      padding: 0.625rem 0.875rem;
+      border-bottom: 1px solid #27272a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .panel-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #a1a1aa;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .panel-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn-small {
+      padding: 0.25rem 0.625rem;
+      background: rgba(78, 205, 196, 0.1);
+      border: 1px solid rgba(78, 205, 196, 0.3);
+      color: #4ECDC4;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .btn-small:hover {
+      background: rgba(78, 205, 196, 0.2);
+      transform: translateY(-1px);
+    }
+    textarea {
+      width: 100%;
+      min-height: 300px;
+      padding: 0.875rem;
+      background: #0a0a0f;
+      border: none;
+      color: #e4e4e7;
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
+      font-size: 0.8rem;
+      resize: vertical;
+      line-height: 1.5;
+    }
+    textarea:focus { outline: none; }
+    textarea::placeholder { color: #52525b; }
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      margin: 1rem 0;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 0.625rem 1.25rem;
+      background: #4ECDC4;
+      color: #0a0a0f;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+    }
+    .btn-secondary {
+      background: rgba(78, 205, 196, 0.1);
+      color: #4ECDC4;
+      border: 1px solid rgba(78, 205, 196, 0.3);
+    }
+    .info-bar {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: 0.75rem;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    .info-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+    }
+    .info-label {
+      color: #71717a;
+    }
+    .info-value {
+      color: #4ECDC4;
+      font-weight: 600;
+      font-family: monospace;
+    }
+    .shortcuts {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 0.875rem;
+      margin-top: 1rem;
+    }
+    .shortcuts h3 {
+      font-size: 0.875rem;
+      color: #a1a1aa;
+      margin-bottom: 0.625rem;
+    }
+    .shortcut-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.5rem;
+    }
+    .shortcut-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: #a1a1aa;
+    }
+    .key {
+      background: #27272a;
+      padding: 0.15rem 0.4rem;
+      border-radius: 3px;
+      font-family: monospace;
+      font-size: 0.7rem;
+      color: #4ECDC4;
+    }
+    .file-drop-zone {
+      border: 2px dashed #27272a;
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      color: #71717a;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin: 1rem 0;
+    }
+    .file-drop-zone:hover {
+      border-color: #4ECDC4;
+      background: rgba(78, 205, 196, 0.05);
+    }
+    .file-drop-zone.drag-over {
+      border-color: #4ECDC4;
+      background: rgba(78, 205, 196, 0.1);
+    }
+    @media (max-width: 768px) {
+      .tool-wrapper {
+        grid-template-columns: 1fr;
+      }
+      textarea {
+        min-height: 200px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>🔄 Base64 Encoder/Decoder</h1>
+      <p>Encode and decode Base64 strings • Supports text and files</p>
+    </div>
+
+    <div class="info-bar">
+      <div class="info-item">
+        <span class="info-label">Input:</span>
+        <span class="info-value" id="input-size">0 bytes</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Output:</span>
+        <span class="info-value" id="output-size">0 bytes</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Size Change:</span>
+        <span class="info-value" id="size-change">-</span>
+      </div>
+    </div>
+
+    <div class="tool-wrapper">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Input</span>
+          <div class="panel-actions">
+            <button class="btn-small" onclick="pasteFromClipboard()">📋 Paste</button>
+            <button class="btn-small" onclick="clearInput()">🗑️ Clear</button>
+          </div>
+        </div>
+        <textarea id="input" placeholder="Enter text to encode or Base64 to decode..."></textarea>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Output</span>
+          <div class="panel-actions">
+            <button class="btn-small" onclick="copyOutput()">📋 Copy</button>
+            <button class="btn-small" onclick="downloadOutput()">💾 Download</button>
+          </div>
+        </div>
+        <textarea id="output" placeholder="Result will appear here..." readonly></textarea>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn" onclick="encode()">➡️ Encode to Base64</button>
+      <button class="btn" onclick="decode()">⬅️ Decode from Base64</button>
+      <button class="btn btn-secondary" onclick="swapInputOutput()">🔄 Swap</button>
+    </div>
+
+    <div class="file-drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+      <div style="font-size: 2rem; margin-bottom: 0.5rem;">📁</div>
+      <div>Drop a file here or click to select</div>
+      <div style="font-size: 0.75rem; margin-top: 0.25rem; color: #52525b;">Encode any file to Base64</div>
+      <input type="file" id="file-input" style="display: none;" onchange="handleFile(event)">
+    </div>
+
+    <div class="shortcuts">
+      <h3>⌨️ Keyboard Shortcuts</h3>
+      <div class="shortcut-grid">
+        <div class="shortcut-item">
+          <span>Encode</span>
+          <span><span class="key">Ctrl</span> + <span class="key">E</span></span>
+        </div>
+        <div class="shortcut-item">
+          <span>Decode</span>
+          <span><span class="key">Ctrl</span> + <span class="key">D</span></span>
+        </div>
+        <div class="shortcut-item">
+          <span>Copy Output</span>
+          <span><span class="key">Ctrl</span> + <span class="key">Shift</span> + <span class="key">C</span></span>
+        </div>
+        <div class="shortcut-item">
+          <span>Swap Panels</span>
+          <span><span class="key">Ctrl</span> + <span class="key">S</span></span>
+        </div>
+        <div class="shortcut-item">
+          <span>Clear Input</span>
+          <span><span class="key">Ctrl</span> + <span class="key">K</span></span>
+        </div>
+        <div class="shortcut-item">
+          <span>Focus Input</span>
+          <span><span class="key">Ctrl</span> + <span class="key">I</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const inputEl = document.getElementById('input');
+    const outputEl = document.getElementById('output');
+    const dropZone = document.getElementById('drop-zone');
+
+    function updateStats() {
+      const inputSize = new Blob([inputEl.value]).size;
+      const outputSize = new Blob([outputEl.value]).size;
+      
+      document.getElementById('input-size').textContent = formatBytes(inputSize);
+      document.getElementById('output-size').textContent = formatBytes(outputSize);
+      
+      if (inputSize > 0 && outputSize > 0) {
+        const change = ((outputSize - inputSize) / inputSize * 100).toFixed(1);
+        document.getElementById('size-change').textContent = (change > 0 ? '+' : '') + change + '%';
+      } else {
+        document.getElementById('size-change').textContent = '-';
+      }
+    }
+
+    function formatBytes(bytes) {
+      if (bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return (bytes / Math.pow(k, i)).toFixed(1) + ' ' + sizes[i];
+    }
+
+    function encode() {
+      const input = inputEl.value;
+      if (!input) {
+        alert('Please enter text to encode');
+        return;
+      }
+      
+      try {
+        outputEl.value = btoa(unescape(encodeURIComponent(input)));
+        updateStats();
+        trackUsage();
+      } catch (e) {
+        alert('Error encoding: ' + e.message);
+      }
+    }
+
+    function decode() {
+      const input = inputEl.value;
+      if (!input) {
+        alert('Please enter Base64 to decode');
+        return;
+      }
+      
+      try {
+        outputEl.value = decodeURIComponent(escape(atob(input)));
+        updateStats();
+        trackUsage();
+      } catch (e) {
+        alert('Invalid Base64 string');
+      }
+    }
+
+    function swapInputOutput() {
+      const temp = inputEl.value;
+      inputEl.value = outputEl.value;
+      outputEl.value = temp;
+      updateStats();
+    }
+
+    function clearInput() {
+      inputEl.value = '';
+      outputEl.value = '';
+      updateStats();
+    }
+
+    async function pasteFromClipboard() {
+      try {
+        const text = await navigator.clipboard.readText();
+        inputEl.value = text;
+        updateStats();
+      } catch (e) {
+        alert('Could not paste from clipboard');
+      }
+    }
+
+    function copyOutput() {
+      if (!outputEl.value) {
+        alert('Nothing to copy');
+        return;
+      }
+      
+      navigator.clipboard.writeText(outputEl.value).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      });
+    }
+
+    function downloadOutput() {
+      if (!outputEl.value) {
+        alert('Nothing to download');
+        return;
+      }
+      
+      const blob = new Blob([outputEl.value], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'base64-output.txt';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function handleFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const base64 = btoa(
+          new Uint8Array(e.target.result)
+            .reduce((data, byte) => data + String.fromCharCode(byte), '')
+        );
+        outputEl.value = base64;
+        inputEl.value = `File: ${file.name} (${formatBytes(file.size)})`;
+        updateStats();
+        trackUsage();
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    // Drag and drop
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('drag-over');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('drag-over');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        const fakeEvent = { target: { files: [file] } };
+        handleFile(fakeEvent);
+      }
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === 'e') {
+          e.preventDefault();
+          encode();
+        } else if (e.key === 'd') {
+          e.preventDefault();
+          decode();
+        } else if (e.key === 's') {
+          e.preventDefault();
+          swapInputOutput();
+        } else if (e.key === 'k') {
+          e.preventDefault();
+          clearInput();
+        } else if (e.key === 'i') {
+          e.preventDefault();
+          inputEl.focus();
+        } else if (e.shiftKey && e.key === 'C') {
+          e.preventDefault();
+          copyOutput();
+        }
+      }
+    });
+
+    // Auto-update stats on input
+    inputEl.addEventListener('input', updateStats);
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    inputEl.focus();
+  </script>
+</body>
+</html>

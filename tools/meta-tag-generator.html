@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meta Tag Generator - Prism.Tools</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #FF79C6 0%, #BD93F9 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #e4e4e7; }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #FF79C6;
+    }
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+    }
+    .tab {
+      padding: 0.625rem 1.25rem;
+      background: rgba(255, 121, 198, 0.1);
+      border: 1px solid rgba(255, 121, 198, 0.3);
+      color: #FF79C6;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .tab:hover {
+      background: rgba(255, 121, 198, 0.2);
+    }
+    .tab.active {
+      background: #FF79C6;
+      color: #0a0a0f;
+      border-color: #FF79C6;
+    }
+    .section {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      display: none;
+    }
+    .section.active {
+      display: block;
+    }
+    .section-header {
+      background: #1f1f23;
+      padding: 0.75rem 0.875rem;
+      border-bottom: 1px solid #27272a;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #FF79C6;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .section-content {
+      padding: 1rem;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #a1a1aa;
+      margin-bottom: 0.4rem;
+    }
+    input[type="text"], input[type="url"], textarea, select {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-size: 0.85rem;
+      font-family: inherit;
+    }
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: #FF79C6;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+      line-height: 1.5;
+    }
+    .help-text {
+      font-size: 0.75rem;
+      color: #71717a;
+      margin-top: 0.25rem;
+      font-style: italic;
+    }
+    .char-counter {
+      font-size: 0.75rem;
+      color: #71717a;
+      text-align: right;
+      margin-top: 0.25rem;
+    }
+    .char-counter.warning {
+      color: #FFB86C;
+    }
+    .char-counter.error {
+      color: #FF5555;
+    }
+    .output-panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 1rem;
+    }
+    .output-header {
+      background: #1f1f23;
+      padding: 0.625rem 0.875rem;
+      border-bottom: 1px solid #27272a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .output-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #FF79C6;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .panel-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn-small {
+      padding: 0.25rem 0.625rem;
+      background: rgba(255, 121, 198, 0.1);
+      border: 1px solid rgba(255, 121, 198, 0.3);
+      color: #FF79C6;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .btn-small:hover {
+      background: rgba(255, 121, 198, 0.2);
+    }
+    .output-code {
+      padding: 1rem;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .preview-section {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .preview-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #FF79C6;
+      margin-bottom: 0.75rem;
+    }
+    .preview-card {
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .preview-image {
+      width: 100%;
+      height: 200px;
+      background: #18181b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #71717a;
+      font-size: 0.85rem;
+      border-bottom: 1px solid #27272a;
+    }
+    .preview-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .preview-content {
+      padding: 1rem;
+    }
+    .preview-url {
+      font-size: 0.75rem;
+      color: #71717a;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+    }
+    .preview-heading {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #e4e4e7;
+      margin-bottom: 0.5rem;
+      line-height: 1.3;
+    }
+    .preview-desc {
+      font-size: 0.85rem;
+      color: #a1a1aa;
+      line-height: 1.5;
+    }
+    .templates {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+    .template-btn {
+      padding: 0.5rem 0.875rem;
+      background: rgba(255, 121, 198, 0.1);
+      border: 1px solid rgba(255, 121, 198, 0.3);
+      color: #FF79C6;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .template-btn:hover {
+      background: rgba(255, 121, 198, 0.2);
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    @media (max-width: 768px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+      .tabs {
+        flex-wrap: nowrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>🏷️ Meta Tag Generator</h1>
+      <p>Generate SEO and social media meta tags for your website</p>
+    </div>
+
+    <div class="templates">
+      <button class="template-btn" onclick="loadTemplate('blog')">📝 Blog Post</button>
+      <button class="template-btn" onclick="loadTemplate('product')">🛒 Product Page</button>
+      <button class="template-btn" onclick="loadTemplate('homepage')">🏠 Homepage</button>
+      <button class="template-btn" onclick="loadTemplate('article')">📰 Article</button>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('basic')">Basic SEO</button>
+      <button class="tab" onclick="switchTab('og')">Open Graph</button>
+      <button class="tab" onclick="switchTab('twitter')">Twitter Card</button>
+      <button class="tab" onclick="switchTab('advanced')">Advanced</button>
+    </div>
+
+    <div id="basic-section" class="section active">
+      <div class="section-header">Basic SEO Meta Tags</div>
+      <div class="section-content">
+        <div class="form-group">
+          <label class="form-label">Page Title *</label>
+          <input type="text" id="title" placeholder="Your Awesome Page Title" maxlength="70" oninput="updatePreview(); updateCounter('title', 60, 70)">
+          <div class="char-counter" id="title-counter">0 / 60-70 characters (optimal for SEO)</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Meta Description *</label>
+          <textarea id="description" placeholder="A compelling description of your page content that encourages clicks..." maxlength="160" oninput="updatePreview(); updateCounter('description', 150, 160)"></textarea>
+          <div class="char-counter" id="description-counter">0 / 150-160 characters (optimal for SEO)</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Keywords (comma-separated)</label>
+          <input type="text" id="keywords" placeholder="web development, seo, meta tags" oninput="updatePreview()">
+          <div class="help-text">Modern SEO doesn't rely heavily on keywords, but some CMS still use them</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Author</label>
+          <input type="text" id="author" placeholder="John Doe" oninput="updatePreview()">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Canonical URL</label>
+          <input type="url" id="canonical" placeholder="https://example.com/page" oninput="updatePreview()">
+          <div class="help-text">Prevents duplicate content issues</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="og-section" class="section">
+      <div class="section-header">Open Graph (Facebook, LinkedIn)</div>
+      <div class="section-content">
+        <div class="form-group">
+          <label class="form-label">OG Title</label>
+          <input type="text" id="og-title" placeholder="Uses page title if empty" oninput="updatePreview()">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">OG Description</label>
+          <textarea id="og-description" placeholder="Uses meta description if empty" oninput="updatePreview()"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">OG Image URL *</label>
+          <input type="url" id="og-image" placeholder="https://example.com/image.jpg" oninput="updatePreview()">
+          <div class="help-text">Recommended: 1200x630px, max 8MB</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">OG URL</label>
+          <input type="url" id="og-url" placeholder="https://example.com/page" oninput="updatePreview()">
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">OG Type</label>
+            <select id="og-type" onchange="updatePreview()">
+              <option value="website">Website</option>
+              <option value="article">Article</option>
+              <option value="product">Product</option>
+              <option value="video">Video</option>
+              <option value="book">Book</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">OG Locale</label>
+            <input type="text" id="og-locale" value="en_US" oninput="updatePreview()">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Site Name</label>
+          <input type="text" id="og-site-name" placeholder="Your Site Name" oninput="updatePreview()">
+        </div>
+      </div>
+    </div>
+
+    <div id="twitter-section" class="section">
+      <div class="section-header">Twitter Card</div>
+      <div class="section-content">
+        <div class="form-group">
+          <label class="form-label">Card Type</label>
+          <select id="twitter-card" onchange="updatePreview()">
+            <option value="summary">Summary</option>
+            <option value="summary_large_image">Summary Large Image</option>
+            <option value="app">App</option>
+            <option value="player">Player</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Twitter Title</label>
+          <input type="text" id="twitter-title" placeholder="Uses OG title if empty" oninput="updatePreview()">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Twitter Description</label>
+          <textarea id="twitter-description" placeholder="Uses OG description if empty" oninput="updatePreview()"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Twitter Image URL</label>
+          <input type="url" id="twitter-image" placeholder="Uses OG image if empty" oninput="updatePreview()">
+          <div class="help-text">Recommended: 1200x628px for large card, 120x120px for summary</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Twitter Handle</label>
+          <input type="text" id="twitter-site" placeholder="@yourhandle" oninput="updatePreview()">
+          <div class="help-text">Your site's Twitter username</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Creator Handle</label>
+          <input type="text" id="twitter-creator" placeholder="@creatorhandle" oninput="updatePreview()">
+        </div>
+      </div>
+    </div>
+
+    <div id="advanced-section" class="section">
+      <div class="section-header">Advanced Meta Tags</div>
+      <div class="section-content">
+        <div class="form-group">
+          <label class="form-label">Robots</label>
+          <select id="robots" onchange="updatePreview()">
+            <option value="index, follow">Index, Follow (default)</option>
+            <option value="noindex, follow">No Index, Follow</option>
+            <option value="index, nofollow">Index, No Follow</option>
+            <option value="noindex, nofollow">No Index, No Follow</option>
+          </select>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Theme Color</label>
+            <input type="text" id="theme-color" value="#FF79C6" oninput="updatePreview()">
+            <div class="help-text">Mobile browser address bar color</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Viewport</label>
+            <input type="text" id="viewport" value="width=device-width, initial-scale=1.0" oninput="updatePreview()">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Charset</label>
+          <input type="text" id="charset" value="UTF-8" oninput="updatePreview()">
+        </div>
+      </div>
+    </div>
+
+    <div class="preview-section">
+      <div class="preview-title">Social Media Preview</div>
+      <div class="preview-card">
+        <div class="preview-image" id="preview-image">
+          No image set
+        </div>
+        <div class="preview-content">
+          <div class="preview-url" id="preview-domain">example.com</div>
+          <div class="preview-heading" id="preview-title">Your Page Title</div>
+          <div class="preview-desc" id="preview-desc">Your compelling description will appear here...</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="output-panel">
+      <div class="output-header">
+        <span class="output-title">Generated Meta Tags</span>
+        <div class="panel-actions">
+          <button class="btn-small" onclick="copyTags()">📋 Copy</button>
+          <button class="btn-small" onclick="downloadTags()">💾 Download</button>
+        </div>
+      </div>
+      <pre class="output-code" id="output"><!-- Basic Meta Tags -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"></pre>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById(tab + '-section').classList.add('active');
+    }
+
+    function updateCounter(field, min, max) {
+      const input = document.getElementById(field);
+      const counter = document.getElementById(field + '-counter');
+      const len = input.value.length;
+      
+      counter.textContent = `${len} / ${min}-${max} characters (optimal for SEO)`;
+      counter.classList.remove('warning', 'error');
+      
+      if (len < min) {
+        counter.classList.add('warning');
+      } else if (len > max) {
+        counter.classList.add('error');
+      }
+    }
+
+    function updatePreview() {
+      const title = document.getElementById('title').value || 'Your Page Title';
+      const description = document.getElementById('description').value || 'Your compelling description will appear here...';
+      const ogImage = document.getElementById('og-image').value;
+      const ogUrl = document.getElementById('og-url').value || document.getElementById('canonical').value;
+
+      // Update preview card
+      document.getElementById('preview-title').textContent = 
+        document.getElementById('og-title').value || title;
+      document.getElementById('preview-desc').textContent = 
+        document.getElementById('og-description').value || description;
+      
+      const previewImage = document.getElementById('preview-image');
+      if (ogImage) {
+        previewImage.innerHTML = `<img src="${ogImage}" alt="Preview">`;
+      } else {
+        previewImage.textContent = 'No image set';
+      }
+
+      if (ogUrl) {
+        try {
+          const url = new URL(ogUrl);
+          document.getElementById('preview-domain').textContent = url.hostname.toUpperCase();
+        } catch(e) {
+          document.getElementById('preview-domain').textContent = 'EXAMPLE.COM';
+        }
+      }
+
+      generateTags();
+    }
+
+    function generateTags() {
+      let html = '<!-- Basic Meta Tags -->\n';
+      
+      const charset = document.getElementById('charset').value;
+      if (charset) html += `<meta charset="${charset}">\n`;
+      
+      const viewport = document.getElementById('viewport').value;
+      if (viewport) html += `<meta name="viewport" content="${viewport}">\n`;
+      
+      const title = document.getElementById('title').value;
+      if (title) html += `<title>${title}</title>\n`;
+      
+      const description = document.getElementById('description').value;
+      if (description) html += `<meta name="description" content="${description}">\n`;
+      
+      const keywords = document.getElementById('keywords').value;
+      if (keywords) html += `<meta name="keywords" content="${keywords}">\n`;
+      
+      const author = document.getElementById('author').value;
+      if (author) html += `<meta name="author" content="${author}">\n`;
+      
+      const robots = document.getElementById('robots').value;
+      if (robots) html += `<meta name="robots" content="${robots}">\n`;
+      
+      const themeColor = document.getElementById('theme-color').value;
+      if (themeColor) html += `<meta name="theme-color" content="${themeColor}">\n`;
+      
+      const canonical = document.getElementById('canonical').value;
+      if (canonical) html += `<link rel="canonical" href="${canonical}">\n`;
+
+      // Open Graph
+      const ogTitle = document.getElementById('og-title').value || title;
+      const ogDesc = document.getElementById('og-description').value || description;
+      const ogImage = document.getElementById('og-image').value;
+      const ogUrl = document.getElementById('og-url').value;
+      const ogType = document.getElementById('og-type').value;
+      const ogLocale = document.getElementById('og-locale').value;
+      const ogSiteName = document.getElementById('og-site-name').value;
+
+      if (ogTitle || ogDesc || ogImage) {
+        html += '\n<!-- Open Graph -->\n';
+        if (ogTitle) html += `<meta property="og:title" content="${ogTitle}">\n`;
+        if (ogDesc) html += `<meta property="og:description" content="${ogDesc}">\n`;
+        if (ogImage) html += `<meta property="og:image" content="${ogImage}">\n`;
+        if (ogUrl) html += `<meta property="og:url" content="${ogUrl}">\n`;
+        if (ogType) html += `<meta property="og:type" content="${ogType}">\n`;
+        if (ogLocale) html += `<meta property="og:locale" content="${ogLocale}">\n`;
+        if (ogSiteName) html += `<meta property="og:site_name" content="${ogSiteName}">\n`;
+      }
+
+      // Twitter
+      const twitterCard = document.getElementById('twitter-card').value;
+      const twitterTitle = document.getElementById('twitter-title').value || ogTitle;
+      const twitterDesc = document.getElementById('twitter-description').value || ogDesc;
+      const twitterImage = document.getElementById('twitter-image').value || ogImage;
+      const twitterSite = document.getElementById('twitter-site').value;
+      const twitterCreator = document.getElementById('twitter-creator').value;
+
+      if (twitterCard || twitterTitle || twitterDesc || twitterImage) {
+        html += '\n<!-- Twitter Card -->\n';
+        if (twitterCard) html += `<meta name="twitter:card" content="${twitterCard}">\n`;
+        if (twitterTitle) html += `<meta name="twitter:title" content="${twitterTitle}">\n`;
+        if (twitterDesc) html += `<meta name="twitter:description" content="${twitterDesc}">\n`;
+        if (twitterImage) html += `<meta name="twitter:image" content="${twitterImage}">\n`;
+        if (twitterSite) html += `<meta name="twitter:site" content="${twitterSite}">\n`;
+        if (twitterCreator) html += `<meta name="twitter:creator" content="${twitterCreator}">\n`;
+      }
+
+      document.getElementById('output').textContent = html;
+      trackUsage();
+    }
+
+    function loadTemplate(type) {
+      if (type === 'blog') {
+        document.getElementById('title').value = 'How to Build Modern Web Applications in 2025';
+        document.getElementById('description').value = 'Learn the latest techniques and best practices for building scalable, performant web applications using modern frameworks and tools.';
+        document.getElementById('keywords').value = 'web development, react, javascript, tutorial';
+        document.getElementById('author').value = 'Jane Developer';
+        document.getElementById('og-type').value = 'article';
+        document.getElementById('og-image').value = 'https://example.com/images/blog-post.jpg';
+        document.getElementById('twitter-card').value = 'summary_large_image';
+      } else if (type === 'product') {
+        document.getElementById('title').value = 'Premium Wireless Headphones - High Quality Audio';
+        document.getElementById('description').value = 'Experience crystal-clear sound with our premium wireless headphones. 40-hour battery life, noise cancellation, and comfortable design.';
+        document.getElementById('keywords').value = 'headphones, wireless, audio, electronics';
+        document.getElementById('og-type').value = 'product';
+        document.getElementById('og-image').value = 'https://example.com/images/product.jpg';
+        document.getElementById('twitter-card').value = 'summary_large_image';
+      } else if (type === 'homepage') {
+        document.getElementById('title').value = 'Welcome to Amazing Company - Innovation in Tech';
+        document.getElementById('description').value = 'We create cutting-edge technology solutions that empower businesses to thrive in the digital age. Discover our products and services.';
+        document.getElementById('keywords').value = 'technology, innovation, business solutions';
+        document.getElementById('og-type').value = 'website';
+        document.getElementById('og-site-name').value = 'Amazing Company';
+        document.getElementById('og-image').value = 'https://example.com/images/og-image.jpg';
+      } else if (type === 'article') {
+        document.getElementById('title').value = 'The Future of Artificial Intelligence: What to Expect';
+        document.getElementById('description').value = 'Explore the latest developments in AI technology and how they will shape our future. Expert insights and analysis from industry leaders.';
+        document.getElementById('keywords').value = 'artificial intelligence, AI, technology, future';
+        document.getElementById('author').value = 'Tech Writer';
+        document.getElementById('og-type').value = 'article';
+        document.getElementById('og-image').value = 'https://example.com/images/ai-article.jpg';
+        document.getElementById('twitter-card').value = 'summary_large_image';
+      }
+
+      updateCounter('title', 60, 70);
+      updateCounter('description', 150, 160);
+      updatePreview();
+    }
+
+    function copyTags() {
+      const text = document.getElementById('output').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      });
+    }
+
+    function downloadTags() {
+      const text = document.getElementById('output').textContent;
+      const blob = new Blob([text], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'meta-tags.html';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    // Initialize
+    updatePreview();
+  </script>
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IPv4 Subnet Calculator - Prism.Tools</title>
+  <style>
+    /* Prism.Tools Core Styles */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+    }
+
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #3b82f6 0%, #2dd4bf 100%); /* Cyber Blue Theme */
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+
+    .tool-wrapper {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      flex-grow: 1;
+      width: 100%;
+    }
+
+    .tool-header h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #ffffff 0%, #3b82f6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .calc-container {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .card {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .input-group { margin-bottom: 1.2rem; }
+    
+    label {
+      display: block;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #71717a;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    input, select {
+      width: 100%;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      color: #e4e4e7;
+      padding: 0.8rem;
+      border-radius: 6px;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    input:focus { border-color: #3b82f6; }
+
+    .results-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .results-table tr {
+      border-bottom: 1px solid #27272a;
+    }
+
+    .results-table td {
+      padding: 0.75rem 0;
+    }
+
+    .res-label { color: #71717a; font-size: 0.85rem; width: 40%; }
+    .res-value { font-family: monospace; color: #3b82f6; font-weight: 600; text-align: right; }
+
+    .binary-display {
+      margin-top: 1rem;
+      font-size: 0.75rem;
+      color: #52525b;
+      font-family: monospace;
+      word-break: break-all;
+      background: #0a0a0f;
+      padding: 0.5rem;
+      border-radius: 4px;
+    }
+
+    @media (max-width: 768px) {
+      .calc-container { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+  </nav>
+
+  <div class="tool-wrapper">
+    <div class="tool-header">
+      <h1>Subnet Calculator</h1>
+      <p style="color: #71717a;">Visual IPv4 subnetting for network architecture and devops.</p>
+    </div>
+
+    
+
+    <div class="calc-container">
+      <div class="card">
+        <div class="input-group">
+          <label>IP Address</label>
+          <input type="text" id="ip-address" value="192.168.1.1" oninput="calculate()">
+        </div>
+        <div class="input-group">
+          <label>Subnet Mask / CIDR</label>
+          <select id="cidr" onchange="calculate()"></select>
+        </div>
+      </div>
+
+      <div class="card">
+        <table class="results-table">
+          <tr><td class="res-label">Network Address</td><td id="net-addr" class="res-value">-</td></tr>
+          <tr><td class="res-label">Broadcast Address</td><td id="broad-addr" class="res-value">-</td></tr>
+          <tr><td class="res-label">Usable IP Range</td><td id="ip-range" class="res-value">-</td></tr>
+          <tr><td class="res-label">Total Hosts</td><td id="total-hosts" class="res-value">-</td></tr>
+          <tr><td class="res-label">Wildcard Mask</td><td id="wildcard" class="res-value">-</td></tr>
+        </table>
+        <div id="binary-net" class="binary-display"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const cidrSelect = document.getElementById('cidr');
+    
+    // Populate CIDR dropdown
+    for (let i = 32; i >= 1; i--) {
+      const mask = cidrToMask(i);
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.text = `/${i} (${mask})`;
+      if (i === 24) opt.selected = true;
+      cidrSelect.appendChild(opt);
+    }
+
+    function cidrToMask(cidr) {
+      return Array(4).fill(0).map((_, i) => {
+        const bits = Math.min(Math.max(cidr - i * 8, 0), 8);
+        return 256 - Math.pow(2, 8 - bits);
+      }).join('.');
+    }
+
+    function calculate() {
+      const ip = document.getElementById('ip-address').value;
+      const cidr = parseInt(cidrSelect.value);
+      
+      const ipParts = ip.split('.').map(Number);
+      if (ipParts.length !== 4 || ipParts.some(p => isNaN(p) || p < 0 || p > 255)) return;
+
+      const ipNum = (ipParts[0] << 24) >>> 0 | (ipParts[1] << 16) >>> 0 | (ipParts[2] << 8) >>> 0 | ipParts[3] >>> 0;
+      const maskNum = (0xFFFFFFFF << (32 - cidr)) >>> 0;
+      
+      const netNum = (ipNum & maskNum) >>> 0;
+      const broadNum = (netNum | ~maskNum) >>> 0;
+      
+      const numHosts = Math.pow(2, 32 - cidr);
+      const usableHosts = cidr >= 31 ? 0 : numHosts - 2;
+
+      document.getElementById('net-addr').textContent = numToIp(netNum);
+      document.getElementById('broad-addr').textContent = numToIp(broadNum);
+      document.getElementById('total-hosts').textContent = usableHosts.toLocaleString();
+      document.getElementById('wildcard').textContent = numToIp(~maskNum >>> 0);
+      
+      if (cidr <= 30) {
+        document.getElementById('ip-range').textContent = `${numToIp(netNum + 1)} - ${numToIp(broadNum - 1)}`;
+      } else {
+        document.getElementById('ip-range').textContent = "N/A";
+      }
+
+      document.getElementById('binary-net').textContent = `Binary: ${netNum.toString(2).padStart(32, '0').match(/.{8}/g).join('.')}`;
+      
+      if(window.localStorage) {
+        let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+        localStorage.setItem('prism-usage-count', count + 1);
+      }
+    }
+
+    function numToIp(num) {
+      return [ (num >>> 24) & 0xFF, (num >>> 16) & 0xFF, (num >>> 8) & 0xFF, num & 0xFF ].join('.');
+    }
+
+    calculate();
+  </script>
+</body>
+</html>

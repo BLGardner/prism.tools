@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cron Expression Builder - Prism.Tools</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #89DDFF 0%, #5FA4C7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #e4e4e7; }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #89DDFF;
+    }
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    .cron-display {
+      background: linear-gradient(135deg, #89DDFF 0%, #5FA4C7 100%);
+      padding: 2rem;
+      border-radius: 8px;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .cron-expression {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2rem;
+      color: #0a0a0f;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      word-break: break-all;
+    }
+    .cron-description {
+      font-size: 1rem;
+      color: rgba(10, 10, 15, 0.8);
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    .cron-actions {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    .btn-action {
+      padding: 0.5rem 1rem;
+      background: rgba(10, 10, 15, 0.9);
+      color: #89DDFF;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-action:hover {
+      background: #0a0a0f;
+      transform: translateY(-2px);
+    }
+    .presets {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .presets-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #89DDFF;
+      margin-bottom: 0.75rem;
+    }
+    .preset-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.5rem;
+    }
+    .preset-btn {
+      padding: 0.625rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      color: #a1a1aa;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+      text-align: left;
+    }
+    .preset-btn:hover {
+      border-color: #89DDFF;
+      color: #89DDFF;
+    }
+    .builder-panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .builder-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #89DDFF;
+      margin-bottom: 1rem;
+    }
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1rem;
+    }
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .field-label {
+      font-size: 0.75rem;
+      color: #71717a;
+      font-weight: 600;
+      text-align: center;
+    }
+    input[type="text"],
+    select {
+      padding: 0.5rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #89DDFF;
+    }
+    .field-help {
+      font-size: 0.7rem;
+      color: #52525b;
+      text-align: center;
+    }
+    .next-runs {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .next-runs-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #89DDFF;
+      margin-bottom: 0.75rem;
+    }
+    .run-item {
+      padding: 0.5rem;
+      background: #0a0a0f;
+      border-radius: 6px;
+      margin-bottom: 0.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      display: flex;
+      justify-content: space-between;
+    }
+    .run-date {
+      color: #89DDFF;
+    }
+    .run-relative {
+      color: #71717a;
+    }
+    .info-box {
+      background: rgba(137, 221, 255, 0.1);
+      border: 1px solid rgba(137, 221, 255, 0.3);
+      padding: 0.875rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+    }
+    .info-box h3 {
+      font-size: 0.875rem;
+      color: #89DDFF;
+      margin-bottom: 0.5rem;
+    }
+    .info-box p {
+      font-size: 0.8rem;
+      color: #a1a1aa;
+      margin-bottom: 0.4rem;
+    }
+    @media (max-width: 768px) {
+      .field-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>⏱️ Cron Expression Builder</h1>
+      <p>Build and test cron schedule expressions visually</p>
+    </div>
+
+    <div class="cron-display">
+      <div class="cron-expression" id="cron-expression">* * * * *</div>
+      <div class="cron-description" id="cron-description">Every minute</div>
+      <div class="cron-actions">
+        <button class="btn-action" onclick="copyCron()">📋 Copy Expression</button>
+      </div>
+    </div>
+
+    <div class="presets">
+      <div class="presets-title">Quick Presets</div>
+      <div class="preset-grid">
+        <button class="preset-btn" onclick="loadPreset('* * * * *')">Every minute</button>
+        <button class="preset-btn" onclick="loadPreset('*/5 * * * *')">Every 5 minutes</button>
+        <button class="preset-btn" onclick="loadPreset('0 * * * *')">Every hour</button>
+        <button class="preset-btn" onclick="loadPreset('0 0 * * *')">Daily at midnight</button>
+        <button class="preset-btn" onclick="loadPreset('0 9 * * *')">Daily at 9:00 AM</button>
+        <button class="preset-btn" onclick="loadPreset('0 0 * * 0')">Weekly on Sunday</button>
+        <button class="preset-btn" onclick="loadPreset('0 0 1 * *')">Monthly on 1st</button>
+        <button class="preset-btn" onclick="loadPreset('0 0 1 1 *')">Yearly on Jan 1st</button>
+      </div>
+    </div>
+
+    <div class="builder-panel">
+      <div class="builder-title">Build Custom Expression</div>
+      <div class="field-grid">
+        <div class="field-group">
+          <div class="field-label">Minute (0-59)</div>
+          <input type="text" id="minute" value="*" oninput="updateCron()">
+          <div class="field-help">* = every</div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Hour (0-23)</div>
+          <input type="text" id="hour" value="*" oninput="updateCron()">
+          <div class="field-help">* = every</div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Day (1-31)</div>
+          <input type="text" id="day" value="*" oninput="updateCron()">
+          <div class="field-help">* = every</div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Month (1-12)</div>
+          <input type="text" id="month" value="*" oninput="updateCron()">
+          <div class="field-help">* = every</div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Day of Week</div>
+          <input type="text" id="dow" value="*" oninput="updateCron()">
+          <div class="field-help">0=Sun, 6=Sat</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="next-runs">
+      <div class="next-runs-title">Next 5 Scheduled Runs</div>
+      <div id="next-runs-list"></div>
+    </div>
+
+    <div class="info-box">
+      <h3>ℹ️ Cron Expression Format</h3>
+      <p><strong>Structure:</strong> minute hour day month day-of-week</p>
+      <p><strong>Special Characters:</strong></p>
+      <p>• <code>*</code> - Any value (every minute, every hour, etc.)</p>
+      <p>• <code>*/5</code> - Every 5 units (every 5 minutes, etc.)</p>
+      <p>• <code>1-5</code> - Range (minutes 1 through 5)</p>
+      <p>• <code>1,3,5</code> - List (minutes 1, 3, and 5)</p>
+      <p><strong>Examples:</strong></p>
+      <p>• <code>0 9 * * 1-5</code> - 9 AM every weekday</p>
+      <p>• <code>*/15 * * * *</code> - Every 15 minutes</p>
+      <p>• <code>0 0,12 * * *</code> - Midnight and noon daily</p>
+    </div>
+  </div>
+
+  <script>
+    function updateCron() {
+      const minute = document.getElementById('minute').value || '*';
+      const hour = document.getElementById('hour').value || '*';
+      const day = document.getElementById('day').value || '*';
+      const month = document.getElementById('month').value || '*';
+      const dow = document.getElementById('dow').value || '*';
+
+      const expression = `${minute} ${hour} ${day} ${month} ${dow}`;
+      document.getElementById('cron-expression').textContent = expression;
+      document.getElementById('cron-description').textContent = describeCron(minute, hour, day, month, dow);
+
+      calculateNextRuns(minute, hour, day, month, dow);
+      trackUsage();
+    }
+
+    function describeCron(minute, hour, day, month, dow) {
+      let parts = [];
+
+      // Frequency
+      if (minute === '*' && hour === '*' && day === '*' && month === '*' && dow === '*') {
+        return 'Every minute';
+      }
+
+      if (minute.startsWith('*/')) {
+        const interval = minute.substring(2);
+        parts.push(`every ${interval} minutes`);
+      } else if (minute === '0') {
+        parts.push('at the start of the hour');
+      } else if (minute !== '*') {
+        parts.push(`at minute ${minute}`);
+      }
+
+      if (hour.startsWith('*/')) {
+        const interval = hour.substring(2);
+        parts.push(`every ${interval} hours`);
+      } else if (hour !== '*') {
+        const h = parseInt(hour);
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        const displayHour = h % 12 || 12;
+        parts.push(`at ${displayHour}:00 ${ampm}`);
+      } else if (minute === '*') {
+        parts.push('every hour');
+      }
+
+      if (day !== '*') {
+        parts.push(`on day ${day} of the month`);
+      }
+
+      if (month !== '*') {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const m = parseInt(month) - 1;
+        parts.push(`in ${months[m]}`);
+      }
+
+      if (dow !== '*') {
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        if (dow.includes('-')) {
+          parts.push(`from ${days[dow.split('-')[0]]} to ${days[dow.split('-')[1]]}`);
+        } else if (dow.includes(',')) {
+          const dayNames = dow.split(',').map(d => days[parseInt(d)]).join(', ');
+          parts.push(`on ${dayNames}`);
+        } else {
+          parts.push(`on ${days[parseInt(dow)]}`);
+        }
+      }
+
+      return parts.join(', ').charAt(0).toUpperCase() + parts.join(', ').slice(1);
+    }
+
+    function calculateNextRuns(minute, hour, day, month, dow) {
+      const list = document.getElementById('next-runs-list');
+      list.innerHTML = '';
+
+      const now = new Date();
+      const runs = [];
+      let current = new Date(now);
+
+      // Simple approximation - advance minute by minute until we find matches
+      for (let i = 0; runs.length < 5 && i < 525600; i++) { // Max 1 year
+        current = new Date(now.getTime() + (i * 60000));
+
+        if (matchesCron(current, minute, hour, day, month, dow)) {
+          runs.push(new Date(current));
+        }
+      }
+
+      runs.forEach(date => {
+        const item = document.createElement('div');
+        item.className = 'run-item';
+        
+        const dateStr = date.toLocaleString();
+        const relative = getRelativeTime(date);
+        
+        item.innerHTML = `
+          <span class="run-date">${dateStr}</span>
+          <span class="run-relative">${relative}</span>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    function matchesCron(date, minute, hour, day, month, dow) {
+      const m = date.getMinutes();
+      const h = date.getHours();
+      const d = date.getDate();
+      const mo = date.getMonth() + 1;
+      const w = date.getDay();
+
+      if (!matchField(m, minute, 0, 59)) return false;
+      if (!matchField(h, hour, 0, 23)) return false;
+      if (!matchField(d, day, 1, 31)) return false;
+      if (!matchField(mo, month, 1, 12)) return false;
+      if (!matchField(w, dow, 0, 6)) return false;
+
+      return true;
+    }
+
+    function matchField(value, pattern, min, max) {
+      if (pattern === '*') return true;
+
+      if (pattern.startsWith('*/')) {
+        const step = parseInt(pattern.substring(2));
+        return value % step === 0;
+      }
+
+      if (pattern.includes(',')) {
+        return pattern.split(',').some(p => parseInt(p) === value);
+      }
+
+      if (pattern.includes('-')) {
+        const [start, end] = pattern.split('-').map(p => parseInt(p));
+        return value >= start && value <= end;
+      }
+
+      return parseInt(pattern) === value;
+    }
+
+    function getRelativeTime(date) {
+      const diff = date - new Date();
+      const seconds = Math.floor(diff / 1000);
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.floor(minutes / 60);
+      const days = Math.floor(hours / 24);
+
+      if (days > 0) return `in ${days} day${days !== 1 ? 's' : ''}`;
+      if (hours > 0) return `in ${hours} hour${hours !== 1 ? 's' : ''}`;
+      if (minutes > 0) return `in ${minutes} minute${minutes !== 1 ? 's' : ''}`;
+      return 'in less than a minute';
+    }
+
+    function loadPreset(expression) {
+      const parts = expression.split(' ');
+      document.getElementById('minute').value = parts[0];
+      document.getElementById('hour').value = parts[1];
+      document.getElementById('day').value = parts[2];
+      document.getElementById('month').value = parts[3];
+      document.getElementById('dow').value = parts[4];
+      updateCron();
+    }
+
+    function copyCron() {
+      const expression = document.getElementById('cron-expression').textContent;
+      navigator.clipboard.writeText(expression).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      });
+    }
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    // Initialize
+    updateCron();
+  </script>
+</body>
+</html>

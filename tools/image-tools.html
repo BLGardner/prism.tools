@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Tools - Prism.Tools</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #F07178 0%, #E53935 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #e4e4e7; }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #F07178;
+    }
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    .upload-zone {
+      background: #18181b;
+      border: 2px dashed #27272a;
+      border-radius: 8px;
+      padding: 3rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 1rem;
+    }
+    .upload-zone:hover {
+      border-color: #F07178;
+      background: rgba(240, 113, 120, 0.05);
+    }
+    .upload-zone.drag-over {
+      border-color: #F07178;
+      background: rgba(240, 113, 120, 0.1);
+    }
+    .upload-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+    .upload-text {
+      color: #a1a1aa;
+      margin-bottom: 0.5rem;
+    }
+    .upload-hint {
+      color: #71717a;
+      font-size: 0.8rem;
+    }
+    input[type="file"] {
+      display: none;
+    }
+    .controls-panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+    .controls-panel.active {
+      display: block;
+    }
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .input-label {
+      font-size: 0.75rem;
+      color: #71717a;
+      font-weight: 600;
+    }
+    input[type="number"],
+    input[type="range"],
+    select {
+      padding: 0.5rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-size: 0.85rem;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #F07178;
+    }
+    .slider-value {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.25rem;
+    }
+    .value-display {
+      color: #F07178;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .btn {
+      flex: 1;
+      min-width: 150px;
+      padding: 0.75rem;
+      background: #F07178;
+      color: #0a0a0f;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(240, 113, 120, 0.3);
+    }
+    .btn-secondary {
+      background: rgba(240, 113, 120, 0.1);
+      color: #F07178;
+      border: 1px solid rgba(240, 113, 120, 0.3);
+    }
+    .preview-panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+      display: none;
+    }
+    .preview-panel.active {
+      display: block;
+    }
+    .preview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .preview-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #F07178;
+    }
+    .preview-info {
+      font-size: 0.75rem;
+      color: #71717a;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .preview-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .preview-box {
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      padding: 1rem;
+      text-align: center;
+    }
+    .preview-label {
+      font-size: 0.8rem;
+      color: #71717a;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+    .preview-image {
+      max-width: 100%;
+      max-height: 400px;
+      border-radius: 6px;
+    }
+    canvas {
+      display: none;
+    }
+    @media (max-width: 768px) {
+      .preview-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>🖼️ Image Tools</h1>
+      <p>Resize, convert, and optimize images in your browser</p>
+    </div>
+
+    <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
+      <div class="upload-icon">📸</div>
+      <div class="upload-text">Click to upload or drag & drop an image</div>
+      <div class="upload-hint">Supports: JPG, PNG, WebP, GIF (max 10MB)</div>
+      <input type="file" id="file-input" accept="image/*">
+    </div>
+
+    <div class="controls-panel" id="controls-panel">
+      <div class="controls-grid">
+        <div class="input-group">
+          <label class="input-label">Width (px)</label>
+          <input type="number" id="width-input" min="1" max="10000" value="800">
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">Height (px)</label>
+          <input type="number" id="height-input" min="1" max="10000" value="600">
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">
+            <input type="checkbox" id="maintain-ratio" checked style="width: auto; margin-right: 0.25rem;">
+            Maintain Aspect Ratio
+          </label>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">Output Format</label>
+          <select id="format-select">
+            <option value="image/png">PNG</option>
+            <option value="image/jpeg">JPEG</option>
+            <option value="image/webp">WebP</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">Quality (JPEG/WebP only)</label>
+          <input type="range" id="quality-slider" min="1" max="100" value="90">
+          <div class="slider-value">
+            <span style="color: #71717a; font-size: 0.75rem;">1%</span>
+            <span class="value-display" id="quality-value">90%</span>
+            <span style="color: #71717a; font-size: 0.75rem;">100%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button class="btn" onclick="processImage()">🔄 Process Image</button>
+        <button class="btn btn-secondary" onclick="downloadImage()">💾 Download</button>
+        <button class="btn btn-secondary" onclick="resetImage()">🔁 Reset</button>
+      </div>
+    </div>
+
+    <div class="preview-panel" id="preview-panel">
+      <div class="preview-header">
+        <span class="preview-title">Preview</span>
+        <span class="preview-info" id="preview-info">-</span>
+      </div>
+      <div class="preview-grid">
+        <div class="preview-box">
+          <div class="preview-label">Original</div>
+          <img id="original-preview" class="preview-image" alt="Original">
+          <div style="margin-top: 0.5rem; font-size: 0.75rem; color: #71717a;" id="original-info">-</div>
+        </div>
+        <div class="preview-box">
+          <div class="preview-label">Processed</div>
+          <img id="processed-preview" class="preview-image" alt="Processed">
+          <div style="margin-top: 0.5rem; font-size: 0.75rem; color: #71717a;" id="processed-info">-</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <canvas id="canvas"></canvas>
+
+  <script>
+    let originalImage = null;
+    let originalAspectRatio = 1;
+    let processedDataUrl = null;
+
+    const uploadZone = document.getElementById('upload-zone');
+    const fileInput = document.getElementById('file-input');
+
+    // Drag and drop
+    uploadZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadZone.classList.add('drag-over');
+    });
+
+    uploadZone.addEventListener('dragleave', () => {
+      uploadZone.classList.remove('drag-over');
+    });
+
+    uploadZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadZone.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        handleFile(file);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        handleFile(file);
+      }
+    });
+
+    function handleFile(file) {
+      if (file.size > 10 * 1024 * 1024) {
+        alert('File too large. Maximum size is 10MB.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          originalImage = img;
+          originalAspectRatio = img.width / img.height;
+          
+          document.getElementById('width-input').value = img.width;
+          document.getElementById('height-input').value = img.height;
+          document.getElementById('original-preview').src = e.target.result;
+          document.getElementById('original-info').textContent = `${img.width}×${img.height} • ${formatFileSize(file.size)}`;
+          
+          document.getElementById('controls-panel').classList.add('active');
+          document.getElementById('preview-panel').classList.add('active');
+          
+          processImage();
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Maintain aspect ratio
+    document.getElementById('width-input').addEventListener('input', (e) => {
+      if (document.getElementById('maintain-ratio').checked && originalImage) {
+        const width = parseInt(e.target.value);
+        document.getElementById('height-input').value = Math.round(width / originalAspectRatio);
+      }
+    });
+
+    document.getElementById('height-input').addEventListener('input', (e) => {
+      if (document.getElementById('maintain-ratio').checked && originalImage) {
+        const height = parseInt(e.target.value);
+        document.getElementById('width-input').value = Math.round(height * originalAspectRatio);
+      }
+    });
+
+    // Quality slider
+    document.getElementById('quality-slider').addEventListener('input', (e) => {
+      document.getElementById('quality-value').textContent = e.target.value + '%';
+    });
+
+    function processImage() {
+      if (!originalImage) return;
+
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      const width = parseInt(document.getElementById('width-input').value);
+      const height = parseInt(document.getElementById('height-input').value);
+      
+      canvas.width = width;
+      canvas.height = height;
+      
+      ctx.drawImage(originalImage, 0, 0, width, height);
+      
+      const format = document.getElementById('format-select').value;
+      const quality = parseInt(document.getElementById('quality-slider').value) / 100;
+      
+      processedDataUrl = canvas.toDataURL(format, quality);
+      
+      document.getElementById('processed-preview').src = processedDataUrl;
+      
+      // Estimate file size
+      const base64Length = processedDataUrl.split(',')[1].length;
+      const estimatedSize = (base64Length * 3) / 4;
+      document.getElementById('processed-info').textContent = `${width}×${height} • ~${formatFileSize(estimatedSize)}`;
+      
+      trackUsage();
+    }
+
+    function downloadImage() {
+      if (!processedDataUrl) {
+        alert('Process an image first');
+        return;
+      }
+
+      const format = document.getElementById('format-select').value;
+      const extension = format.split('/')[1];
+      
+      const a = document.createElement('a');
+      a.href = processedDataUrl;
+      a.download = `image-${Date.now()}.${extension}`;
+      a.click();
+    }
+
+    function resetImage() {
+      if (originalImage) {
+        document.getElementById('width-input').value = originalImage.width;
+        document.getElementById('height-input').value = originalImage.height;
+        document.getElementById('quality-slider').value = 90;
+        document.getElementById('quality-value').textContent = '90%';
+        document.getElementById('format-select').value = 'image/png';
+        processImage();
+      }
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lorem Ipsum Generator - Prism.Tools</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #FF79C6 0%, #E64980 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #e4e4e7; }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #FF79C6;
+    }
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    .controls-panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .input-label {
+      font-size: 0.75rem;
+      color: #71717a;
+      font-weight: 600;
+    }
+    input[type="number"],
+    select {
+      padding: 0.5rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-size: 0.85rem;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #FF79C6;
+    }
+    .mode-selector {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .mode-btn {
+      flex: 1;
+      padding: 0.625rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      color: #a1a1aa;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .mode-btn.active {
+      background: #FF79C6;
+      color: #0a0a0f;
+      border-color: #FF79C6;
+    }
+    .generate-btn {
+      width: 100%;
+      padding: 0.75rem;
+      background: #FF79C6;
+      color: #0a0a0f;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .generate-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 121, 198, 0.3);
+    }
+    .output-panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .output-header {
+      background: #1f1f23;
+      padding: 0.625rem 0.875rem;
+      border-bottom: 1px solid #27272a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .output-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #a1a1aa;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .output-stats {
+      font-size: 0.75rem;
+      color: #71717a;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .output-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn-small {
+      padding: 0.25rem 0.625rem;
+      background: rgba(255, 121, 198, 0.1);
+      border: 1px solid rgba(255, 121, 198, 0.3);
+      color: #FF79C6;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .btn-small:hover {
+      background: rgba(255, 121, 198, 0.2);
+    }
+    .output-content {
+      padding: 1.25rem;
+      background: #0a0a0f;
+      max-height: 600px;
+      overflow-y: auto;
+      line-height: 1.8;
+      color: #a1a1aa;
+    }
+    .output-content p {
+      margin-bottom: 1rem;
+      text-align: justify;
+    }
+    .output-content.html-tags {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+    .quick-presets {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .preset-btn {
+      padding: 0.5rem;
+      background: rgba(255, 121, 198, 0.1);
+      border: 1px solid rgba(255, 121, 198, 0.3);
+      color: #FF79C6;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .preset-btn:hover {
+      background: rgba(255, 121, 198, 0.2);
+    }
+    @media (max-width: 768px) {
+      .controls-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>📄 Lorem Ipsum Generator</h1>
+      <p>Generate placeholder text for your designs and mockups</p>
+    </div>
+
+    <div class="controls-panel">
+      <div class="quick-presets">
+        <button class="preset-btn" onclick="setPreset('short')">Short (1 para)</button>
+        <button class="preset-btn" onclick="setPreset('medium')">Medium (3 paras)</button>
+        <button class="preset-btn" onclick="setPreset('long')">Long (5 paras)</button>
+        <button class="preset-btn" onclick="setPreset('words')">50 Words</button>
+      </div>
+
+      <div class="mode-selector">
+        <button class="mode-btn active" id="mode-paragraphs" onclick="setMode('paragraphs')">Paragraphs</button>
+        <button class="mode-btn" id="mode-words" onclick="setMode('words')">Words</button>
+        <button class="mode-btn" id="mode-sentences" onclick="setMode('sentences')">Sentences</button>
+      </div>
+
+      <div class="controls-grid">
+        <div class="input-group">
+          <label class="input-label" id="count-label">Number of Paragraphs</label>
+          <input type="number" id="count-input" value="3" min="1" max="100">
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">Style</label>
+          <select id="style-select">
+            <option value="classic">Classic Lorem Ipsum</option>
+            <option value="modern">Modern Placeholder</option>
+            <option value="tech">Tech Jargon</option>
+            <option value="hipster">Hipster Ipsum</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">Format</label>
+          <select id="format-select">
+            <option value="plain">Plain Text</option>
+            <option value="html">HTML Tags</option>
+            <option value="markdown">Markdown</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">Start With</label>
+          <select id="start-select">
+            <option value="lorem">Lorem ipsum...</option>
+            <option value="none">Random Start</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="generate-btn" onclick="generateText()">Generate Text</button>
+    </div>
+
+    <div class="output-panel">
+      <div class="output-header">
+        <div>
+          <span class="output-title">Generated Text</span>
+          <span class="output-stats" id="output-stats">0 words, 0 chars</span>
+        </div>
+        <div class="output-actions">
+          <button class="btn-small" onclick="copyText()">📋 Copy</button>
+          <button class="btn-small" onclick="downloadText()">💾 Download</button>
+        </div>
+      </div>
+      <div class="output-content" id="output"></div>
+    </div>
+  </div>
+
+  <script>
+    let currentMode = 'paragraphs';
+    let generatedText = '';
+
+    const loremWords = ['lorem', 'ipsum', 'dolor', 'sit', 'amet', 'consectetur', 'adipiscing', 'elit', 'sed', 'do', 'eiusmod', 'tempor', 'incididunt', 'ut', 'labore', 'et', 'dolore', 'magna', 'aliqua', 'enim', 'ad', 'minim', 'veniam', 'quis', 'nostrud', 'exercitation', 'ullamco', 'laboris', 'nisi', 'aliquip', 'ex', 'ea', 'commodo', 'consequat', 'duis', 'aute', 'irure', 'in', 'reprehenderit', 'voluptate', 'velit', 'esse', 'cillum', 'fugiat', 'nulla', 'pariatur', 'excepteur', 'sint', 'occaecat', 'cupidatat', 'non', 'proident', 'sunt', 'culpa', 'qui', 'officia', 'deserunt', 'mollit', 'anim', 'id', 'est', 'laborum'];
+
+    const modernWords = ['innovative', 'solution', 'platform', 'framework', 'technology', 'digital', 'transform', 'optimize', 'streamline', 'integrate', 'leverage', 'enhance', 'deliver', 'empower', 'enable', 'facilitate', 'accelerate', 'revolutionize', 'disrupt', 'scale', 'enterprise', 'cloud', 'data', 'analytics', 'insights', 'performance', 'efficiency', 'productivity', 'collaboration', 'ecosystem'];
+
+    const techWords = ['algorithm', 'bandwidth', 'binary', 'blockchain', 'buffer', 'cache', 'compile', 'database', 'debug', 'deploy', 'encryption', 'firewall', 'firmware', 'framework', 'gateway', 'hardware', 'interface', 'kernel', 'latency', 'malware', 'network', 'protocol', 'query', 'runtime', 'server', 'software', 'syntax', 'terminal', 'token', 'variable'];
+
+    const hipsterWords = ['artisan', 'authentic', 'beard', 'bicycle', 'Brooklyn', 'cardigan', 'craft', 'DIY', 'ethical', 'farm-to-table', 'fixie', 'flannel', 'freegan', 'gluten-free', 'hoodie', 'irony', 'kale', 'keffiyeh', 'letterpress', 'locavore', 'messenger', 'mustache', 'organic', 'pickled', 'plaid', 'Portland', 'quinoa', 'raw', 'sustainable', 'tattoo', 'typewriter', 'vegan', 'vinyl', 'vintage'];
+
+    function setMode(mode) {
+      currentMode = mode;
+      document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('mode-' + mode).classList.add('active');
+      
+      const label = document.getElementById('count-label');
+      if (mode === 'paragraphs') label.textContent = 'Number of Paragraphs';
+      else if (mode === 'words') label.textContent = 'Number of Words';
+      else label.textContent = 'Number of Sentences';
+    }
+
+    function setPreset(preset) {
+      switch(preset) {
+        case 'short':
+          setMode('paragraphs');
+          document.getElementById('count-input').value = 1;
+          break;
+        case 'medium':
+          setMode('paragraphs');
+          document.getElementById('count-input').value = 3;
+          break;
+        case 'long':
+          setMode('paragraphs');
+          document.getElementById('count-input').value = 5;
+          break;
+        case 'words':
+          setMode('words');
+          document.getElementById('count-input').value = 50;
+          break;
+      }
+      generateText();
+    }
+
+    function getWordList() {
+      const style = document.getElementById('style-select').value;
+      switch(style) {
+        case 'modern': return modernWords;
+        case 'tech': return techWords;
+        case 'hipster': return hipsterWords;
+        default: return loremWords;
+      }
+    }
+
+    function randomWord(words) {
+      return words[Math.floor(Math.random() * words.length)];
+    }
+
+    function generateSentence(words, length = null) {
+      const len = length || (5 + Math.floor(Math.random() * 10));
+      let sentence = [];
+      
+      for (let i = 0; i < len; i++) {
+        sentence.push(randomWord(words));
+      }
+      
+      sentence[0] = sentence[0].charAt(0).toUpperCase() + sentence[0].slice(1);
+      return sentence.join(' ') + '.';
+    }
+
+    function generateParagraph(words) {
+      const sentences = 3 + Math.floor(Math.random() * 4);
+      let para = [];
+      
+      for (let i = 0; i < sentences; i++) {
+        para.push(generateSentence(words));
+      }
+      
+      return para.join(' ');
+    }
+
+    function generateText() {
+      const count = parseInt(document.getElementById('count-input').value);
+      const startWith = document.getElementById('start-select').value;
+      const format = document.getElementById('format-select').value;
+      const words = getWordList();
+      
+      let result = [];
+      
+      if (currentMode === 'paragraphs') {
+        for (let i = 0; i < count; i++) {
+          if (i === 0 && startWith === 'lorem' && words === loremWords) {
+            result.push('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.');
+          } else {
+            result.push(generateParagraph(words));
+          }
+        }
+      } else if (currentMode === 'words') {
+        let wordList = [];
+        for (let i = 0; i < count; i++) {
+          wordList.push(randomWord(words));
+        }
+        if (startWith === 'lorem' && words === loremWords) {
+          wordList[0] = 'Lorem';
+        } else {
+          wordList[0] = wordList[0].charAt(0).toUpperCase() + wordList[0].slice(1);
+        }
+        result.push(wordList.join(' ') + '.');
+      } else {
+        for (let i = 0; i < count; i++) {
+          result.push(generateSentence(words));
+        }
+      }
+
+      // Format output
+      const output = document.getElementById('output');
+      
+      if (format === 'html') {
+        if (currentMode === 'paragraphs') {
+          generatedText = result.map(p => `<p>${p}</p>`).join('\n');
+          output.classList.add('html-tags');
+          output.innerHTML = generatedText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        } else {
+          generatedText = `<p>${result.join(' ')}</p>`;
+          output.classList.add('html-tags');
+          output.innerHTML = generatedText.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+      } else if (format === 'markdown') {
+        if (currentMode === 'paragraphs') {
+          generatedText = result.join('\n\n');
+          output.classList.add('html-tags');
+          output.textContent = generatedText;
+        } else {
+          generatedText = result.join(' ');
+          output.classList.add('html-tags');
+          output.textContent = generatedText;
+        }
+      } else {
+        if (currentMode === 'paragraphs') {
+          generatedText = result.join('\n\n');
+          output.classList.remove('html-tags');
+          output.innerHTML = result.map(p => `<p>${p}</p>`).join('');
+        } else {
+          generatedText = result.join(' ');
+          output.classList.remove('html-tags');
+          output.innerHTML = `<p>${generatedText}</p>`;
+        }
+      }
+
+      updateStats();
+      trackUsage();
+    }
+
+    function updateStats() {
+      const words = generatedText.split(/\s+/).filter(w => w.length > 0).length;
+      const chars = generatedText.length;
+      document.getElementById('output-stats').textContent = `${words} words, ${chars} chars`;
+    }
+
+    function copyText() {
+      if (!generatedText) {
+        alert('Generate text first');
+        return;
+      }
+      navigator.clipboard.writeText(generatedText).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      });
+    }
+
+    function downloadText() {
+      if (!generatedText) {
+        alert('Generate text first');
+        return;
+      }
+      const blob = new Blob([generatedText], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'lorem-ipsum.txt';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    // Generate on load
+    generateText();
+  </script>
+</body>
+</html>

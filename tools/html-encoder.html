@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTML Encoder - Prism.Tools</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #FFCB6B 0%, #F78C6C 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #e4e4e7; }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #FFCB6B;
+    }
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    .converter-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .panel-header {
+      background: #1f1f23;
+      padding: 0.625rem 0.875rem;
+      border-bottom: 1px solid #27272a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .panel-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #a1a1aa;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .panel-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn-small {
+      padding: 0.25rem 0.625rem;
+      background: rgba(255, 203, 107, 0.1);
+      border: 1px solid rgba(255, 203, 107, 0.3);
+      color: #FFCB6B;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .btn-small:hover {
+      background: rgba(255, 203, 107, 0.2);
+    }
+    textarea {
+      flex: 1;
+      padding: 0.875rem;
+      background: #0a0a0f;
+      border: none;
+      color: #e4e4e7;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      resize: none;
+      line-height: 1.6;
+    }
+    textarea:focus { outline: none; }
+    .controls {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      margin: 1rem 0;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 0.625rem 1.25rem;
+      background: #FFCB6B;
+      color: #0a0a0f;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 203, 107, 0.3);
+    }
+    .btn-secondary {
+      background: rgba(255, 203, 107, 0.1);
+      color: #FFCB6B;
+      border: 1px solid rgba(255, 203, 107, 0.3);
+    }
+    .entity-reference {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    .ref-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #FFCB6B;
+      margin-bottom: 0.75rem;
+    }
+    .entity-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.5rem;
+    }
+    .entity-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem;
+      background: #0a0a0f;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+    }
+    .entity-char {
+      color: #e4e4e7;
+      font-size: 1rem;
+    }
+    .entity-code {
+      color: #71717a;
+    }
+    .options {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 0.875rem;
+      margin-bottom: 1rem;
+    }
+    .option-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      cursor: pointer;
+    }
+    .option-row input[type="checkbox"] {
+      accent-color: #FFCB6B;
+    }
+    .option-label {
+      color: #a1a1aa;
+      font-size: 0.85rem;
+    }
+    @media (max-width: 768px) {
+      .converter-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>🏷️ HTML Encoder/Decoder</h1>
+      <p>Encode and decode HTML entities and special characters</p>
+    </div>
+
+    <div class="options">
+      <label class="option-row">
+        <input type="checkbox" id="opt-all" checked>
+        <span class="option-label">Encode all characters (including quotes and ampersands)</span>
+      </label>
+      <label class="option-row">
+        <input type="checkbox" id="opt-numeric">
+        <span class="option-label">Use numeric entities (&#38; instead of &amp;)</span>
+      </label>
+    </div>
+
+    <div class="converter-layout">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Input</span>
+          <div class="panel-actions">
+            <button class="btn-small" onclick="pasteText()">📋 Paste</button>
+            <button class="btn-small" onclick="clearInput()">🗑️</button>
+          </div>
+        </div>
+        <textarea id="input-text" placeholder="Enter HTML or text to encode/decode...">&lt;div class="example"&gt;Hello &amp; welcome!&lt;/div&gt;</textarea>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Output</span>
+          <div class="panel-actions">
+            <button class="btn-small" onclick="copyOutput()">📋 Copy</button>
+          </div>
+        </div>
+        <textarea id="output-text" placeholder="Result will appear here..." readonly></textarea>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn" onclick="encodeHTML()">➡️ Encode HTML</button>
+      <button class="btn" onclick="decodeHTML()">⬅️ Decode HTML</button>
+      <button class="btn btn-secondary" onclick="swapTexts()">🔄 Swap</button>
+    </div>
+
+    <div class="entity-reference">
+      <div class="ref-title">Common HTML Entities Reference</div>
+      <div class="entity-grid">
+        <div class="entity-item">
+          <span class="entity-char">&lt;</span>
+          <span class="entity-code">&amp;lt; / &amp;#60;</span>
+        </div>
+        <div class="entity-item">
+          <span class="entity-char">&gt;</span>
+          <span class="entity-code">&amp;gt; / &amp;#62;</span>
+        </div>
+        <div class="entity-item">
+          <span class="entity-char">&amp;</span>
+          <span class="entity-code">&amp;amp; / &amp;#38;</span>
+        </div>
+        <div class="entity-item">
+          <span class="entity-char">"</span>
+          <span class="entity-code">&amp;quot; / &amp;#34;</span>
+        </div>
+        <div class="entity-item">
+          <span class="entity-char">'</span>
+          <span class="entity-code">&amp;apos; / &amp;#39;</span>
+        </div>
+        <div class="entity-item">
+          <span class="entity-char">©</span>
+          <span class="entity-code">&amp;copy; / &amp;#169;</span>
+        </div>
+        <div class="entity-item">
+          <span class="entity-char">®</span>
+          <span class="entity-code">&amp;reg; / &amp;#174;</span>
+        </div>
+        <div class="entity-item">
+          <span class="entity-char">™</span>
+          <span class="entity-code">&amp;trade; / &amp;#8482;</span>
+        </div>
+        <div class="entity-item">
+          <span class="entity-char">€</span>
+          <span class="entity-code">&amp;euro; / &amp;#8364;</span>
+        </div>
+        <div class="entity-item">
+          <span class="entity-char">£</span>
+          <span class="entity-code">&amp;pound; / &amp;#163;</span>
+        </div>
+        <div class="entity-item">
+          <span class="entity-char">¥</span>
+          <span class="entity-code">&amp;yen; / &amp;#165;</span>
+        </div>
+        <div class="entity-item">
+          <span class="entity-char">•</span>
+          <span class="entity-code">&amp;bull; / &amp;#8226;</span>
+        </div>
+        <div class="entity-item">
+          <span class="entity-char">→</span>
+          <span class="entity-code">&amp;rarr; / &amp;#8594;</span>
+        </div>
+        <div class="entity-item">
+          <span class="entity-char">←</span>
+          <span class="entity-code">&amp;larr; / &amp;#8592;</span>
+        </div>
+        <div class="entity-item">
+          <span class="entity-char">↑</span>
+          <span class="entity-code">&amp;uarr; / &amp;#8593;</span>
+        </div>
+        <div class="entity-item">
+          <span class="entity-char">↓</span>
+          <span class="entity-code">&amp;darr; / &amp;#8595;</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const htmlEntities = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&apos;'
+    };
+
+    const extendedEntities = {
+      '©': '&copy;',
+      '®': '&reg;',
+      '™': '&trade;',
+      '€': '&euro;',
+      '£': '&pound;',
+      '¥': '&yen;',
+      '•': '&bull;',
+      '→': '&rarr;',
+      '←': '&larr;',
+      '↑': '&uarr;',
+      '↓': '&darr;'
+    };
+
+    function encodeHTML() {
+      const input = document.getElementById('input-text').value;
+      const encodeAll = document.getElementById('opt-all').checked;
+      const useNumeric = document.getElementById('opt-numeric').checked;
+
+      if (!input) {
+        document.getElementById('output-text').value = '';
+        return;
+      }
+
+      let result = input;
+
+      if (useNumeric) {
+        // Numeric entities
+        result = result.replace(/[&<>"']/g, char => {
+          return `&#${char.charCodeAt(0)};`;
+        });
+        
+        if (encodeAll) {
+          result = result.replace(/[^\x00-\x7F]/g, char => {
+            return `&#${char.charCodeAt(0)};`;
+          });
+        }
+      } else {
+        // Named entities
+        result = result.replace(/[&<>"']/g, char => htmlEntities[char]);
+        
+        if (encodeAll) {
+          // Extended entities
+          Object.keys(extendedEntities).forEach(char => {
+            result = result.replace(new RegExp(char, 'g'), extendedEntities[char]);
+          });
+        }
+      }
+
+      document.getElementById('output-text').value = result;
+      trackUsage();
+    }
+
+    function decodeHTML() {
+      const input = document.getElementById('input-text').value;
+
+      if (!input) {
+        document.getElementById('output-text').value = '';
+        return;
+      }
+
+      const textarea = document.createElement('textarea');
+      textarea.innerHTML = input;
+      const result = textarea.value;
+
+      document.getElementById('output-text').value = result;
+      trackUsage();
+    }
+
+    function swapTexts() {
+      const input = document.getElementById('input-text').value;
+      const output = document.getElementById('output-text').value;
+      document.getElementById('input-text').value = output;
+      document.getElementById('output-text').value = input;
+    }
+
+    function clearInput() {
+      document.getElementById('input-text').value = '';
+      document.getElementById('output-text').value = '';
+    }
+
+    async function pasteText() {
+      try {
+        const text = await navigator.clipboard.readText();
+        document.getElementById('input-text').value = text;
+      } catch (e) {
+        alert('Could not paste from clipboard');
+      }
+    }
+
+    function copyOutput() {
+      const output = document.getElementById('output-text').value;
+      if (!output) {
+        alert('Nothing to copy');
+        return;
+      }
+      navigator.clipboard.writeText(output).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      });
+    }
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    // Initialize with sample
+    document.getElementById('input-text').focus();
+  </script>
+</body>
+</html>

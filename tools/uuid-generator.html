@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UUID Generator - Prism.Tools</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #82AAFF 0%, #5C7CFA 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #e4e4e7; }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #82AAFF;
+    }
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    .single-uuid {
+      background: linear-gradient(135deg, #82AAFF 0%, #5C7CFA 100%);
+      padding: 2rem;
+      border-radius: 8px;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .uuid-display {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.5rem;
+      color: #0a0a0f;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      word-break: break-all;
+    }
+    .single-actions {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    .btn-action {
+      padding: 0.5rem 1rem;
+      background: rgba(10, 10, 15, 0.9);
+      color: #82AAFF;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-action:hover {
+      background: #0a0a0f;
+      transform: translateY(-2px);
+    }
+    .controls-panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .version-selector {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .version-btn {
+      flex: 1;
+      padding: 0.75rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      color: #a1a1aa;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .version-btn.active {
+      background: #82AAFF;
+      color: #0a0a0f;
+      border-color: #82AAFF;
+      font-weight: 600;
+    }
+    .version-info {
+      background: rgba(130, 170, 255, 0.1);
+      border: 1px solid rgba(130, 170, 255, 0.3);
+      padding: 0.75rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+      color: #a1a1aa;
+    }
+    .bulk-controls {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      align-items: end;
+    }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .input-label {
+      font-size: 0.75rem;
+      color: #71717a;
+      font-weight: 600;
+    }
+    input[type="number"] {
+      padding: 0.5rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-size: 0.85rem;
+    }
+    input:focus {
+      outline: none;
+      border-color: #82AAFF;
+    }
+    .btn-generate {
+      padding: 0.5rem 1.5rem;
+      background: #82AAFF;
+      color: #0a0a0f;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-generate:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(130, 170, 255, 0.3);
+    }
+    .format-options {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .format-btn {
+      padding: 0.4rem 0.75rem;
+      background: rgba(130, 170, 255, 0.1);
+      border: 1px solid rgba(130, 170, 255, 0.3);
+      color: #82AAFF;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .format-btn:hover {
+      background: rgba(130, 170, 255, 0.2);
+    }
+    .output-panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .output-header {
+      background: #1f1f23;
+      padding: 0.625rem 0.875rem;
+      border-bottom: 1px solid #27272a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .output-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #a1a1aa;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .output-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn-small {
+      padding: 0.25rem 0.625rem;
+      background: rgba(130, 170, 255, 0.1);
+      border: 1px solid rgba(130, 170, 255, 0.3);
+      color: #82AAFF;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .btn-small:hover {
+      background: rgba(130, 170, 255, 0.2);
+    }
+    .output-content {
+      padding: 0.875rem;
+      background: #0a0a0f;
+      max-height: 400px;
+      overflow-y: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.8;
+    }
+    .uuid-item {
+      padding: 0.4rem 0.5rem;
+      margin-bottom: 0.25rem;
+      background: #18181b;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.2s;
+    }
+    .uuid-item:hover {
+      background: #1f1f23;
+    }
+    .copy-mini {
+      padding: 0.2rem 0.4rem;
+      background: rgba(130, 170, 255, 0.1);
+      border: 1px solid rgba(130, 170, 255, 0.3);
+      color: #82AAFF;
+      border-radius: 3px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .copy-mini:hover {
+      background: rgba(130, 170, 255, 0.2);
+    }
+    @media (max-width: 768px) {
+      .bulk-controls {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>🆔 UUID Generator</h1>
+      <p>Generate universally unique identifiers (UUIDs)</p>
+    </div>
+
+    <div class="single-uuid">
+      <div class="uuid-display" id="single-uuid">Click generate to create UUID</div>
+      <div class="single-actions">
+        <button class="btn-action" onclick="generateSingle()">🔄 Generate New</button>
+        <button class="btn-action" onclick="copySingle()">📋 Copy</button>
+      </div>
+    </div>
+
+    <div class="controls-panel">
+      <div class="version-selector">
+        <button class="version-btn active" id="version-v4" onclick="setVersion('v4')">
+          <div style="font-weight: 700; margin-bottom: 0.25rem;">UUID v4</div>
+          <div style="font-size: 0.75rem; opacity: 0.8;">Random</div>
+        </button>
+        <button class="version-btn" id="version-v1" onclick="setVersion('v1')">
+          <div style="font-weight: 700; margin-bottom: 0.25rem;">UUID v1</div>
+          <div style="font-size: 0.75rem; opacity: 0.8;">Time-based</div>
+        </button>
+        <button class="version-btn" id="version-nil" onclick="setVersion('nil')">
+          <div style="font-weight: 700; margin-bottom: 0.25rem;">Nil UUID</div>
+          <div style="font-size: 0.75rem; opacity: 0.8;">All zeros</div>
+        </button>
+      </div>
+
+      <div class="version-info" id="version-info">
+        <strong>UUID v4 (Random):</strong> Generated using random or pseudo-random numbers. Most commonly used version.
+      </div>
+
+      <div class="bulk-controls">
+        <div class="input-group">
+          <label class="input-label">Bulk Generate</label>
+          <input type="number" id="bulk-count" value="10" min="1" max="1000">
+        </div>
+        <button class="btn-generate" onclick="generateBulk()">Generate Bulk</button>
+      </div>
+
+      <div class="format-options">
+        <button class="format-btn" onclick="setFormat('default')">Default</button>
+        <button class="format-btn" onclick="setFormat('upper')">Uppercase</button>
+        <button class="format-btn" onclick="setFormat('braces')">With Braces {}</button>
+        <button class="format-btn" onclick="setFormat('no-dash')">No Dashes</button>
+      </div>
+    </div>
+
+    <div class="output-panel">
+      <div class="output-header">
+        <span class="output-title">Bulk Output</span>
+        <div class="output-actions">
+          <button class="btn-small" onclick="copyBulk()">📋 Copy All</button>
+          <button class="btn-small" onclick="downloadBulk()">💾 Download</button>
+          <button class="btn-small" onclick="clearBulk()">🗑️ Clear</button>
+        </div>
+      </div>
+      <div class="output-content" id="bulk-output"></div>
+    </div>
+  </div>
+
+  <script>
+    let currentVersion = 'v4';
+    let currentFormat = 'default';
+    let bulkUUIDs = [];
+
+    const versionInfo = {
+      v4: '<strong>UUID v4 (Random):</strong> Generated using random or pseudo-random numbers. Most commonly used version.',
+      v1: '<strong>UUID v1 (Time-based):</strong> Generated using timestamp and MAC address. Useful for sorting by creation time.',
+      nil: '<strong>Nil UUID:</strong> Special UUID with all bits set to zero. Used as a placeholder or to indicate absence of a UUID.'
+    };
+
+    function setVersion(version) {
+      currentVersion = version;
+      document.querySelectorAll('.version-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('version-' + version).classList.add('active');
+      document.getElementById('version-info').innerHTML = versionInfo[version];
+      generateSingle();
+    }
+
+    function setFormat(format) {
+      currentFormat = format;
+    }
+
+    function generateUUIDv4() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+
+    function generateUUIDv1() {
+      const now = Date.now();
+      const timeHex = now.toString(16).padStart(12, '0');
+      const clockSeq = Math.floor(Math.random() * 0x3fff).toString(16).padStart(4, '0');
+      const node = Array.from({length: 6}, () => 
+        Math.floor(Math.random() * 256).toString(16).padStart(2, '0')
+      ).join('');
+      
+      return `${timeHex.slice(0, 8)}-${timeHex.slice(8)}-1${timeHex.slice(11)}-${clockSeq}-${node}`;
+    }
+
+    function generateNilUUID() {
+      return '00000000-0000-0000-0000-000000000000';
+    }
+
+    function formatUUID(uuid) {
+      switch(currentFormat) {
+        case 'upper':
+          return uuid.toUpperCase();
+        case 'braces':
+          return '{' + uuid + '}';
+        case 'no-dash':
+          return uuid.replace(/-/g, '');
+        default:
+          return uuid;
+      }
+    }
+
+    function generateUUID() {
+      let uuid;
+      if (currentVersion === 'v4') uuid = generateUUIDv4();
+      else if (currentVersion === 'v1') uuid = generateUUIDv1();
+      else uuid = generateNilUUID();
+      
+      return formatUUID(uuid);
+    }
+
+    function generateSingle() {
+      const uuid = generateUUID();
+      document.getElementById('single-uuid').textContent = uuid;
+      trackUsage();
+    }
+
+    function copySingle() {
+      const uuid = document.getElementById('single-uuid').textContent;
+      if (uuid === 'Click generate to create UUID') {
+        alert('Generate a UUID first');
+        return;
+      }
+      navigator.clipboard.writeText(uuid).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      });
+    }
+
+    function generateBulk() {
+      const count = parseInt(document.getElementById('bulk-count').value);
+      if (count < 1 || count > 1000) {
+        alert('Please enter a number between 1 and 1000');
+        return;
+      }
+
+      bulkUUIDs = [];
+      const output = document.getElementById('bulk-output');
+      output.innerHTML = '';
+
+      for (let i = 0; i < count; i++) {
+        const uuid = generateUUID();
+        bulkUUIDs.push(uuid);
+        
+        const item = document.createElement('div');
+        item.className = 'uuid-item';
+        item.innerHTML = `
+          <span>${uuid}</span>
+          <button class="copy-mini" onclick="copyItem('${uuid}')">📋</button>
+        `;
+        output.appendChild(item);
+      }
+
+      trackUsage();
+    }
+
+    function copyItem(uuid) {
+      navigator.clipboard.writeText(uuid).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓';
+        setTimeout(() => { btn.textContent = original; }, 1500);
+      });
+    }
+
+    function copyBulk() {
+      if (bulkUUIDs.length === 0) {
+        alert('Generate UUIDs first');
+        return;
+      }
+      navigator.clipboard.writeText(bulkUUIDs.join('\n')).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      });
+    }
+
+    function downloadBulk() {
+      if (bulkUUIDs.length === 0) {
+        alert('Generate UUIDs first');
+        return;
+      }
+      const blob = new Blob([bulkUUIDs.join('\n')], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'uuids.txt';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function clearBulk() {
+      bulkUUIDs = [];
+      document.getElementById('bulk-output').innerHTML = '';
+    }
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    // Generate on load
+    generateSingle();
+  </script>
+</body>
+</html>

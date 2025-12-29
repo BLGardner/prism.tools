@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diff Checker - Prism.Tools</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #FF6B6B 0%, #C44569 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #e4e4e7; }
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #FF6B6B;
+    }
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    .controls {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .mode-toggle {
+      display: flex;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .mode-btn {
+      padding: 0.5rem 1rem;
+      background: transparent;
+      border: none;
+      color: #a1a1aa;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .mode-btn.active {
+      background: #FF6B6B;
+      color: #0a0a0f;
+    }
+    .action-btn {
+      padding: 0.5rem 1rem;
+      background: rgba(255, 107, 107, 0.1);
+      border: 1px solid rgba(255, 107, 107, 0.3);
+      color: #FF6B6B;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .action-btn:hover {
+      background: rgba(255, 107, 107, 0.2);
+      transform: translateY(-1px);
+    }
+    .stats-bar {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      padding: 0.75rem;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    .stat {
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .stat-value.added { color: #50FA7B; }
+    .stat-value.removed { color: #FF6B6B; }
+    .stat-value.unchanged { color: #71717a; }
+    .stat-label {
+      font-size: 0.7rem;
+      color: #71717a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 0.25rem;
+    }
+    .diff-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .input-panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .panel-header {
+      background: #1f1f23;
+      padding: 0.625rem 0.875rem;
+      border-bottom: 1px solid #27272a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .panel-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #a1a1aa;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .panel-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn-small {
+      padding: 0.25rem 0.625rem;
+      background: rgba(255, 107, 107, 0.1);
+      border: 1px solid rgba(255, 107, 107, 0.3);
+      color: #FF6B6B;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .btn-small:hover {
+      background: rgba(255, 107, 107, 0.2);
+    }
+    textarea {
+      flex: 1;
+      padding: 0.875rem;
+      background: #0a0a0f;
+      border: none;
+      color: #e4e4e7;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      resize: none;
+      line-height: 1.6;
+    }
+    textarea:focus { outline: none; }
+    .diff-output {
+      grid-column: 1 / -1;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .diff-view {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.6;
+    }
+    .diff-side {
+      padding: 0.875rem;
+      background: #0a0a0f;
+      overflow-x: auto;
+    }
+    .diff-side.left {
+      border-right: 1px solid #27272a;
+    }
+    .diff-line {
+      display: flex;
+      align-items: flex-start;
+      min-height: 1.6em;
+    }
+    .line-number {
+      min-width: 40px;
+      padding-right: 0.75rem;
+      color: #52525b;
+      text-align: right;
+      user-select: none;
+      flex-shrink: 0;
+    }
+    .line-content {
+      flex: 1;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .line-added {
+      background: rgba(80, 250, 123, 0.15);
+    }
+    .line-added .line-number {
+      color: #50FA7B;
+    }
+    .line-added .line-content {
+      color: #50FA7B;
+    }
+    .line-removed {
+      background: rgba(255, 107, 107, 0.15);
+    }
+    .line-removed .line-number {
+      color: #FF6B6B;
+    }
+    .line-removed .line-content {
+      color: #FF6B6B;
+    }
+    .line-unchanged {
+      color: #a1a1aa;
+    }
+    .char-added {
+      background: rgba(80, 250, 123, 0.3);
+      color: #50FA7B;
+      padding: 0 2px;
+    }
+    .char-removed {
+      background: rgba(255, 107, 107, 0.3);
+      color: #FF6B6B;
+      padding: 0 2px;
+    }
+    .unified-view {
+      padding: 0.875rem;
+      background: #0a0a0f;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.6;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #71717a;
+    }
+    @media (max-width: 1024px) {
+      .diff-container {
+        grid-template-columns: 1fr;
+      }
+      .diff-view {
+        grid-template-columns: 1fr;
+      }
+      .diff-side.left {
+        border-right: none;
+        border-bottom: 1px solid #27272a;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>⚖️ Diff Checker</h1>
+      <p>Compare two texts and visualize differences</p>
+    </div>
+
+    <div class="controls">
+      <div class="mode-toggle">
+        <button class="mode-btn active" onclick="setMode('split')" id="mode-split">Split View</button>
+        <button class="mode-btn" onclick="setMode('unified')" id="mode-unified">Unified View</button>
+        <button class="mode-btn" onclick="setMode('char')" id="mode-char">Character Level</button>
+      </div>
+      <button class="action-btn" onclick="swapTexts()">🔄 Swap Texts</button>
+      <button class="action-btn" onclick="clearAll()">🗑️ Clear All</button>
+    </div>
+
+    <div class="stats-bar" id="stats-bar" style="display: none;">
+      <div class="stat">
+        <div class="stat-value added" id="stat-added">0</div>
+        <div class="stat-label">Added</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value removed" id="stat-removed">0</div>
+        <div class="stat-label">Removed</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value unchanged" id="stat-unchanged">0</div>
+        <div class="stat-label">Unchanged</div>
+      </div>
+    </div>
+
+    <div class="diff-container">
+      <div class="input-panel">
+        <div class="panel-header">
+          <span class="panel-title">Original Text</span>
+          <div class="panel-actions">
+            <button class="btn-small" onclick="pasteText('original')">📋 Paste</button>
+            <button class="btn-small" onclick="clearText('original')">🗑️</button>
+          </div>
+        </div>
+        <textarea id="original-text" placeholder="Paste your original text here...">The quick brown fox jumps over the lazy dog.
+This is the first version of the text.
+Some lines will remain the same.</textarea>
+      </div>
+
+      <div class="input-panel">
+        <div class="panel-header">
+          <span class="panel-title">Modified Text</span>
+          <div class="panel-actions">
+            <button class="btn-small" onclick="pasteText('modified')">📋 Paste</button>
+            <button class="btn-small" onclick="clearText('modified')">🗑️</button>
+          </div>
+        </div>
+        <textarea id="modified-text" placeholder="Paste your modified text here...">The quick brown fox jumps over the lazy cat.
+This is the second version of the text.
+Some lines will remain the same.
+This is a new line added at the end.</textarea>
+      </div>
+
+      <div class="diff-output">
+        <div class="panel-header">
+          <span class="panel-title">Differences</span>
+        </div>
+        <div id="diff-result"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentMode = 'split';
+
+    function setMode(mode) {
+      currentMode = mode;
+      document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('mode-' + mode).classList.add('active');
+      computeDiff();
+    }
+
+    function computeDiff() {
+      const original = document.getElementById('original-text').value;
+      const modified = document.getElementById('modified-text').value;
+      
+      if (!original && !modified) {
+        document.getElementById('diff-result').innerHTML = '<div class="empty-state">Enter text in both panels to see differences</div>';
+        document.getElementById('stats-bar').style.display = 'none';
+        return;
+      }
+
+      if (currentMode === 'char') {
+        computeCharDiff(original, modified);
+      } else {
+        computeLineDiff(original, modified);
+      }
+      
+      trackUsage();
+    }
+
+    function computeLineDiff(original, modified) {
+      const origLines = original.split('\n');
+      const modLines = modified.split('\n');
+      const diff = diffLines(origLines, modLines);
+      
+      if (currentMode === 'split') {
+        renderSplitView(diff);
+      } else {
+        renderUnifiedView(diff);
+      }
+      
+      updateStats(diff);
+    }
+
+    function computeCharDiff(original, modified) {
+      const diff = diffChars(original, modified);
+      renderCharDiff(diff);
+      updateCharStats(diff);
+    }
+
+    function diffLines(arr1, arr2) {
+      const dp = [];
+      for (let i = 0; i <= arr1.length; i++) {
+        dp[i] = [];
+        for (let j = 0; j <= arr2.length; j++) {
+          if (i === 0) dp[i][j] = j;
+          else if (j === 0) dp[i][j] = i;
+          else if (arr1[i - 1] === arr2[j - 1]) {
+            dp[i][j] = dp[i - 1][j - 1];
+          } else {
+            dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+          }
+        }
+      }
+
+      const result = [];
+      let i = arr1.length, j = arr2.length;
+      
+      while (i > 0 || j > 0) {
+        if (i > 0 && j > 0 && arr1[i - 1] === arr2[j - 1]) {
+          result.unshift({ type: 'unchanged', content: arr1[i - 1], origLine: i, modLine: j });
+          i--; j--;
+        } else if (j > 0 && (i === 0 || dp[i][j - 1] <= dp[i - 1][j])) {
+          result.unshift({ type: 'added', content: arr2[j - 1], origLine: null, modLine: j });
+          j--;
+        } else {
+          result.unshift({ type: 'removed', content: arr1[i - 1], origLine: i, modLine: null });
+          i--;
+        }
+      }
+      
+      return result;
+    }
+
+    function diffChars(str1, str2) {
+      const dp = [];
+      for (let i = 0; i <= str1.length; i++) {
+        dp[i] = [];
+        for (let j = 0; j <= str2.length; j++) {
+          if (i === 0) dp[i][j] = j;
+          else if (j === 0) dp[i][j] = i;
+          else if (str1[i - 1] === str2[j - 1]) {
+            dp[i][j] = dp[i - 1][j - 1];
+          } else {
+            dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+          }
+        }
+      }
+
+      const result = [];
+      let i = str1.length, j = str2.length;
+      
+      while (i > 0 || j > 0) {
+        if (i > 0 && j > 0 && str1[i - 1] === str2[j - 1]) {
+          result.unshift({ type: 'unchanged', char: str1[i - 1] });
+          i--; j--;
+        } else if (j > 0 && (i === 0 || dp[i][j - 1] <= dp[i - 1][j])) {
+          result.unshift({ type: 'added', char: str2[j - 1] });
+          j--;
+        } else {
+          result.unshift({ type: 'removed', char: str1[i - 1] });
+          i--;
+        }
+      }
+      
+      return result;
+    }
+
+    function renderSplitView(diff) {
+      const resultDiv = document.getElementById('diff-result');
+      let leftHTML = '';
+      let rightHTML = '';
+      let origLineNum = 1, modLineNum = 1;
+
+      diff.forEach(item => {
+        if (item.type === 'unchanged') {
+          leftHTML += `<div class="diff-line line-unchanged">
+            <span class="line-number">${origLineNum++}</span>
+            <span class="line-content">${escapeHtml(item.content)}</span>
+          </div>`;
+          rightHTML += `<div class="diff-line line-unchanged">
+            <span class="line-number">${modLineNum++}</span>
+            <span class="line-content">${escapeHtml(item.content)}</span>
+          </div>`;
+        } else if (item.type === 'removed') {
+          leftHTML += `<div class="diff-line line-removed">
+            <span class="line-number">${origLineNum++}</span>
+            <span class="line-content">${escapeHtml(item.content)}</span>
+          </div>`;
+          rightHTML += `<div class="diff-line" style="min-height: 1.6em;"><span class="line-number"></span></div>`;
+        } else {
+          leftHTML += `<div class="diff-line" style="min-height: 1.6em;"><span class="line-number"></span></div>`;
+          rightHTML += `<div class="diff-line line-added">
+            <span class="line-number">${modLineNum++}</span>
+            <span class="line-content">${escapeHtml(item.content)}</span>
+          </div>`;
+        }
+      });
+
+      resultDiv.innerHTML = `
+        <div class="diff-view">
+          <div class="diff-side left">${leftHTML}</div>
+          <div class="diff-side">${rightHTML}</div>
+        </div>
+      `;
+    }
+
+    function renderUnifiedView(diff) {
+      const resultDiv = document.getElementById('diff-result');
+      let html = '';
+      let lineNum = 1;
+
+      diff.forEach(item => {
+        if (item.type === 'unchanged') {
+          html += `<div class="diff-line line-unchanged">
+            <span class="line-number">${lineNum++}</span>
+            <span class="line-content">${escapeHtml(item.content)}</span>
+          </div>`;
+        } else if (item.type === 'removed') {
+          html += `<div class="diff-line line-removed">
+            <span class="line-number">-</span>
+            <span class="line-content">${escapeHtml(item.content)}</span>
+          </div>`;
+        } else {
+          html += `<div class="diff-line line-added">
+            <span class="line-number">+</span>
+            <span class="line-content">${escapeHtml(item.content)}</span>
+          </div>`;
+        }
+      });
+
+      resultDiv.innerHTML = `<div class="unified-view">${html}</div>`;
+    }
+
+    function renderCharDiff(diff) {
+      const resultDiv = document.getElementById('diff-result');
+      let html = '';
+
+      diff.forEach(item => {
+        if (item.type === 'unchanged') {
+          html += escapeHtml(item.char);
+        } else if (item.type === 'added') {
+          html += `<span class="char-added">${escapeHtml(item.char)}</span>`;
+        } else {
+          html += `<span class="char-removed">${escapeHtml(item.char)}</span>`;
+        }
+      });
+
+      resultDiv.innerHTML = `<div class="unified-view" style="white-space: pre-wrap;">${html}</div>`;
+    }
+
+    function updateStats(diff) {
+      const added = diff.filter(d => d.type === 'added').length;
+      const removed = diff.filter(d => d.type === 'removed').length;
+      const unchanged = diff.filter(d => d.type === 'unchanged').length;
+
+      document.getElementById('stat-added').textContent = added;
+      document.getElementById('stat-removed').textContent = removed;
+      document.getElementById('stat-unchanged').textContent = unchanged;
+      document.getElementById('stats-bar').style.display = 'flex';
+    }
+
+    function updateCharStats(diff) {
+      const added = diff.filter(d => d.type === 'added').length;
+      const removed = diff.filter(d => d.type === 'removed').length;
+      const unchanged = diff.filter(d => d.type === 'unchanged').length;
+
+      document.getElementById('stat-added').textContent = added + ' chars';
+      document.getElementById('stat-removed').textContent = removed + ' chars';
+      document.getElementById('stat-unchanged').textContent = unchanged + ' chars';
+      document.getElementById('stats-bar').style.display = 'flex';
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function swapTexts() {
+      const orig = document.getElementById('original-text').value;
+      const mod = document.getElementById('modified-text').value;
+      document.getElementById('original-text').value = mod;
+      document.getElementById('modified-text').value = orig;
+      computeDiff();
+    }
+
+    function clearAll() {
+      document.getElementById('original-text').value = '';
+      document.getElementById('modified-text').value = '';
+      computeDiff();
+    }
+
+    function clearText(which) {
+      document.getElementById(which + '-text').value = '';
+      computeDiff();
+    }
+
+    async function pasteText(which) {
+      try {
+        const text = await navigator.clipboard.readText();
+        document.getElementById(which + '-text').value = text;
+        computeDiff();
+      } catch (e) {
+        alert('Could not paste from clipboard');
+      }
+    }
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    // Auto-compute on input
+    document.getElementById('original-text').addEventListener('input', computeDiff);
+    document.getElementById('modified-text').addEventListener('input', computeDiff);
+
+    // Initialize
+    computeDiff();
+  </script>
+</body>
+</html>

@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>URL Encoder - Prism.Tools</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #8BE9FD 0%, #44B9D6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #e4e4e7; }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #8BE9FD;
+    }
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    .tabs {
+      display: flex;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+    .tab {
+      flex: 1;
+      padding: 0.75rem;
+      background: transparent;
+      border: none;
+      color: #a1a1aa;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      border-right: 1px solid #27272a;
+    }
+    .tab:last-child {
+      border-right: none;
+    }
+    .tab.active {
+      background: #8BE9FD;
+      color: #0a0a0f;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .converter-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .panel-header {
+      background: #1f1f23;
+      padding: 0.625rem 0.875rem;
+      border-bottom: 1px solid #27272a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .panel-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #a1a1aa;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .panel-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn-small {
+      padding: 0.25rem 0.625rem;
+      background: rgba(139, 233, 253, 0.1);
+      border: 1px solid rgba(139, 233, 253, 0.3);
+      color: #8BE9FD;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .btn-small:hover {
+      background: rgba(139, 233, 253, 0.2);
+    }
+    textarea {
+      width: 100%;
+      min-height: 200px;
+      padding: 0.875rem;
+      background: #0a0a0f;
+      border: none;
+      color: #e4e4e7;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      resize: vertical;
+      line-height: 1.6;
+    }
+    textarea:focus { outline: none; }
+    .controls {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      margin: 1rem 0;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 0.625rem 1.25rem;
+      background: #8BE9FD;
+      color: #0a0a0f;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(139, 233, 253, 0.3);
+    }
+    .btn-secondary {
+      background: rgba(139, 233, 253, 0.1);
+      color: #8BE9FD;
+      border: 1px solid rgba(139, 233, 253, 0.3);
+    }
+    .url-parser {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .parse-result {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 0.5rem;
+      align-items: center;
+      padding: 0.5rem;
+      background: #0a0a0f;
+      border-radius: 6px;
+      margin-bottom: 0.5rem;
+      font-size: 0.85rem;
+    }
+    .parse-result:last-child {
+      margin-bottom: 0;
+    }
+    .parse-label {
+      color: #71717a;
+      font-weight: 600;
+      min-width: 100px;
+    }
+    .parse-value {
+      color: #8BE9FD;
+      font-family: 'JetBrains Mono', monospace;
+      word-break: break-all;
+    }
+    .query-builder {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .param-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    input[type="text"] {
+      padding: 0.5rem 0.75rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+    }
+    input:focus {
+      outline: none;
+      border-color: #8BE9FD;
+    }
+    .btn-icon {
+      padding: 0.5rem 0.75rem;
+      background: rgba(255, 107, 107, 0.1);
+      border: 1px solid rgba(255, 107, 107, 0.3);
+      color: #FF6B6B;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.85rem;
+    }
+    .btn-icon:hover {
+      background: rgba(255, 107, 107, 0.2);
+    }
+    .built-url {
+      padding: 0.875rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: #8BE9FD;
+      word-break: break-all;
+      margin-top: 0.75rem;
+    }
+    @media (max-width: 768px) {
+      .converter-layout {
+        grid-template-columns: 1fr;
+      }
+      .param-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>🔗 URL Encoder/Decoder</h1>
+      <p>Encode, decode, parse, and build URLs</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('encoder')">Encoder/Decoder</button>
+      <button class="tab" onclick="switchTab('parser')">URL Parser</button>
+      <button class="tab" onclick="switchTab('builder')">Query Builder</button>
+    </div>
+
+    <!-- Encoder/Decoder Tab -->
+    <div id="encoder-tab" class="tab-content active">
+      <div class="converter-layout">
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Input</span>
+            <div class="panel-actions">
+              <button class="btn-small" onclick="pasteText()">📋 Paste</button>
+              <button class="btn-small" onclick="clearInput()">🗑️</button>
+            </div>
+          </div>
+          <textarea id="input-text" placeholder="Enter text or URL to encode/decode...">https://example.com/search?q=hello world&lang=en</textarea>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Output</span>
+            <div class="panel-actions">
+              <button class="btn-small" onclick="copyOutput()">📋 Copy</button>
+            </div>
+          </div>
+          <textarea id="output-text" placeholder="Result will appear here..." readonly></textarea>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="btn" onclick="encodeURL()">➡️ Encode URL</button>
+        <button class="btn" onclick="encodeComponent()">➡️ Encode Component</button>
+        <button class="btn" onclick="decodeURL()">⬅️ Decode</button>
+        <button class="btn btn-secondary" onclick="swapTexts()">🔄 Swap</button>
+      </div>
+    </div>
+
+    <!-- URL Parser Tab -->
+    <div id="parser-tab" class="tab-content">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Enter URL to Parse</span>
+        </div>
+        <div style="padding: 0.875rem;">
+          <input type="text" id="parse-url" placeholder="https://example.com/path?key=value#hash" style="width: 100%;">
+          <button class="btn" onclick="parseURL()" style="margin-top: 0.75rem; width: 100%;">Parse URL</button>
+        </div>
+      </div>
+
+      <div class="url-parser" id="parse-results" style="display: none;"></div>
+    </div>
+
+    <!-- Query Builder Tab -->
+    <div id="builder-tab" class="tab-content">
+      <div class="query-builder">
+        <div class="panel-header" style="margin-bottom: 0.75rem;">
+          <span class="panel-title">Base URL</span>
+        </div>
+        <input type="text" id="base-url" placeholder="https://example.com/api/search" style="width: 100%; margin-bottom: 1rem;">
+
+        <div class="panel-header" style="margin-bottom: 0.75rem;">
+          <span class="panel-title">Query Parameters</span>
+        </div>
+        <div id="params-container"></div>
+        
+        <button class="btn btn-secondary" onclick="addParam()" style="width: 100%; margin-top: 0.5rem;">+ Add Parameter</button>
+
+        <div class="built-url" id="built-url">Add parameters to build URL...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let params = [{ key: '', value: '' }];
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      
+      event.target.classList.add('active');
+      document.getElementById(tab + '-tab').classList.add('active');
+    }
+
+    function encodeURL() {
+      const input = document.getElementById('input-text').value;
+      try {
+        document.getElementById('output-text').value = encodeURI(input);
+        trackUsage();
+      } catch (e) {
+        alert('Error encoding URL: ' + e.message);
+      }
+    }
+
+    function encodeComponent() {
+      const input = document.getElementById('input-text').value;
+      try {
+        document.getElementById('output-text').value = encodeURIComponent(input);
+        trackUsage();
+      } catch (e) {
+        alert('Error encoding: ' + e.message);
+      }
+    }
+
+    function decodeURL() {
+      const input = document.getElementById('input-text').value;
+      try {
+        let decoded = input;
+        try {
+          decoded = decodeURIComponent(input);
+        } catch {
+          decoded = decodeURI(input);
+        }
+        document.getElementById('output-text').value = decoded;
+        trackUsage();
+      } catch (e) {
+        alert('Error decoding: ' + e.message);
+      }
+    }
+
+    function swapTexts() {
+      const input = document.getElementById('input-text').value;
+      const output = document.getElementById('output-text').value;
+      document.getElementById('input-text').value = output;
+      document.getElementById('output-text').value = input;
+    }
+
+    function clearInput() {
+      document.getElementById('input-text').value = '';
+      document.getElementById('output-text').value = '';
+    }
+
+    async function pasteText() {
+      try {
+        const text = await navigator.clipboard.readText();
+        document.getElementById('input-text').value = text;
+      } catch (e) {
+        alert('Could not paste from clipboard');
+      }
+    }
+
+    function copyOutput() {
+      const output = document.getElementById('output-text').value;
+      if (!output) {
+        alert('Nothing to copy');
+        return;
+      }
+      navigator.clipboard.writeText(output).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      });
+    }
+
+    function parseURL() {
+      const urlString = document.getElementById('parse-url').value;
+      
+      if (!urlString) {
+        alert('Please enter a URL');
+        return;
+      }
+
+      try {
+        const url = new URL(urlString);
+        const results = document.getElementById('parse-results');
+        
+        let html = '';
+        
+        html += createParseResult('Protocol', url.protocol);
+        html += createParseResult('Host', url.host);
+        html += createParseResult('Hostname', url.hostname);
+        if (url.port) html += createParseResult('Port', url.port);
+        html += createParseResult('Pathname', url.pathname);
+        if (url.search) html += createParseResult('Search', url.search);
+        if (url.hash) html += createParseResult('Hash', url.hash);
+        
+        if (url.search) {
+          html += '<div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #27272a;">';
+          html += '<div class="panel-title" style="margin-bottom: 0.75rem;">Query Parameters</div>';
+          url.searchParams.forEach((value, key) => {
+            html += createParseResult(key, value);
+          });
+          html += '</div>';
+        }
+        
+        results.innerHTML = html;
+        results.style.display = 'block';
+        trackUsage();
+      } catch (e) {
+        alert('Invalid URL: ' + e.message);
+      }
+    }
+
+    function createParseResult(label, value) {
+      return `
+        <div class="parse-result">
+          <span class="parse-label">${label}:</span>
+          <span class="parse-value">${value}</span>
+          <button class="btn-small" onclick="copyValue('${value.replace(/'/g, "\\'")}')">📋</button>
+        </div>
+      `;
+    }
+
+    function copyValue(value) {
+      navigator.clipboard.writeText(value).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓';
+        setTimeout(() => { btn.textContent = original; }, 1500);
+      });
+    }
+
+    function addParam() {
+      params.push({ key: '', value: '' });
+      renderParams();
+    }
+
+    function removeParam(index) {
+      if (params.length > 1) {
+        params.splice(index, 1);
+        renderParams();
+        buildURL();
+      }
+    }
+
+    function updateParam(index, field, value) {
+      params[index][field] = value;
+      buildURL();
+    }
+
+    function renderParams() {
+      const container = document.getElementById('params-container');
+      container.innerHTML = '';
+      
+      params.forEach((param, index) => {
+        const row = document.createElement('div');
+        row.className = 'param-row';
+        row.innerHTML = `
+          <input type="text" placeholder="Key" value="${param.key}" 
+                 oninput="updateParam(${index}, 'key', this.value)">
+          <input type="text" placeholder="Value" value="${param.value}" 
+                 oninput="updateParam(${index}, 'value', this.value)">
+          <button class="btn-icon" onclick="removeParam(${index})">🗑️</button>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function buildURL() {
+      const base = document.getElementById('base-url').value;
+      
+      if (!base) {
+        document.getElementById('built-url').textContent = 'Enter a base URL...';
+        return;
+      }
+
+      try {
+        const url = new URL(base);
+        
+        params.forEach(param => {
+          if (param.key) {
+            url.searchParams.set(param.key, param.value);
+          }
+        });
+
+        document.getElementById('built-url').textContent = url.toString();
+        trackUsage();
+      } catch (e) {
+        document.getElementById('built-url').textContent = 'Invalid base URL';
+      }
+    }
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    // Initialize
+    renderParams();
+    buildURL();
+
+    // Auto-build URL when base changes
+    document.getElementById('base-url').addEventListener('input', buildURL);
+  </script>
+</body>
+</html>

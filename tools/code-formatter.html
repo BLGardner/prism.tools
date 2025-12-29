@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Formatter - Prism.Tools</title>
+  
+  <script src="https://unpkg.com/prettier@2.8.8/standalone.js"></script>
+  <script src="https://unpkg.com/prettier@2.8.8/parser-babel.js"></script>
+  <script src="https://unpkg.com/prettier@2.8.8/parser-html.js"></script>
+  <script src="https://unpkg.com/prettier@2.8.8/parser-postcss.js"></script>
+  <script src="https://unpkg.com/prettier@2.8.8/parser-markdown.js"></script>
+  <script src="https://unpkg.com/prettier@2.8.8/parser-yaml.js"></script>
+  <script src="https://unpkg.com/prettier@2.8.8/parser-typescript.js"></script>
+
+  <style>
+    /* Design tokens from index.html */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+    }
+
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .tool-wrapper {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      flex-grow: 1;
+      width: 100%;
+    }
+
+    .tool-header h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #ffffff 0%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .controls {
+      display: flex;
+      gap: 0.75rem;
+      margin: 1.5rem 0;
+      flex-wrap: wrap;
+      background: #18181b;
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid #27272a;
+    }
+
+    select, button {
+      background: #27272a;
+      border: 1px solid #3f3f46;
+      color: #e4e4e7;
+      padding: 0.5rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    select:focus, button:hover {
+      border-color: #a78bfa;
+      outline: none;
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%);
+      border: none;
+      font-weight: 600;
+      color: white;
+      padding: 0.5rem 1.2rem;
+    }
+
+    .primary-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(167, 139, 250, 0.3);
+    }
+
+    textarea {
+      width: 100%;
+      height: 500px;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      color: #e4e4e7;
+      padding: 1.25rem;
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      resize: vertical;
+      outline: none;
+    }
+
+    textarea:focus { border-color: #a78bfa; }
+
+    .status-msg {
+      margin-top: 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .error { background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); display: block; }
+    .success { background: rgba(34, 197, 94, 0.1); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.2); display: block; }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      background: #18181b;
+      border-top: 1px solid #27272a;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <div class="nav-right">
+      <a href="https://ko-fi.com/prismtools" target="_blank" style="text-decoration:none; color:#a78bfa; font-weight:600; font-size:0.85rem;">☕ Support Project</a>
+    </div>
+  </nav>
+
+  <div class="tool-wrapper">
+    <div class="tool-header">
+      <h1>Code Formatter</h1>
+      <p style="color: #71717a;">Standardize indents, spacing, and syntax across 8+ languages.</p>
+    </div>
+
+    <div class="controls">
+      <select id="language-select">
+        <optgroup label="Web">
+          <option value="babel">JavaScript / JSON</option>
+          <option value="typescript">TypeScript</option>
+          <option value="html">HTML</option>
+          <option value="css">CSS / SCSS / Less</option>
+        </optgroup>
+        <optgroup label="Data & Docs">
+          <option value="yaml">YAML</option>
+          <option value="markdown">Markdown</option>
+          <option value="html">XML (via HTML parser)</option>
+        </optgroup>
+      </select>
+      
+      <select id="indent-select">
+        <option value="2">2 Spaces</option>
+        <option value="4">4 Spaces</option>
+        <option value="8">8 Spaces</option>
+      </select>
+
+      <button class="primary-btn" onclick="formatCode()">✨ Format</button>
+      <button onclick="copyToClipboard()">📋 Copy</button>
+      <button onclick="clearAll()">🗑️ Clear</button>
+    </div>
+
+    <textarea id="code-input" id="usage-count" placeholder="Paste your code here..."></textarea>
+    <div id="status-box" class="status-msg"></div>
+  </div>
+
+  <footer>
+    <p style="color: #71717a; font-size: 0.8rem;">Prism.Tools • 🔒 Privacy-focused: All formatting happens locally.</p>
+  </footer>
+
+  <script>
+    const inputArea = document.getElementById('code-input');
+    const statusBox = document.getElementById('status-box');
+    const langSelect = document.getElementById('language-select');
+    const indentSelect = document.getElementById('indent-select');
+
+    function formatCode() {
+      const code = inputArea.value;
+      if (!code.trim()) return;
+
+      try {
+        const parser = langSelect.value;
+        const tabWidth = parseInt(indentSelect.value);
+
+        const formatted = prettier.format(code, {
+          parser: parser,
+          plugins: prettierPlugins,
+          semi: true,
+          singleQuote: true,
+          tabWidth: tabWidth,
+          useTabs: false,
+          printWidth: 100,
+          trailingComma: 'es5',
+          bracketSpacing: true
+        });
+
+        inputArea.value = formatted;
+        showStatus('✨ Code formatted perfectly!', 'success');
+        
+        // Integration with Prism's usage tracking if available
+        if(window.localStorage) {
+           let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+           localStorage.setItem('prism-usage-count', count + 1);
+        }
+
+      } catch (err) {
+        showStatus('Syntax Error: ' + err.message.split('\n')[0], 'error');
+      }
+    }
+
+    function copyToClipboard() {
+      if (!inputArea.value) return;
+      inputArea.select();
+      document.execCommand('copy');
+      showStatus('📋 Copied to clipboard!', 'success');
+    }
+
+    function clearAll() {
+      inputArea.value = '';
+      statusBox.style.display = 'none';
+    }
+
+    function showStatus(msg, type) {
+      statusBox.textContent = msg;
+      statusBox.className = 'status-msg ' + type;
+      if (type === 'success') {
+        setTimeout(() => { statusBox.style.display = 'none'; }, 4000);
+      }
+    }
+
+    // Tab key support
+    inputArea.addEventListener('keydown', function(e) {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+        const spaces = " ".repeat(parseInt(indentSelect.value));
+        this.value = this.value.substring(0, start) + spaces + this.value.substring(end);
+        this.selectionStart = this.selectionEnd = start + spaces.length;
+      }
+    });
+  </script>
+</body>
+</html>

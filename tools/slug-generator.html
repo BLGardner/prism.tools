@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slug Generator - Prism.Tools</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #8BE9FD 0%, #50FA7B 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #e4e4e7; }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #8BE9FD;
+    }
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    .options-bar {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 0.875rem;
+      margin-bottom: 1rem;
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .option-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .option-label {
+      font-size: 0.8rem;
+      color: #a1a1aa;
+    }
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: #8BE9FD;
+    }
+    select {
+      padding: 0.4rem 0.6rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    select:focus {
+      outline: none;
+      border-color: #8BE9FD;
+    }
+    .panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+    .panel-header {
+      background: #1f1f23;
+      padding: 0.625rem 0.875rem;
+      border-bottom: 1px solid #27272a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .panel-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #8BE9FD;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .panel-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn-small {
+      padding: 0.25rem 0.625rem;
+      background: rgba(139, 233, 253, 0.1);
+      border: 1px solid rgba(139, 233, 253, 0.3);
+      color: #8BE9FD;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .btn-small:hover {
+      background: rgba(139, 233, 253, 0.2);
+    }
+    textarea {
+      width: 100%;
+      padding: 0.875rem;
+      background: #0a0a0f;
+      border: none;
+      color: #e4e4e7;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      resize: vertical;
+      min-height: 120px;
+      line-height: 1.6;
+    }
+    textarea:focus { outline: none; }
+    .output-box {
+      padding: 0.875rem;
+      background: #0a0a0f;
+      border: none;
+      color: #50FA7B;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      line-height: 1.6;
+      min-height: 60px;
+      word-break: break-all;
+    }
+    .controls {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      margin: 1rem 0;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 0.625rem 1.25rem;
+      background: #8BE9FD;
+      color: #0a0a0f;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(139, 233, 253, 0.3);
+    }
+    .samples {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .samples-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #8BE9FD;
+      margin-bottom: 0.75rem;
+    }
+    .sample-buttons {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .sample-btn {
+      padding: 0.5rem 0.875rem;
+      background: rgba(139, 233, 253, 0.1);
+      border: 1px solid rgba(139, 233, 253, 0.3);
+      color: #8BE9FD;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .sample-btn:hover {
+      background: rgba(139, 233, 253, 0.2);
+    }
+    .info-box {
+      background: rgba(139, 233, 253, 0.1);
+      border: 1px solid rgba(139, 233, 253, 0.2);
+      border-radius: 8px;
+      padding: 0.875rem;
+      margin-top: 1rem;
+    }
+    .info-box h3 {
+      font-size: 0.85rem;
+      color: #8BE9FD;
+      margin-bottom: 0.5rem;
+    }
+    .info-box ul {
+      margin-left: 1.25rem;
+      color: #a1a1aa;
+      font-size: 0.8rem;
+      line-height: 1.6;
+    }
+    .char-count {
+      font-size: 0.75rem;
+      color: #71717a;
+      margin-top: 0.25rem;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>🔗 Slug Generator</h1>
+      <p>Convert text into URL-safe slugs for SEO and routing</p>
+    </div>
+
+    <div class="options-bar">
+      <div class="option-group">
+        <input type="checkbox" id="lowercase" checked>
+        <label class="option-label" for="lowercase">Lowercase</label>
+      </div>
+      <div class="option-group">
+        <input type="checkbox" id="strict" checked>
+        <label class="option-label" for="strict">Strict Mode (a-z, 0-9, -)</label>
+      </div>
+      <div class="option-group">
+        <label class="option-label">Separator:</label>
+        <select id="separator">
+          <option value="-">Hyphen (-)</option>
+          <option value="_">Underscore (_)</option>
+          <option value=".">Period (.)</option>
+        </select>
+      </div>
+      <div class="option-group">
+        <input type="checkbox" id="trim-dashes" checked>
+        <label class="option-label" for="trim-dashes">Trim Extra Separators</label>
+      </div>
+      <div class="option-group">
+        <input type="checkbox" id="remove-stopwords">
+        <label class="option-label" for="remove-stopwords">Remove Common Words (a, the, is...)</label>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Input Text</span>
+        <div class="panel-actions">
+          <button class="btn-small" onclick="pasteText()">📋 Paste</button>
+          <button class="btn-small" onclick="clearAll()">🗑️</button>
+        </div>
+      </div>
+      <textarea id="input" placeholder="Enter your text here...
+Example: How to Build a React Application in 2025">How to Build a React Application in 2025</textarea>
+      <div class="char-count" id="char-count">0 characters</div>
+    </div>
+
+    <div class="controls">
+      <button class="btn" onclick="generateSlug()">✨ Generate Slug</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Generated Slug</span>
+        <div class="panel-actions">
+          <button class="btn-small" onclick="copySlug()">📋 Copy</button>
+        </div>
+      </div>
+      <div class="output-box" id="output">how-to-build-a-react-application-in-2025</div>
+      <div class="char-count" id="slug-length">41 characters</div>
+    </div>
+
+    <div class="samples">
+      <div class="samples-title">Load Sample Text</div>
+      <div class="sample-buttons">
+        <button class="sample-btn" onclick="loadSample('title')">Blog Title</button>
+        <button class="sample-btn" onclick="loadSample('product')">Product Name</button>
+        <button class="sample-btn" onclick="loadSample('special')">Special Characters</button>
+        <button class="sample-btn" onclick="loadSample('unicode')">Unicode/Emoji</button>
+        <button class="sample-btn" onclick="loadSample('long')">Long Text</button>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <h3>What is a URL Slug?</h3>
+      <ul>
+        <li>A slug is the part of a URL that identifies a page in a human-readable format</li>
+        <li>Example: <code>example.com/blog/<strong>my-awesome-post</strong></code></li>
+        <li>Best practices: Use hyphens, keep it short, include keywords, avoid special characters</li>
+        <li>SEO-friendly slugs improve search rankings and user experience</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const samples = {
+      title: "How to Build a React Application in 2025",
+      product: "Premium Cotton T-Shirt - Navy Blue (XL)",
+      special: "C++ Programming: The Complete Guide! #2024 @Developer Edition",
+      unicode: "🚀 Building Modern Apps with TypeScript & Next.js ✨",
+      long: "The Ultimate Guide to Full-Stack Web Development: Everything You Need to Know About JavaScript, React, Node.js, Databases, and Deployment in 2025"
+    };
+
+    const stopwords = new Set([
+      'a', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'for', 'from',
+      'has', 'he', 'in', 'is', 'it', 'its', 'of', 'on', 'that', 'the',
+      'to', 'was', 'will', 'with'
+    ]);
+
+    function generateSlug() {
+      const input = document.getElementById('input').value;
+      
+      if (!input.trim()) {
+        alert('Please enter text to convert');
+        return;
+      }
+
+      let slug = input.trim();
+      const separator = document.getElementById('separator').value;
+      const lowercase = document.getElementById('lowercase').checked;
+      const strict = document.getElementById('strict').checked;
+      const trimDashes = document.getElementById('trim-dashes').checked;
+      const removeStopwords = document.getElementById('remove-stopwords').checked;
+
+      // Convert to lowercase if needed
+      if (lowercase) {
+        slug = slug.toLowerCase();
+      }
+
+      // Remove accents/diacritics
+      slug = slug.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+      // Remove emojis and non-ASCII in strict mode
+      if (strict) {
+        slug = slug.replace(/[^\x00-\x7F]/g, '');
+      }
+
+      // Replace spaces and special chars with separator
+      slug = slug.replace(/[\s_]+/g, separator);
+      
+      if (strict) {
+        // Only keep alphanumeric and separator
+        const regex = new RegExp(`[^a-zA-Z0-9${separator.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}]`, 'g');
+        slug = slug.replace(regex, '');
+      } else {
+        // Keep more characters but replace problematic ones
+        slug = slug.replace(/[<>:"\/\\|?*\x00-\x1f]/g, '');
+      }
+
+      // Remove stopwords if enabled
+      if (removeStopwords) {
+        const parts = slug.split(separator);
+        slug = parts.filter(part => !stopwords.has(part.toLowerCase())).join(separator);
+      }
+
+      // Trim extra separators
+      if (trimDashes) {
+        const sepRegex = new RegExp(`${separator.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}+`, 'g');
+        slug = slug.replace(sepRegex, separator);
+        slug = slug.replace(new RegExp(`^${separator.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}+|${separator.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}+$`, 'g'), '');
+      }
+
+      document.getElementById('output').textContent = slug || '(empty slug)';
+      document.getElementById('slug-length').textContent = `${slug.length} characters`;
+      trackUsage();
+    }
+
+    function clearAll() {
+      document.getElementById('input').value = '';
+      document.getElementById('output').textContent = '';
+      document.getElementById('char-count').textContent = '0 characters';
+      document.getElementById('slug-length').textContent = '0 characters';
+    }
+
+    async function pasteText() {
+      try {
+        const text = await navigator.clipboard.readText();
+        document.getElementById('input').value = text;
+        updateCharCount();
+      } catch (e) {
+        alert('Could not paste from clipboard');
+      }
+    }
+
+    function copySlug() {
+      const slug = document.getElementById('output').textContent;
+      if (!slug || slug === '(empty slug)') {
+        alert('Generate a slug first');
+        return;
+      }
+      navigator.clipboard.writeText(slug).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      });
+    }
+
+    function loadSample(type) {
+      document.getElementById('input').value = samples[type];
+      updateCharCount();
+      generateSlug();
+    }
+
+    function updateCharCount() {
+      const input = document.getElementById('input').value;
+      document.getElementById('char-count').textContent = `${input.length} characters`;
+    }
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    // Update character count on input
+    document.getElementById('input').addEventListener('input', updateCharCount);
+
+    // Auto-generate on option change
+    ['lowercase', 'strict', 'separator', 'trim-dashes', 'remove-stopwords'].forEach(id => {
+      const el = document.getElementById(id);
+      el.addEventListener('change', () => {
+        if (document.getElementById('input').value) {
+          generateSlug();
+        }
+      });
+    });
+
+    // Initial generation
+    updateCharCount();
+    generateSlug();
+  </script>
+</body>
+</html>

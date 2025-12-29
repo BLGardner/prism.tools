@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SQL Formatter - Prism.Tools</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql-formatter/12.2.4/sql-formatter.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #82AAFF 0%, #5C7CFA 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #e4e4e7; }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #82AAFF;
+    }
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    .options-bar {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 0.875rem;
+      margin-bottom: 1rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .option-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .option-label {
+      font-size: 0.75rem;
+      color: #71717a;
+      font-weight: 600;
+    }
+    select {
+      padding: 0.5rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-size: 0.85rem;
+    }
+    select:focus {
+      outline: none;
+      border-color: #82AAFF;
+    }
+    .converter-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .panel-header {
+      background: #1f1f23;
+      padding: 0.625rem 0.875rem;
+      border-bottom: 1px solid #27272a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .panel-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #82AAFF;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .panel-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn-small {
+      padding: 0.25rem 0.625rem;
+      background: rgba(130, 170, 255, 0.1);
+      border: 1px solid rgba(130, 170, 255, 0.3);
+      color: #82AAFF;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .btn-small:hover {
+      background: rgba(130, 170, 255, 0.2);
+    }
+    textarea {
+      flex: 1;
+      padding: 0.875rem;
+      background: #0a0a0f;
+      border: none;
+      color: #e4e4e7;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      resize: none;
+      line-height: 1.6;
+    }
+    textarea:focus { outline: none; }
+    .controls {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      margin: 1rem 0;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 0.625rem 1.25rem;
+      background: #82AAFF;
+      color: #0a0a0f;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(130, 170, 255, 0.3);
+    }
+    .btn-secondary {
+      background: rgba(130, 170, 255, 0.1);
+      color: #82AAFF;
+      border: 1px solid rgba(130, 170, 255, 0.3);
+    }
+    .samples {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .samples-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #82AAFF;
+      margin-bottom: 0.75rem;
+    }
+    .sample-buttons {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .sample-btn {
+      padding: 0.5rem 0.875rem;
+      background: rgba(130, 170, 255, 0.1);
+      border: 1px solid rgba(130, 170, 255, 0.3);
+      color: #82AAFF;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .sample-btn:hover {
+      background: rgba(130, 170, 255, 0.2);
+    }
+    @media (max-width: 1024px) {
+      .converter-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>🗄️ SQL Formatter</h1>
+      <p>Format and beautify SQL queries for better readability</p>
+    </div>
+
+    <div class="options-bar">
+      <div class="option-group">
+        <label class="option-label">SQL Dialect</label>
+        <select id="dialect">
+          <option value="sql">Standard SQL</option>
+          <option value="mysql">MySQL</option>
+          <option value="postgresql">PostgreSQL</option>
+          <option value="mariadb">MariaDB</option>
+          <option value="sqlite">SQLite</option>
+          <option value="tsql">T-SQL (SQL Server)</option>
+          <option value="plsql">PL/SQL (Oracle)</option>
+        </select>
+      </div>
+      <div class="option-group">
+        <label class="option-label">Indentation</label>
+        <select id="indent">
+          <option value="2">2 spaces</option>
+          <option value="4" selected>4 spaces</option>
+          <option value="tab">Tab</option>
+        </select>
+      </div>
+      <div class="option-group">
+        <label class="option-label">Keyword Case</label>
+        <select id="keyword-case">
+          <option value="upper" selected>UPPERCASE</option>
+          <option value="lower">lowercase</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="converter-layout">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Unformatted SQL</span>
+          <div class="panel-actions">
+            <button class="btn-small" onclick="pasteSQL()">📋 Paste</button>
+            <button class="btn-small" onclick="clearSQL()">🗑️</button>
+          </div>
+        </div>
+        <textarea id="sql-input" placeholder="Paste your SQL query here...">SELECT u.id, u.name, u.email, COUNT(o.id) as order_count, SUM(o.total) as total_spent FROM users u LEFT JOIN orders o ON u.id = o.user_id WHERE u.created_at > '2024-01-01' AND u.status = 'active' GROUP BY u.id, u.name, u.email HAVING COUNT(o.id) > 5 ORDER BY total_spent DESC LIMIT 10;</textarea>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Formatted SQL</span>
+          <div class="panel-actions">
+            <button class="btn-small" onclick="copySQL()">📋 Copy</button>
+            <button class="btn-small" onclick="downloadSQL()">💾 Save</button>
+          </div>
+        </div>
+        <textarea id="sql-output" placeholder="Formatted SQL will appear here..." readonly></textarea>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn" onclick="formatSQL()">✨ Format SQL</button>
+      <button class="btn btn-secondary" onclick="minifySQL()">📦 Minify SQL</button>
+    </div>
+
+    <div class="samples">
+      <div class="samples-title">Load Sample Query</div>
+      <div class="sample-buttons">
+        <button class="sample-btn" onclick="loadSample('select')">Complex SELECT</button>
+        <button class="sample-btn" onclick="loadSample('join')">Multiple JOINs</button>
+        <button class="sample-btn" onclick="loadSample('subquery')">Subqueries</button>
+        <button class="sample-btn" onclick="loadSample('cte')">CTE (WITH)</button>
+        <button class="sample-btn" onclick="loadSample('window')">Window Functions</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const samples = {
+      select: `SELECT u.id, u.name, u.email, COUNT(o.id) as order_count, SUM(o.total) as total_spent FROM users u LEFT JOIN orders o ON u.id = o.user_id WHERE u.created_at > '2024-01-01' AND u.status = 'active' GROUP BY u.id, u.name, u.email HAVING COUNT(o.id) > 5 ORDER BY total_spent DESC LIMIT 10;`,
+      
+      join: `SELECT c.customer_name, o.order_date, p.product_name, oi.quantity, oi.price FROM customers c INNER JOIN orders o ON c.id = o.customer_id INNER JOIN order_items oi ON o.id = oi.order_id INNER JOIN products p ON oi.product_id = p.id WHERE o.order_date BETWEEN '2024-01-01' AND '2024-12-31' ORDER BY o.order_date DESC;`,
+      
+      subquery: `SELECT * FROM employees WHERE salary > (SELECT AVG(salary) FROM employees WHERE department_id = 10) AND department_id IN (SELECT id FROM departments WHERE budget > 100000) ORDER BY salary DESC;`,
+      
+      cte: `WITH monthly_sales AS (SELECT DATE_TRUNC('month', order_date) as month, SUM(total) as sales FROM orders GROUP BY DATE_TRUNC('month', order_date)), ranked_months AS (SELECT month, sales, RANK() OVER (ORDER BY sales DESC) as rank FROM monthly_sales) SELECT * FROM ranked_months WHERE rank <= 5;`,
+      
+      window: `SELECT employee_id, department_id, salary, AVG(salary) OVER (PARTITION BY department_id) as dept_avg, RANK() OVER (PARTITION BY department_id ORDER BY salary DESC) as dept_rank, LAG(salary) OVER (ORDER BY hire_date) as previous_salary FROM employees ORDER BY department_id, salary DESC;`
+    };
+
+    function formatSQL() {
+      const sql = document.getElementById('sql-input').value;
+      
+      if (!sql.trim()) {
+        alert('Please enter SQL to format');
+        return;
+      }
+
+      try {
+        const dialect = document.getElementById('dialect').value;
+        const indentStr = document.getElementById('indent').value;
+        const keywordCase = document.getElementById('keyword-case').value;
+
+        const indent = indentStr === 'tab' ? '\t' : ' '.repeat(parseInt(indentStr));
+
+        const formatted = sqlFormatter.format(sql, {
+          language: dialect,
+          indent: indent,
+          uppercase: keywordCase === 'upper',
+          linesBetweenQueries: 2
+        });
+
+        document.getElementById('sql-output').value = formatted;
+        trackUsage();
+      } catch (e) {
+        alert('Error formatting SQL: ' + e.message);
+      }
+    }
+
+    function minifySQL() {
+      const sql = document.getElementById('sql-input').value;
+      
+      if (!sql.trim()) {
+        alert('Please enter SQL to minify');
+        return;
+      }
+
+      // Simple minification - remove extra whitespace
+      const minified = sql
+        .replace(/\s+/g, ' ')
+        .replace(/\s*([(),;])\s*/g, '$1')
+        .trim();
+
+      document.getElementById('sql-output').value = minified;
+      trackUsage();
+    }
+
+    function clearSQL() {
+      document.getElementById('sql-input').value = '';
+      document.getElementById('sql-output').value = '';
+    }
+
+    async function pasteSQL() {
+      try {
+        const text = await navigator.clipboard.readText();
+        document.getElementById('sql-input').value = text;
+      } catch (e) {
+        alert('Could not paste from clipboard');
+      }
+    }
+
+    function copySQL() {
+      const sql = document.getElementById('sql-output').value;
+      if (!sql) {
+        alert('Format SQL first');
+        return;
+      }
+      navigator.clipboard.writeText(sql).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      });
+    }
+
+    function downloadSQL() {
+      const sql = document.getElementById('sql-output').value;
+      if (!sql) {
+        alert('Format SQL first');
+        return;
+      }
+      const blob = new Blob([sql], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'formatted-query.sql';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function loadSample(type) {
+      document.getElementById('sql-input').value = samples[type];
+      document.getElementById('sql-output').value = '';
+    }
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    // Auto-format on load
+    formatSQL();
+  </script>
+</body>
+</html>

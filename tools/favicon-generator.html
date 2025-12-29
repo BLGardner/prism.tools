@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Favicon Generator - Prism.Tools</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #C77DFF 0%, #FF6B9D 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #e4e4e7; }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #C77DFF;
+    }
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    .upload-section {
+      background: #18181b;
+      border: 2px dashed #27272a;
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+    .upload-section:hover {
+      border-color: #C77DFF;
+      background: rgba(199, 125, 255, 0.05);
+    }
+    .upload-section.dragover {
+      border-color: #C77DFF;
+      background: rgba(199, 125, 255, 0.1);
+    }
+    .upload-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+    .upload-text {
+      font-size: 1rem;
+      color: #e4e4e7;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+    .upload-hint {
+      font-size: 0.8rem;
+      color: #71717a;
+    }
+    input[type="file"] {
+      display: none;
+    }
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      justify-content: center;
+    }
+    .tab {
+      padding: 0.625rem 1.25rem;
+      background: rgba(199, 125, 255, 0.1);
+      border: 1px solid rgba(199, 125, 255, 0.3);
+      color: #C77DFF;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .tab:hover {
+      background: rgba(199, 125, 255, 0.2);
+    }
+    .tab.active {
+      background: #C77DFF;
+      color: #0a0a0f;
+      border-color: #C77DFF;
+    }
+    .editor-section {
+      display: none;
+    }
+    .editor-section.active {
+      display: block;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .section {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .section-header {
+      background: #1f1f23;
+      padding: 0.75rem 0.875rem;
+      border-bottom: 1px solid #27272a;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #C77DFF;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .section-content {
+      padding: 1rem;
+    }
+    .control-group {
+      margin-bottom: 1.25rem;
+    }
+    .control-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #a1a1aa;
+      margin-bottom: 0.5rem;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-size: 2rem;
+      font-weight: 700;
+      text-align: center;
+    }
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #C77DFF;
+    }
+    input[type="color"] {
+      width: 100%;
+      height: 50px;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      cursor: pointer;
+      padding: 4px;
+    }
+    input[type="color"]::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+    input[type="color"]::-webkit-color-swatch {
+      border: none;
+      border-radius: 4px;
+    }
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      background: #27272a;
+      border-radius: 3px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      background: #C77DFF;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      background: #C77DFF;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+    }
+    .range-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: #71717a;
+      margin-top: 0.25rem;
+    }
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    .preview-item {
+      text-align: center;
+    }
+    .preview-label {
+      font-size: 0.75rem;
+      color: #71717a;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+    .preview-box {
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100px;
+    }
+    canvas {
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+    }
+    .btn {
+      padding: 0.625rem 1.25rem;
+      background: #C77DFF;
+      color: #0a0a0f;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+      margin-top: 0.5rem;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(199, 125, 255, 0.3);
+    }
+    .btn-secondary {
+      background: rgba(199, 125, 255, 0.1);
+      color: #C77DFF;
+      border: 1px solid rgba(199, 125, 255, 0.3);
+    }
+    .download-section {
+      grid-column: 1 / -1;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .download-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #C77DFF;
+      margin-bottom: 0.75rem;
+    }
+    .download-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.75rem;
+    }
+    .download-btn {
+      padding: 0.75rem;
+      background: rgba(199, 125, 255, 0.1);
+      border: 1px solid rgba(199, 125, 255, 0.3);
+      color: #C77DFF;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .download-btn:hover {
+      background: rgba(199, 125, 255, 0.2);
+      transform: translateY(-1px);
+    }
+    .info-box {
+      background: rgba(199, 125, 255, 0.1);
+      border: 1px solid rgba(199, 125, 255, 0.2);
+      border-radius: 8px;
+      padding: 0.875rem;
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      color: #a1a1aa;
+      line-height: 1.5;
+    }
+    .select-style {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .select-style:focus {
+      outline: none;
+      border-color: #C77DFF;
+    }
+    @media (max-width: 1024px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>📱 Favicon Generator</h1>
+      <p>Create favicons from images or text for your website</p>
+    </div>
+
+    <div class="upload-section" id="upload-area" onclick="document.getElementById('file-input').click()">
+      <div class="upload-icon">🖼️</div>
+      <div class="upload-text">Click to upload image or drag & drop</div>
+      <div class="upload-hint">PNG, JPG, SVG supported • Square images work best</div>
+      <input type="file" id="file-input" accept="image/*">
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchMode('image')" id="tab-image">From Image</button>
+      <button class="tab" onclick="switchMode('text')" id="tab-text">From Text</button>
+      <button class="tab" onclick="switchMode('emoji')" id="tab-emoji">From Emoji</button>
+    </div>
+
+    <div id="editor-image" class="editor-section active">
+      <div class="layout">
+        <div class="section">
+          <div class="section-header">Image Controls</div>
+          <div class="section-content">
+            <div class="control-group">
+              <label class="control-label">Background Color</label>
+              <input type="color" id="img-bg-color" value="#ffffff" oninput="updateFromImage()">
+            </div>
+
+            <div class="control-group">
+              <label class="control-label">Border Radius</label>
+              <input type="range" id="img-radius" min="0" max="50" value="0" oninput="updateFromImage()">
+              <div class="range-label">
+                <span>Square</span>
+                <span id="img-radius-value">0%</span>
+                <span>Circle</span>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <label class="control-label">Padding</label>
+              <input type="range" id="img-padding" min="0" max="30" value="0" oninput="updateFromImage()">
+              <div class="range-label">
+                <span>None</span>
+                <span id="img-padding-value">0%</span>
+                <span>Max</span>
+              </div>
+            </div>
+
+            <button class="btn btn-secondary" onclick="document.getElementById('file-input').click()">Change Image</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-header">Preview</div>
+          <div class="section-content">
+            <div class="preview-grid">
+              <div class="preview-item">
+                <div class="preview-label">16×16</div>
+                <div class="preview-box">
+                  <canvas id="preview-16" width="16" height="16"></canvas>
+                </div>
+              </div>
+              <div class="preview-item">
+                <div class="preview-label">32×32</div>
+                <div class="preview-box">
+                  <canvas id="preview-32" width="32" height="32"></canvas>
+                </div>
+              </div>
+              <div class="preview-item">
+                <div class="preview-label">180×180</div>
+                <div class="preview-box">
+                  <canvas id="preview-180" width="180" height="180"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="editor-text" class="editor-section">
+      <div class="layout">
+        <div class="section">
+          <div class="section-header">Text Controls</div>
+          <div class="section-content">
+            <div class="control-group">
+              <label class="control-label">Text (1-2 characters)</label>
+              <input type="text" id="text-input" maxlength="2" value="P" oninput="updateFromText()">
+            </div>
+
+            <div class="control-group">
+              <label class="control-label">Text Color</label>
+              <input type="color" id="text-color" value="#ffffff" oninput="updateFromText()">
+            </div>
+
+            <div class="control-group">
+              <label class="control-label">Background Color</label>
+              <input type="color" id="text-bg-color" value="#C77DFF" oninput="updateFromText()">
+            </div>
+
+            <div class="control-group">
+              <label class="control-label">Font Style</label>
+              <select class="select-style" id="text-font" onchange="updateFromText()">
+                <option value="Arial">Arial</option>
+                <option value="Helvetica">Helvetica</option>
+                <option value="Verdana">Verdana</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Courier New">Courier New</option>
+                <option value="Impact">Impact</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label class="control-label">Border Radius</label>
+              <input type="range" id="text-radius" min="0" max="50" value="15" oninput="updateFromText()">
+              <div class="range-label">
+                <span>Square</span>
+                <span id="text-radius-value">15%</span>
+                <span>Circle</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-header">Preview</div>
+          <div class="section-content">
+            <div class="preview-grid">
+              <div class="preview-item">
+                <div class="preview-label">16×16</div>
+                <div class="preview-box">
+                  <canvas id="preview-text-16" width="16" height="16"></canvas>
+                </div>
+              </div>
+              <div class="preview-item">
+                <div class="preview-label">32×32</div>
+                <div class="preview-box">
+                  <canvas id="preview-text-32" width="32" height="32"></canvas>
+                </div>
+              </div>
+              <div class="preview-item">
+                <div class="preview-label">180×180</div>
+                <div class="preview-box">
+                  <canvas id="preview-text-180" width="180" height="180"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="editor-emoji" class="editor-section">
+      <div class="layout">
+        <div class="section">
+          <div class="section-header">Emoji Controls</div>
+          <div class="section-content">
+            <div class="control-group">
+              <label class="control-label">Emoji</label>
+              <input type="text" id="emoji-input" maxlength="2" value="🚀" oninput="updateFromEmoji()">
+            </div>
+
+            <div class="control-group">
+              <label class="control-label">Background Color</label>
+              <input type="color" id="emoji-bg-color" value="#ffffff" oninput="updateFromEmoji()">
+            </div>
+
+            <div class="control-group">
+              <label class="control-label">Border Radius</label>
+              <input type="range" id="emoji-radius" min="0" max="50" value="0" oninput="updateFromEmoji()">
+              <div class="range-label">
+                <span>Square</span>
+                <span id="emoji-radius-value">0%</span>
+                <span>Circle</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-header">Preview</div>
+          <div class="section-content">
+            <div class="preview-grid">
+              <div class="preview-item">
+                <div class="preview-label">16×16</div>
+                <div class="preview-box">
+                  <canvas id="preview-emoji-16" width="16" height="16"></canvas>
+                </div>
+              </div>
+              <div class="preview-item">
+                <div class="preview-label">32×32</div>
+                <div class="preview-box">
+                  <canvas id="preview-emoji-32" width="32" height="32"></canvas>
+                </div>
+              </div>
+              <div class="preview-item">
+                <div class="preview-label">180×180</div>
+                <div class="preview-box">
+                  <canvas id="preview-emoji-180" width="180" height="180"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="download-section">
+      <div class="download-title">Download Favicons</div>
+      <div class="download-grid">
+        <button class="download-btn" onclick="downloadFavicon(16)">16×16 (favicon.ico)</button>
+        <button class="download-btn" onclick="downloadFavicon(32)">32×32 (favicon.png)</button>
+        <button class="download-btn" onclick="downloadFavicon(180)">180×180 (apple-touch)</button>
+        <button class="download-btn" onclick="downloadFavicon(192)">192×192 (android)</button>
+        <button class="download-btn" onclick="downloadFavicon(512)">512×512 (android)</button>
+        <button class="download-btn" onclick="downloadAll()">📦 Download All</button>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>💡 Usage:</strong> After generating, place these files in your website's root directory and add the following to your HTML &lt;head&gt;:<br>
+      <code style="display:block;margin-top:0.5rem;font-family:monospace;font-size:0.75rem;">
+        &lt;link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"&gt;<br>
+        &lt;link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"&gt;
+      </code>
+    </div>
+  </div>
+
+  <script>
+    let uploadedImage = null;
+    let currentMode = 'image';
+
+    // File upload handling
+    const fileInput = document.getElementById('file-input');
+    const uploadArea = document.getElementById('upload-area');
+
+    fileInput.addEventListener('change', handleFileSelect);
+
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        loadImage(file);
+      }
+    });
+
+    function handleFileSelect(e) {
+      const file = e.target.files[0];
+      if (file) {
+        loadImage(file);
+      }
+    }
+
+    function loadImage(file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          uploadedImage = img;
+          switchMode('image');
+          updateFromImage();
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function switchMode(mode) {
+      currentMode = mode;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.getElementById(`tab-${mode}`).classList.add('active');
+      
+      document.querySelectorAll('.editor-section').forEach(s => s.classList.remove('active'));
+      document.getElementById(`editor-${mode}`).classList.add('active');
+
+      if (mode === 'image' && uploadedImage) {
+        updateFromImage();
+      } else if (mode === 'text') {
+        updateFromText();
+      } else if (mode === 'emoji') {
+        updateFromEmoji();
+      }
+    }
+
+    function updateFromImage() {
+      if (!uploadedImage) return;
+
+      const bgColor = document.getElementById('img-bg-color').value;
+      const radius = parseInt(document.getElementById('img-radius').value);
+      const padding = parseInt(document.getElementById('img-padding').value);
+
+      document.getElementById('img-radius-value').textContent = radius + '%';
+      document.getElementById('img-padding-value').textContent = padding + '%';
+
+      [16, 32, 180].forEach(size => {
+        const canvas = document.getElementById(`preview-${size}`);
+        const ctx = canvas.getContext('2d');
+        
+        drawImageFavicon(ctx, size, bgColor, radius, padding);
+      });
+
+      trackUsage();
+    }
+
+    function drawImageFavicon(ctx, size, bgColor, radiusPercent, paddingPercent) {
+      const canvas = ctx.canvas;
+      ctx.clearRect(0, 0, size, size);
+
+      // Background
+      ctx.fillStyle = bgColor;
+      const radius = (size * radiusPercent) / 100;
+      roundRect(ctx, 0, 0, size, size, radius);
+      ctx.fill();
+
+      // Image with padding
+      const padding = (size * paddingPercent) / 100;
+      const imgSize = size - (padding * 2);
+      
+      ctx.save();
+      ctx.beginPath();
+      roundRect(ctx, padding, padding, imgSize, imgSize, radius);
+      ctx.clip();
+      ctx.drawImage(uploadedImage, padding, padding, imgSize, imgSize);
+      ctx.restore();
+    }
+
+    function updateFromText() {
+      const text = document.getElementById('text-input').value || 'P';
+      const textColor = document.getElementById('text-color').value;
+      const bgColor = document.getElementById('text-bg-color').value;
+      const font = document.getElementById('text-font').value;
+      const radius = parseInt(document.getElementById('text-radius').value);
+
+      document.getElementById('text-radius-value').textContent = radius + '%';
+
+      [16, 32, 180].forEach(size => {
+        const canvas = document.getElementById(`preview-text-${size}`);
+        const ctx = canvas.getContext('2d');
+        
+        drawTextFavicon(ctx, size, text, textColor, bgColor, font, radius);
+      });
+
+      trackUsage();
+    }
+
+    function drawTextFavicon(ctx, size, text, textColor, bgColor, font, radiusPercent) {
+      ctx.clearRect(0, 0, size, size);
+
+      // Background
+      ctx.fillStyle = bgColor;
+      const radius = (size * radiusPercent) / 100;
+      roundRect(ctx, 0, 0, size, size, radius);
+      ctx.fill();
+
+      // Text
+      ctx.fillStyle = textColor;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = `bold ${size * 0.6}px ${font}`;
+      ctx.fillText(text, size / 2, size / 2);
+    }
+
+    function updateFromEmoji() {
+      const emoji = document.getElementById('emoji-input').value || '🚀';
+      const bgColor = document.getElementById('emoji-bg-color').value;
+      const radius = parseInt(document.getElementById('emoji-radius').value);
+
+      document.getElementById('emoji-radius-value').textContent = radius + '%';
+
+      [16, 32, 180].forEach(size => {
+        const canvas = document.getElementById(`preview-emoji-${size}`);
+        const ctx = canvas.getContext('2d');
+        
+        drawEmojiFavicon(ctx, size, emoji, bgColor, radius);
+      });
+
+      trackUsage();
+    }
+
+    function drawEmojiFavicon(ctx, size, emoji, bgColor, radiusPercent) {
+      ctx.clearRect(0, 0, size, size);
+
+      // Background
+      ctx.fillStyle = bgColor;
+      const radius = (size * radiusPercent) / 100;
+      roundRect(ctx, 0, 0, size, size, radius);
+      ctx.fill();
+
+      // Emoji
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = `${size * 0.7}px Arial`;
+      ctx.fillText(emoji, size / 2, size / 2);
+    }
+
+    function roundRect(ctx, x, y, width, height, radius) {
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + width - radius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      ctx.lineTo(x + width, y + height - radius);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      ctx.lineTo(x + radius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+    }
+
+    function downloadFavicon(size) {
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+
+      if (currentMode === 'image' && uploadedImage) {
+        const bgColor = document.getElementById('img-bg-color').value;
+        const radius = parseInt(document.getElementById('img-radius').value);
+        const padding = parseInt(document.getElementById('img-padding').value);
+        drawImageFavicon(ctx, size, bgColor, radius, padding);
+      } else if (currentMode === 'text') {
+        const text = document.getElementById('text-input').value;
+        const textColor = document.getElementById('text-color').value;
+        const bgColor = document.getElementById('text-bg-color').value;
+        const font = document.getElementById('text-font').value;
+        const radius = parseInt(document.getElementById('text-radius').value);
+        drawTextFavicon(ctx, size, text, textColor, bgColor, font, radius);
+      } else if (currentMode === 'emoji') {
+        const emoji = document.getElementById('emoji-input').value;
+        const bgColor = document.getElementById('emoji-bg-color').value;
+        const radius = parseInt(document.getElementById('emoji-radius').value);
+        drawEmojiFavicon(ctx, size, emoji, bgColor, radius);
+      }
+
+      canvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        let filename = 'favicon-' + size + 'x' + size + '.png';
+        if (size === 16) filename = 'favicon.ico';
+        if (size === 180) filename = 'apple-touch-icon.png';
+        if (size === 192) filename = 'android-chrome-192x192.png';
+        if (size === 512) filename = 'android-chrome-512x512.png';
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+    }
+	
+    function downloadAll() {
+      [16, 32, 180, 192, 512].forEach((size, index) => {
+        setTimeout(() => downloadFavicon(size), index * 200);
+      });
+      }
+      
+      function trackUsage() {
+        let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+        count++;
+        localStorage.setItem('prism-usage-count', count);
+      }
+      
+      // Initialize text mode
+      updateFromText();
+	  
+</script>
+</body>
+</html>

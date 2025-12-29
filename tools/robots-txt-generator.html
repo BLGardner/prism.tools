@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Robots.txt Generator - Prism.Tools</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #50FA7B 0%, #6BCF7F 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #e4e4e7; }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #50FA7B;
+    }
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .section {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .section-header {
+      background: #1f1f23;
+      padding: 0.75rem 0.875rem;
+      border-bottom: 1px solid #27272a;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #50FA7B;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .section-content {
+      padding: 1rem;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #a1a1aa;
+      margin-bottom: 0.4rem;
+    }
+    input[type="text"], input[type="url"], textarea {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-size: 0.85rem;
+      font-family: inherit;
+    }
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #50FA7B;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.4;
+    }
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #50FA7B;
+    }
+    .checkbox-label {
+      font-size: 0.85rem;
+      color: #e4e4e7;
+      cursor: pointer;
+    }
+    .rule-item {
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+      position: relative;
+    }
+    .rule-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    .rule-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #50FA7B;
+    }
+    .btn-remove {
+      padding: 0.25rem 0.5rem;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .btn-remove:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+    .btn {
+      padding: 0.625rem 1.25rem;
+      background: #50FA7B;
+      color: #0a0a0f;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+      margin-top: 0.5rem;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(80, 250, 123, 0.3);
+    }
+    .btn-secondary {
+      background: rgba(80, 250, 123, 0.1);
+      color: #50FA7B;
+      border: 1px solid rgba(80, 250, 123, 0.3);
+    }
+    .output-panel {
+      grid-column: 1 / -1;
+    }
+    .output-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .panel-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn-small {
+      padding: 0.25rem 0.625rem;
+      background: rgba(80, 250, 123, 0.1);
+      border: 1px solid rgba(80, 250, 123, 0.3);
+      color: #50FA7B;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .btn-small:hover {
+      background: rgba(80, 250, 123, 0.2);
+    }
+    .output-code {
+      padding: 1rem;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      word-break: break-all;
+      min-height: 200px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .templates {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+    .template-btn {
+      padding: 0.5rem 0.875rem;
+      background: rgba(80, 250, 123, 0.1);
+      border: 1px solid rgba(80, 250, 123, 0.3);
+      color: #50FA7B;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .template-btn:hover {
+      background: rgba(80, 250, 123, 0.2);
+    }
+    .info-box {
+      background: rgba(80, 250, 123, 0.1);
+      border: 1px solid rgba(80, 250, 123, 0.2);
+      border-radius: 8px;
+      padding: 0.875rem;
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      color: #a1a1aa;
+      line-height: 1.5;
+    }
+    .help-text {
+      font-size: 0.75rem;
+      color: #71717a;
+      margin-top: 0.25rem;
+      font-style: italic;
+    }
+    @media (max-width: 1024px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>🤖 Robots.txt Generator</h1>
+      <p>Control how search engines crawl and index your website</p>
+    </div>
+
+    <div class="templates">
+      <button class="template-btn" onclick="loadTemplate('standard')">📄 Standard Site</button>
+      <button class="template-btn" onclick="loadTemplate('ecommerce')">🛒 E-commerce</button>
+      <button class="template-btn" onclick="loadTemplate('blog')">📝 Blog</button>
+      <button class="template-btn" onclick="loadTemplate('strict')">🔒 Strict</button>
+      <button class="template-btn" onclick="loadTemplate('open')">🌐 Fully Open</button>
+    </div>
+
+    <div class="layout">
+      <div class="section">
+        <div class="section-header">Basic Settings</div>
+        <div class="section-content">
+          <div class="form-group">
+            <label class="form-label">Sitemap URL (optional)</label>
+            <input type="url" id="sitemap" placeholder="https://example.com/sitemap.xml">
+            <div class="help-text">Help search engines discover your content</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Crawl Delay (seconds)</label>
+            <input type="text" id="crawl-delay" placeholder="Leave empty for no delay">
+            <div class="help-text">Time bots should wait between requests</div>
+          </div>
+
+          <div class="checkbox-group">
+            <input type="checkbox" id="allow-all" checked onchange="updatePreview()">
+            <label class="checkbox-label" for="allow-all">Allow all bots by default</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">Quick Blocks</div>
+        <div class="section-content">
+          <div class="checkbox-group">
+            <input type="checkbox" id="block-admin" checked onchange="updatePreview()">
+            <label class="checkbox-label" for="block-admin">Block /admin</label>
+          </div>
+          <div class="checkbox-group">
+            <input type="checkbox" id="block-private" onchange="updatePreview()">
+            <label class="checkbox-label" for="block-private">Block /private</label>
+          </div>
+          <div class="checkbox-group">
+            <input type="checkbox" id="block-cgi" onchange="updatePreview()">
+            <label class="checkbox-label" for="block-cgi">Block /cgi-bin</label>
+          </div>
+          <div class="checkbox-group">
+            <input type="checkbox" id="block-tmp" onchange="updatePreview()">
+            <label class="checkbox-label" for="block-tmp">Block /tmp</label>
+          </div>
+          <div class="checkbox-group">
+            <input type="checkbox" id="block-search" onchange="updatePreview()">
+            <label class="checkbox-label" for="block-search">Block /search</label>
+          </div>
+          <div class="checkbox-group">
+            <input type="checkbox" id="block-api" onchange="updatePreview()">
+            <label class="checkbox-label" for="block-api">Block /api</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">Custom Disallow Rules</div>
+        <div class="section-content">
+          <div id="custom-rules"></div>
+          <button class="btn btn-secondary" onclick="addCustomRule()">+ Add Rule</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">Specific User-Agents</div>
+        <div class="section-content">
+          <div id="user-agents"></div>
+          <button class="btn btn-secondary" onclick="addUserAgent()">+ Add User-Agent</button>
+        </div>
+      </div>
+
+      <div class="section output-panel">
+        <div class="section-header output-header">
+          <span>Generated robots.txt</span>
+          <div class="panel-actions">
+            <button class="btn-small" onclick="copyRobots()">📋 Copy</button>
+            <button class="btn-small" onclick="downloadRobots()">💾 Download</button>
+          </div>
+        </div>
+        <pre class="output-code" id="output"># robots.txt for your website
+# Generated by Prism.Tools
+
+User-agent: *
+Allow: /</pre>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>💡 Quick Guide:</strong> The robots.txt file tells search engine bots which pages they can and cannot access. Place it at the root of your website (e.g., example.com/robots.txt). Use "Disallow" to block paths and "Allow" to explicitly permit them. Remember: this is a guideline, not enforcement—malicious bots may ignore it.
+    </div>
+  </div>
+
+  <script>
+    let customRuleCount = 0;
+    let userAgentCount = 0;
+
+    function addCustomRule() {
+      customRuleCount++;
+      const container = document.getElementById('custom-rules');
+      const div = document.createElement('div');
+      div.className = 'rule-item';
+      div.id = `rule-${customRuleCount}`;
+      div.innerHTML = `
+        <div class="rule-header">
+          <span class="rule-title">Rule ${customRuleCount}</span>
+          <button class="btn-remove" onclick="removeRule('rule-${customRuleCount}')">Remove</button>
+        </div>
+        <input type="text" placeholder="/path/to/block" oninput="updatePreview()" id="rule-path-${customRuleCount}">
+      `;
+      container.appendChild(div);
+      updatePreview();
+    }
+
+    function removeRule(id) {
+      document.getElementById(id).remove();
+      updatePreview();
+    }
+
+    function addUserAgent() {
+      userAgentCount++;
+      const container = document.getElementById('user-agents');
+      const div = document.createElement('div');
+      div.className = 'rule-item';
+      div.id = `ua-${userAgentCount}`;
+      div.innerHTML = `
+        <div class="rule-header">
+          <span class="rule-title">User-Agent ${userAgentCount}</span>
+          <button class="btn-remove" onclick="removeRule('ua-${userAgentCount}')">Remove</button>
+        </div>
+        <div class="form-group" style="margin-bottom: 0.5rem;">
+          <input type="text" placeholder="Bot name (e.g., Googlebot)" id="ua-name-${userAgentCount}" oninput="updatePreview()">
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <textarea placeholder="Disallow: /path" rows="3" id="ua-rules-${userAgentCount}" oninput="updatePreview()"></textarea>
+        </div>
+      `;
+      container.appendChild(div);
+      updatePreview();
+    }
+
+    function updatePreview() {
+      let output = '# robots.txt for your website\n# Generated by Prism.Tools\n\n';
+
+      // User-agent specific rules
+      const userAgents = document.querySelectorAll('[id^="ua-"]');
+      userAgents.forEach(ua => {
+        if (!ua.id.includes('name') && !ua.id.includes('rules')) {
+          const id = ua.id.split('-')[1];
+          const name = document.getElementById(`ua-name-${id}`)?.value.trim();
+          const rules = document.getElementById(`ua-rules-${id}`)?.value.trim();
+          if (name) {
+            output += `User-agent: ${name}\n`;
+            if (rules) {
+              output += rules + '\n';
+            } else {
+              output += 'Disallow:\n';
+            }
+            output += '\n';
+          }
+        }
+      });
+
+      // Default user-agent
+      output += 'User-agent: *\n';
+
+      const allowAll = document.getElementById('allow-all').checked;
+      
+      // Quick blocks
+      if (document.getElementById('block-admin').checked) output += 'Disallow: /admin\n';
+      if (document.getElementById('block-private').checked) output += 'Disallow: /private\n';
+      if (document.getElementById('block-cgi').checked) output += 'Disallow: /cgi-bin\n';
+      if (document.getElementById('block-tmp').checked) output += 'Disallow: /tmp\n';
+      if (document.getElementById('block-search').checked) output += 'Disallow: /search\n';
+      if (document.getElementById('block-api').checked) output += 'Disallow: /api\n';
+
+      // Custom rules
+      const rules = document.querySelectorAll('[id^="rule-path-"]');
+      rules.forEach(rule => {
+        const path = rule.value.trim();
+        if (path) {
+          output += `Disallow: ${path}\n`;
+        }
+      });
+
+      // Allow all if checked and no disallows
+      if (allowAll && !output.includes('Disallow:')) {
+        output += 'Allow: /\n';
+      }
+
+      // Crawl delay
+      const crawlDelay = document.getElementById('crawl-delay').value.trim();
+      if (crawlDelay && !isNaN(crawlDelay)) {
+        output += `\nCrawl-delay: ${crawlDelay}\n`;
+      }
+
+      // Sitemap
+      const sitemap = document.getElementById('sitemap').value.trim();
+      if (sitemap) {
+        output += `\nSitemap: ${sitemap}\n`;
+      }
+
+      document.getElementById('output').textContent = output;
+      trackUsage();
+    }
+
+    function loadTemplate(type) {
+      // Reset form
+      document.getElementById('allow-all').checked = false;
+      document.getElementById('block-admin').checked = false;
+      document.getElementById('block-private').checked = false;
+      document.getElementById('block-cgi').checked = false;
+      document.getElementById('block-tmp').checked = false;
+      document.getElementById('block-search').checked = false;
+      document.getElementById('block-api').checked = false;
+      document.getElementById('sitemap').value = '';
+      document.getElementById('crawl-delay').value = '';
+      document.getElementById('custom-rules').innerHTML = '';
+      document.getElementById('user-agents').innerHTML = '';
+      customRuleCount = 0;
+      userAgentCount = 0;
+
+      if (type === 'standard') {
+        document.getElementById('allow-all').checked = true;
+        document.getElementById('block-admin').checked = true;
+        document.getElementById('sitemap').value = 'https://example.com/sitemap.xml';
+      } else if (type === 'ecommerce') {
+        document.getElementById('allow-all').checked = true;
+        document.getElementById('block-admin').checked = true;
+        document.getElementById('block-search').checked = true;
+        document.getElementById('block-api').checked = true;
+        document.getElementById('sitemap').value = 'https://example.com/sitemap.xml';
+        addCustomRule();
+        document.getElementById('rule-path-1').value = '/cart';
+        addCustomRule();
+        document.getElementById('rule-path-2').value = '/checkout';
+        addCustomRule();
+        document.getElementById('rule-path-3').value = '/account';
+      } else if (type === 'blog') {
+        document.getElementById('allow-all').checked = true;
+        document.getElementById('block-admin').checked = true;
+        document.getElementById('sitemap').value = 'https://example.com/sitemap.xml';
+        addCustomRule();
+        document.getElementById('rule-path-1').value = '/wp-admin';
+      } else if (type === 'strict') {
+        document.getElementById('block-admin').checked = true;
+        document.getElementById('block-private').checked = true;
+        document.getElementById('block-cgi').checked = true;
+        document.getElementById('block-tmp').checked = true;
+        document.getElementById('block-search').checked = true;
+        document.getElementById('block-api').checked = true;
+        document.getElementById('crawl-delay').value = '10';
+      } else if (type === 'open') {
+        document.getElementById('allow-all').checked = true;
+        document.getElementById('sitemap').value = 'https://example.com/sitemap.xml';
+      }
+
+      updatePreview();
+    }
+
+    function copyRobots() {
+      const text = document.getElementById('output').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      });
+    }
+
+    function downloadRobots() {
+      const text = document.getElementById('output').textContent;
+      const blob = new Blob([text], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'robots.txt';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    // Add listeners
+    ['sitemap', 'crawl-delay'].forEach(id => {
+      document.getElementById(id).addEventListener('input', updatePreview);
+    });
+
+    // Initial preview
+    updatePreview();
+  </script>
+</body>
+</html>

@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JWT Decoder - Prism.Tools</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #6BCF7F 0%, #4A9960 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #e4e4e7; }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #6BCF7F;
+    }
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    .input-section {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .input-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+    .input-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #a1a1aa;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .input-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn-small {
+      padding: 0.25rem 0.625rem;
+      background: rgba(107, 207, 127, 0.1);
+      border: 1px solid rgba(107, 207, 127, 0.3);
+      color: #6BCF7F;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .btn-small:hover {
+      background: rgba(107, 207, 127, 0.2);
+      transform: translateY(-1px);
+    }
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 0.75rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      resize: vertical;
+      line-height: 1.5;
+    }
+    textarea:focus { 
+      outline: none;
+      border-color: #6BCF7F;
+    }
+    .status-bar {
+      display: flex;
+      gap: 1rem;
+      padding: 0.75rem;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+    }
+    .status-label {
+      color: #71717a;
+    }
+    .status-value {
+      font-weight: 600;
+      font-family: monospace;
+    }
+    .status-valid { color: #6BCF7F; }
+    .status-invalid { color: #FF6B6B; }
+    .status-warning { color: #FFD93D; }
+    .results-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .result-panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .panel-header {
+      background: #1f1f23;
+      padding: 0.625rem 0.875rem;
+      border-bottom: 1px solid #27272a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .panel-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #a1a1aa;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .panel-content {
+      padding: 0.875rem;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .json-viewer {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.6;
+    }
+    .json-key {
+      color: #8BE9FD;
+    }
+    .json-string {
+      color: #50FA7B;
+    }
+    .json-number {
+      color: #BD93F9;
+    }
+    .json-boolean {
+      color: #FFB86C;
+    }
+    .json-null {
+      color: #FF6B6B;
+    }
+    .claim-item {
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #27272a;
+    }
+    .claim-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    .claim-name {
+      font-size: 0.75rem;
+      color: #71717a;
+      margin-bottom: 0.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .claim-value {
+      color: #e4e4e7;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      word-break: break-all;
+    }
+    .signature-section {
+      grid-column: 1 / -1;
+    }
+    .signature-warning {
+      background: rgba(255, 107, 107, 0.1);
+      border: 1px solid rgba(255, 107, 107, 0.3);
+      padding: 0.875rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      color: #FF6B6B;
+      margin-top: 0.5rem;
+    }
+    .info-box {
+      background: rgba(107, 207, 127, 0.1);
+      border: 1px solid rgba(107, 207, 127, 0.3);
+      padding: 0.875rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+    }
+    .info-box h3 {
+      font-size: 0.875rem;
+      color: #6BCF7F;
+      margin-bottom: 0.5rem;
+    }
+    .info-box ul {
+      margin-left: 1.25rem;
+      font-size: 0.8rem;
+      color: #a1a1aa;
+    }
+    .info-box li {
+      margin-bottom: 0.25rem;
+    }
+    .sample-jwt {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+    }
+    .sample-jwt h4 {
+      font-size: 0.8rem;
+      color: #a1a1aa;
+      margin-bottom: 0.5rem;
+    }
+    .sample-btn {
+      padding: 0.5rem 0.875rem;
+      background: rgba(107, 207, 127, 0.1);
+      border: 1px solid rgba(107, 207, 127, 0.3);
+      color: #6BCF7F;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+      display: inline-block;
+    }
+    .sample-btn:hover {
+      background: rgba(107, 207, 127, 0.2);
+    }
+    @media (max-width: 768px) {
+      .results-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>🎫 JWT Decoder</h1>
+      <p>Decode and inspect JSON Web Tokens</p>
+    </div>
+
+    <div class="input-section">
+      <div class="input-header">
+        <span class="input-label">JWT Token</span>
+        <div class="input-actions">
+          <button class="btn-small" onclick="pasteToken()">📋 Paste</button>
+          <button class="btn-small" onclick="clearToken()">🗑️ Clear</button>
+        </div>
+      </div>
+      <textarea id="jwt-input" placeholder="Paste your JWT token here... (e.g., eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...)"></textarea>
+    </div>
+
+    <div class="status-bar" id="status-bar" style="display: none;">
+      <div class="status-item">
+        <span class="status-label">Status:</span>
+        <span class="status-value" id="status-value">-</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Algorithm:</span>
+        <span class="status-value" id="algo-value">-</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Issued:</span>
+        <span class="status-value" id="issued-value">-</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Expires:</span>
+        <span class="status-value" id="expires-value">-</span>
+      </div>
+    </div>
+
+    <div class="results-grid" id="results" style="display: none;">
+      <div class="result-panel">
+        <div class="panel-header">
+          <span class="panel-title">Header</span>
+          <button class="btn-small" onclick="copySection('header')">📋 Copy</button>
+        </div>
+        <div class="panel-content">
+          <pre class="json-viewer" id="header-content"></pre>
+        </div>
+      </div>
+
+      <div class="result-panel">
+        <div class="panel-header">
+          <span class="panel-title">Payload</span>
+          <button class="btn-small" onclick="copySection('payload')">📋 Copy</button>
+        </div>
+        <div class="panel-content">
+          <div id="payload-content"></div>
+        </div>
+      </div>
+
+      <div class="result-panel signature-section">
+        <div class="panel-header">
+          <span class="panel-title">Signature</span>
+          <button class="btn-small" onclick="copySection('signature')">📋 Copy</button>
+        </div>
+        <div class="panel-content">
+          <div class="claim-value" id="signature-content"></div>
+          <div class="signature-warning">
+            ⚠️ Signature verification requires the secret key. This tool only decodes the token.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sample-jwt">
+      <h4>📝 Try a sample JWT:</h4>
+      <button class="sample-btn" onclick="loadSample('hs256')">HS256 Token</button>
+      <button class="sample-btn" onclick="loadSample('rs256')">RS256 Token</button>
+      <button class="sample-btn" onclick="loadSample('expired')">Expired Token</button>
+    </div>
+
+    <div class="info-box">
+      <h3>ℹ️ About JWT Tokens</h3>
+      <ul>
+        <li><strong>Header:</strong> Contains token type (JWT) and signing algorithm (e.g., HS256, RS256)</li>
+        <li><strong>Payload:</strong> Contains claims (user data, expiration, etc.)</li>
+        <li><strong>Signature:</strong> Verifies token hasn't been tampered with (requires secret key)</li>
+        <li><strong>Common Claims:</strong> iss (issuer), sub (subject), aud (audience), exp (expiration), iat (issued at)</li>
+        <li><strong>Privacy:</strong> Your token is decoded locally in your browser, never sent to any server</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const inputEl = document.getElementById('jwt-input');
+    let currentToken = { header: null, payload: null, signature: null };
+
+    const samples = {
+      hs256: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxOTE2MjM5MDIyfQ.4Adcj0MYlH2vIOcdZghKz1BfuQuuMwK5sYKxLbN8gLI',
+      rs256: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMTIzIiwibmFtZSI6IkphbmUgU21pdGgiLCJyb2xlIjoiZGV2ZWxvcGVyIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE5MTYyMzkwMjJ9.signature',
+      expired: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNDAwMDB9.signature'
+    };
+
+    function decodeJWT() {
+      const token = inputEl.value.trim();
+      
+      if (!token) {
+        document.getElementById('status-bar').style.display = 'none';
+        document.getElementById('results').style.display = 'none';
+        return;
+      }
+
+      try {
+        const parts = token.split('.');
+        if (parts.length !== 3) {
+          throw new Error('Invalid JWT format. Expected 3 parts separated by dots.');
+        }
+
+        const header = JSON.parse(atob(parts[0]));
+        const payload = JSON.parse(atob(parts[1]));
+        const signature = parts[2];
+
+        currentToken = { header, payload, signature };
+
+        displayResults(header, payload, signature);
+        updateStatusBar(header, payload);
+        trackUsage();
+      } catch (e) {
+        alert('Invalid JWT token: ' + e.message);
+        document.getElementById('status-bar').style.display = 'none';
+        document.getElementById('results').style.display = 'none';
+      }
+    }
+
+    function displayResults(header, payload, signature) {
+      // Header
+      document.getElementById('header-content').textContent = JSON.stringify(header, null, 2);
+
+      // Payload with special claim formatting
+      const payloadEl = document.getElementById('payload-content');
+      payloadEl.innerHTML = '';
+
+      const specialClaims = {
+        iss: 'Issuer',
+        sub: 'Subject',
+        aud: 'Audience',
+        exp: 'Expires',
+        nbf: 'Not Before',
+        iat: 'Issued At',
+        jti: 'JWT ID'
+      };
+
+      for (const [key, value] of Object.entries(payload)) {
+        const item = document.createElement('div');
+        item.className = 'claim-item';
+        
+        const name = document.createElement('div');
+        name.className = 'claim-name';
+        name.textContent = specialClaims[key] || key;
+        
+        const val = document.createElement('div');
+        val.className = 'claim-value';
+        
+        if (['exp', 'nbf', 'iat'].includes(key) && typeof value === 'number') {
+          const date = new Date(value * 1000);
+          val.textContent = `${value} (${date.toLocaleString()})`;
+        } else if (typeof value === 'object') {
+          val.textContent = JSON.stringify(value, null, 2);
+        } else {
+          val.textContent = value;
+        }
+        
+        item.appendChild(name);
+        item.appendChild(val);
+        payloadEl.appendChild(item);
+      }
+
+      // Signature
+      document.getElementById('signature-content').textContent = signature;
+
+      document.getElementById('status-bar').style.display = 'flex';
+      document.getElementById('results').style.display = 'grid';
+    }
+
+    function updateStatusBar(header, payload) {
+      const statusEl = document.getElementById('status-value');
+      const algoEl = document.getElementById('algo-value');
+      const issuedEl = document.getElementById('issued-value');
+      const expiresEl = document.getElementById('expires-value');
+
+      // Status
+      if (payload.exp) {
+        const now = Math.floor(Date.now() / 1000);
+        if (payload.exp < now) {
+          statusEl.textContent = 'Expired';
+          statusEl.className = 'status-value status-invalid';
+        } else {
+          statusEl.textContent = 'Valid';
+          statusEl.className = 'status-value status-valid';
+        }
+      } else {
+        statusEl.textContent = 'No Expiry';
+        statusEl.className = 'status-value status-warning';
+      }
+
+      // Algorithm
+      algoEl.textContent = header.alg || 'Unknown';
+      algoEl.className = 'status-value';
+
+      // Issued
+      if (payload.iat) {
+        const date = new Date(payload.iat * 1000);
+        issuedEl.textContent = date.toLocaleDateString();
+      } else {
+        issuedEl.textContent = 'N/A';
+      }
+
+      // Expires
+      if (payload.exp) {
+        const date = new Date(payload.exp * 1000);
+        expiresEl.textContent = date.toLocaleDateString();
+      } else {
+        expiresEl.textContent = 'Never';
+      }
+    }
+
+    function copySection(section) {
+      let text = '';
+      if (section === 'header') {
+        text = JSON.stringify(currentToken.header, null, 2);
+      } else if (section === 'payload') {
+        text = JSON.stringify(currentToken.payload, null, 2);
+      } else if (section === 'signature') {
+        text = currentToken.signature;
+      }
+
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      });
+    }
+
+    async function pasteToken() {
+      try {
+        const text = await navigator.clipboard.readText();
+        inputEl.value = text;
+        decodeJWT();
+      } catch (e) {
+        alert('Could not paste from clipboard');
+      }
+    }
+
+    function clearToken() {
+      inputEl.value = '';
+      document.getElementById('status-bar').style.display = 'none';
+      document.getElementById('results').style.display = 'none';
+    }
+
+    function loadSample(type) {
+      inputEl.value = samples[type];
+      decodeJWT();
+    }
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    // Auto-decode on input
+    inputEl.addEventListener('input', decodeJWT);
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        clearToken();
+      }
+    });
+
+    inputEl.focus();
+  </script>
+</body>
+</html>

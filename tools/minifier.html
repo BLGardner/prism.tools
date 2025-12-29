@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Minifier - Prism.Tools</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #BD93F9 0%, #9370DB 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #e4e4e7; }
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #BD93F9;
+    }
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    .type-selector {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+    .type-btn {
+      padding: 0.5rem 1.25rem;
+      background: #18181b;
+      border: 1px solid #27272a;
+      color: #a1a1aa;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .type-btn.active {
+      background: #BD93F9;
+      color: #0a0a0f;
+      border-color: #BD93F9;
+    }
+    .stats-bar {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      padding: 0.875rem;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    .stat {
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #BD93F9;
+      line-height: 1;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .stat-label {
+      font-size: 0.7rem;
+      color: #71717a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 0.25rem;
+    }
+    .savings {
+      color: #50FA7B;
+    }
+    .editor-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      max-height: 600px;
+    }
+    .panel-header {
+      background: #1f1f23;
+      padding: 0.625rem 0.875rem;
+      border-bottom: 1px solid #27272a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .panel-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #a1a1aa;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .panel-info {
+      font-size: 0.75rem;
+      color: #71717a;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .panel-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn-small {
+      padding: 0.25rem 0.625rem;
+      background: rgba(189, 147, 249, 0.1);
+      border: 1px solid rgba(189, 147, 249, 0.3);
+      color: #BD93F9;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .btn-small:hover {
+      background: rgba(189, 147, 249, 0.2);
+    }
+    textarea {
+      flex: 1;
+      padding: 0.875rem;
+      background: #0a0a0f;
+      border: none;
+      color: #e4e4e7;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      resize: none;
+      line-height: 1.6;
+    }
+    textarea:focus { outline: none; }
+    .controls {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 0.625rem 1.25rem;
+      background: #BD93F9;
+      color: #0a0a0f;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(189, 147, 249, 0.3);
+    }
+    .btn-secondary {
+      background: rgba(189, 147, 249, 0.1);
+      color: #BD93F9;
+      border: 1px solid rgba(189, 147, 249, 0.3);
+    }
+    .options {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 0.875rem;
+      margin-bottom: 1rem;
+    }
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.75rem;
+    }
+    .option-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      background: #0a0a0f;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .option-item:hover {
+      border-color: #BD93F9;
+    }
+    .option-item input[type="checkbox"] {
+      margin: 0;
+      accent-color: #BD93F9;
+    }
+    .option-label {
+      color: #a1a1aa;
+      font-size: 0.85rem;
+    }
+    @media (max-width: 1024px) {
+      .editor-grid {
+        grid-template-columns: 1fr;
+      }
+      .panel {
+        max-height: 400px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>📦 Code Minifier</h1>
+      <p>Minify CSS, JavaScript, and HTML code</p>
+    </div>
+
+    <div class="type-selector">
+      <button class="type-btn active" onclick="setType('css')">CSS</button>
+      <button class="type-btn" onclick="setType('js')">JavaScript</button>
+      <button class="type-btn" onclick="setType('html')">HTML</button>
+    </div>
+
+    <div class="stats-bar">
+      <div class="stat">
+        <div class="stat-value" id="original-size">0 B</div>
+        <div class="stat-label">Original</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="minified-size">0 B</div>
+        <div class="stat-label">Minified</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value savings" id="savings">0%</div>
+        <div class="stat-label">Saved</div>
+      </div>
+    </div>
+
+    <div class="options">
+      <div class="options-grid">
+        <label class="option-item">
+          <input type="checkbox" id="opt-comments" checked>
+          <span class="option-label">Remove Comments</span>
+        </label>
+        <label class="option-item">
+          <input type="checkbox" id="opt-whitespace" checked>
+          <span class="option-label">Remove Whitespace</span>
+        </label>
+        <label class="option-item">
+          <input type="checkbox" id="opt-newlines" checked>
+          <span class="option-label">Remove Newlines</span>
+        </label>
+        <label class="option-item" id="opt-semicolons-container" style="display: none;">
+          <input type="checkbox" id="opt-semicolons">
+          <span class="option-label">Remove Optional Semicolons</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="editor-grid">
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <span class="panel-title">Original Code</span>
+            <span class="panel-info" id="original-lines"></span>
+          </div>
+          <div class="panel-actions">
+            <button class="btn-small" onclick="pasteCode()">📋 Paste</button>
+            <button class="btn-small" onclick="clearCode()">🗑️</button>
+          </div>
+        </div>
+        <textarea id="original-code" placeholder="Paste your code here..."></textarea>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <span class="panel-title">Minified Code</span>
+            <span class="panel-info" id="minified-lines"></span>
+          </div>
+          <div class="panel-actions">
+            <button class="btn-small" onclick="copyMinified()">📋 Copy</button>
+            <button class="btn-small" onclick="downloadMinified()">💾 Save</button>
+          </div>
+        </div>
+        <textarea id="minified-code" placeholder="Minified code will appear here..." readonly></textarea>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn" onclick="minifyCode()">🔥 Minify</button>
+      <button class="btn btn-secondary" onclick="loadSample()">📝 Load Sample</button>
+    </div>
+  </div>
+
+  <script>
+    let currentType = 'css';
+
+    const samples = {
+      css: `/* Main Styles */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Button Styles */
+.button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.button:hover {
+  background-color: #0056b3;
+}`,
+      js: `// Utility Functions
+function calculateSum(a, b) {
+  // Add two numbers
+  return a + b;
+}
+
+// Main Application
+class Application {
+  constructor(name) {
+    this.name = name;
+    this.version = '1.0.0';
+  }
+
+  // Initialize the app
+  init() {
+    console.log('Starting ' + this.name);
+    this.setupEventListeners();
+  }
+
+  setupEventListeners() {
+    document.addEventListener('click', (event) => {
+      console.log('Clicked:', event.target);
+    });
+  }
+}`,
+      html: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sample Page</title>
+  <!-- Styles -->
+  <style>
+    body { margin: 0; padding: 20px; }
+  </style>
+</head>
+<body>
+  <!-- Main Content -->
+  <div class="container">
+    <h1>Welcome</h1>
+    <p>This is a sample HTML document.</p>
+  </div>
+</body>
+</html>`
+    };
+
+    function setType(type) {
+      currentType = type;
+      document.querySelectorAll('.type-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+
+      // Show/hide JS-specific options
+      document.getElementById('opt-semicolons-container').style.display = 
+        type === 'js' ? 'block' : 'none';
+
+      updateStats();
+    }
+
+    function minifyCode() {
+      const original = document.getElementById('original-code').value;
+      
+      if (!original) {
+        alert('Please enter code to minify');
+        return;
+      }
+
+      let minified = '';
+
+      if (currentType === 'css') {
+        minified = minifyCSS(original);
+      } else if (currentType === 'js') {
+        minified = minifyJS(original);
+      } else if (currentType === 'html') {
+        minified = minifyHTML(original);
+      }
+
+      document.getElementById('minified-code').value = minified;
+      updateStats();
+      trackUsage();
+    }
+
+    function minifyCSS(css) {
+      let result = css;
+
+      if (document.getElementById('opt-comments').checked) {
+        result = result.replace(/\/\*[\s\S]*?\*\//g, '');
+      }
+
+      if (document.getElementById('opt-whitespace').checked) {
+        result = result.replace(/\s+/g, ' ');
+        result = result.replace(/\s*([{}:;,])\s*/g, '$1');
+      }
+
+      if (document.getElementById('opt-newlines').checked) {
+        result = result.replace(/\n/g, '');
+      }
+
+      return result.trim();
+    }
+
+    function minifyJS(js) {
+      let result = js;
+
+      if (document.getElementById('opt-comments').checked) {
+        result = result.replace(/\/\*[\s\S]*?\*\//g, '');
+        result = result.replace(/\/\/.*/g, '');
+      }
+
+      if (document.getElementById('opt-whitespace').checked) {
+        result = result.replace(/\s+/g, ' ');
+        result = result.replace(/\s*([{}();,=+\-*/<>!&|])\s*/g, '$1');
+      }
+
+      if (document.getElementById('opt-newlines').checked) {
+        result = result.replace(/\n/g, '');
+      }
+
+      if (document.getElementById('opt-semicolons').checked) {
+        result = result.replace(/;}/g, '}');
+      }
+
+      return result.trim();
+    }
+
+    function minifyHTML(html) {
+      let result = html;
+
+      if (document.getElementById('opt-comments').checked) {
+        result = result.replace(/<!--[\s\S]*?-->/g, '');
+      }
+
+      if (document.getElementById('opt-whitespace').checked) {
+        result = result.replace(/\s+/g, ' ');
+        result = result.replace(/>\s+</g, '><');
+      }
+
+      if (document.getElementById('opt-newlines').checked) {
+        result = result.replace(/\n/g, '');
+      }
+
+      return result.trim();
+    }
+
+    function updateStats() {
+      const original = document.getElementById('original-code').value;
+      const minified = document.getElementById('minified-code').value;
+
+      const originalSize = new Blob([original]).size;
+      const minifiedSize = new Blob([minified]).size;
+      const savings = originalSize > 0 ? ((originalSize - minifiedSize) / originalSize * 100).toFixed(1) : 0;
+
+      document.getElementById('original-size').textContent = formatBytes(originalSize);
+      document.getElementById('minified-size').textContent = formatBytes(minifiedSize);
+      document.getElementById('savings').textContent = savings + '%';
+
+      const originalLines = original.split('\n').length;
+      const minifiedLines = minified.split('\n').length;
+
+      document.getElementById('original-lines').textContent = originalLines + ' lines';
+      document.getElementById('minified-lines').textContent = minifiedLines + ' lines';
+    }
+
+    function formatBytes(bytes) {
+      if (bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return (bytes / Math.pow(k, i)).toFixed(1) + ' ' + sizes[i];
+    }
+
+    function loadSample() {
+      document.getElementById('original-code').value = samples[currentType];
+      document.getElementById('minified-code').value = '';
+      updateStats();
+    }
+
+    function clearCode() {
+      document.getElementById('original-code').value = '';
+      document.getElementById('minified-code').value = '';
+      updateStats();
+    }
+
+    async function pasteCode() {
+      try {
+        const text = await navigator.clipboard.readText();
+        document.getElementById('original-code').value = text;
+        updateStats();
+      } catch (e) {
+        alert('Could not paste from clipboard');
+      }
+    }
+
+    function copyMinified() {
+      const minified = document.getElementById('minified-code').value;
+      if (!minified) {
+        alert('Nothing to copy');
+        return;
+      }
+      navigator.clipboard.writeText(minified).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      });
+    }
+
+    function downloadMinified() {
+      const minified = document.getElementById('minified-code').value;
+      if (!minified) {
+        alert('Nothing to download');
+        return;
+      }
+
+      const extensions = { css: 'css', js: 'js', html: 'html' };
+      const blob = new Blob([minified], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `minified.${extensions[currentType]}`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    // Auto-update stats on input
+    document.getElementById('original-code').addEventListener('input', updateStats);
+
+    // Initialize
+    loadSample();
+  </script>
+</body>
+</html>

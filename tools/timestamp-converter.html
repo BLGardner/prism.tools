@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Timestamp Converter - Prism.Tools</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #FFB86C 0%, #FF8800 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #e4e4e7; }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #FFB86C;
+    }
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    .current-time {
+      background: linear-gradient(135deg, #FFB86C 0%, #FF8800 100%);
+      color: #0a0a0f;
+      padding: 1.5rem;
+      border-radius: 8px;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .current-timestamp {
+      font-size: 2rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 0.5rem;
+    }
+    .current-date {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+    .converter-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .panel-header {
+      background: #1f1f23;
+      padding: 0.625rem 0.875rem;
+      border-bottom: 1px solid #27272a;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #a1a1aa;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .panel-content {
+      padding: 0.875rem;
+    }
+    .input-group {
+      margin-bottom: 0.75rem;
+    }
+    .input-group:last-child {
+      margin-bottom: 0;
+    }
+    .input-label {
+      font-size: 0.75rem;
+      color: #71717a;
+      margin-bottom: 0.4rem;
+      display: block;
+    }
+    input[type="text"],
+    input[type="number"],
+    input[type="datetime-local"],
+    select {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #FFB86C;
+    }
+    .btn {
+      width: 100%;
+      padding: 0.625rem;
+      background: #FFB86C;
+      color: #0a0a0f;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 0.75rem;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 184, 108, 0.3);
+    }
+    .btn-secondary {
+      background: rgba(255, 184, 108, 0.1);
+      color: #FFB86C;
+      border: 1px solid rgba(255, 184, 108, 0.3);
+    }
+    .results {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .result-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem;
+      background: #0a0a0f;
+      border-radius: 6px;
+      margin-bottom: 0.5rem;
+      font-size: 0.85rem;
+    }
+    .result-item:last-child {
+      margin-bottom: 0;
+    }
+    .result-label {
+      color: #71717a;
+      font-weight: 600;
+    }
+    .result-value {
+      color: #FFB86C;
+      font-family: 'JetBrains Mono', monospace;
+      text-align: right;
+    }
+    .copy-btn {
+      padding: 0.25rem 0.5rem;
+      background: rgba(255, 184, 108, 0.1);
+      border: 1px solid rgba(255, 184, 108, 0.3);
+      color: #FFB86C;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      margin-left: 0.5rem;
+      transition: all 0.2s;
+    }
+    .copy-btn:hover {
+      background: rgba(255, 184, 108, 0.2);
+    }
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+    .quick-btn {
+      padding: 0.5rem;
+      background: rgba(255, 184, 108, 0.1);
+      border: 1px solid rgba(255, 184, 108, 0.3);
+      color: #FFB86C;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .quick-btn:hover {
+      background: rgba(255, 184, 108, 0.2);
+    }
+    .info-box {
+      background: rgba(255, 184, 108, 0.1);
+      border: 1px solid rgba(255, 184, 108, 0.3);
+      padding: 0.875rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+    }
+    .info-box h3 {
+      font-size: 0.875rem;
+      color: #FFB86C;
+      margin-bottom: 0.5rem;
+    }
+    .info-box p {
+      font-size: 0.8rem;
+      color: #a1a1aa;
+      margin-bottom: 0.4rem;
+    }
+    @media (max-width: 768px) {
+      .converter-grid {
+        grid-template-columns: 1fr;
+      }
+      .quick-actions {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>⏰ Timestamp Converter</h1>
+      <p>Convert between Unix timestamps and human-readable dates</p>
+    </div>
+
+    <div class="current-time">
+      <div class="current-timestamp" id="current-timestamp">0</div>
+      <div class="current-date" id="current-date">Loading...</div>
+    </div>
+
+    <div class="converter-grid">
+      <div class="panel">
+        <div class="panel-header">Timestamp → Date</div>
+        <div class="panel-content">
+          <div class="input-group">
+            <label class="input-label">Unix Timestamp (seconds)</label>
+            <input type="number" id="timestamp-input" placeholder="1735344000">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Unit</label>
+            <select id="timestamp-unit">
+              <option value="seconds">Seconds</option>
+              <option value="milliseconds">Milliseconds</option>
+            </select>
+          </div>
+          <button class="btn" onclick="convertToDate()">Convert to Date</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">Date → Timestamp</div>
+        <div class="panel-content">
+          <div class="input-group">
+            <label class="input-label">Date & Time</label>
+            <input type="datetime-local" id="date-input">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Timezone</label>
+            <select id="timezone-select">
+              <option value="local">Local Time</option>
+              <option value="UTC">UTC</option>
+            </select>
+          </div>
+          <button class="btn" onclick="convertToTimestamp()">Convert to Timestamp</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="results" id="results" style="display: none;">
+      <div id="results-content"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">Quick Actions</div>
+      <div class="panel-content">
+        <div class="quick-actions">
+          <button class="quick-btn" onclick="useNow()">Now</button>
+          <button class="quick-btn" onclick="useYesterday()">Yesterday</button>
+          <button class="quick-btn" onclick="useTomorrow()">Tomorrow</button>
+          <button class="quick-btn" onclick="useStartOfDay()">Start of Day</button>
+          <button class="quick-btn" onclick="useEndOfDay()">End of Day</button>
+          <button class="quick-btn" onclick="useWeekAgo()">Week Ago</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <h3>ℹ️ About Unix Timestamps</h3>
+      <p><strong>Unix Timestamp:</strong> Number of seconds (or milliseconds) since January 1, 1970 00:00:00 UTC (the Unix epoch).</p>
+      <p><strong>Seconds vs Milliseconds:</strong> Most systems use seconds (10 digits), JavaScript uses milliseconds (13 digits).</p>
+      <p><strong>Relative Time:</strong> Results show how long ago or until the timestamp.</p>
+      <p><strong>Timezone:</strong> Timestamps are always in UTC, but can be displayed in any timezone.</p>
+    </div>
+  </div>
+
+  <script>
+    function updateCurrentTime() {
+      const now = Date.now();
+      document.getElementById('current-timestamp').textContent = Math.floor(now / 1000);
+      document.getElementById('current-date').textContent = new Date(now).toLocaleString();
+    }
+
+    function convertToDate() {
+      let timestamp = parseInt(document.getElementById('timestamp-input').value);
+      const unit = document.getElementById('timestamp-unit').value;
+
+      if (isNaN(timestamp)) {
+        alert('Please enter a valid timestamp');
+        return;
+      }
+
+      if (unit === 'seconds') {
+        timestamp *= 1000;
+      }
+
+      const date = new Date(timestamp);
+      
+      if (isNaN(date.getTime())) {
+        alert('Invalid timestamp');
+        return;
+      }
+
+      const now = Date.now();
+      const relativeTime = getRelativeTime(timestamp, now);
+
+      const results = {
+        'Full Date': date.toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'long' }),
+        'ISO 8601': date.toISOString(),
+        'UTC': date.toUTCString(),
+        'Local Time': date.toLocaleString(),
+        'Date Only': date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+        'Time Only': date.toLocaleTimeString(),
+        'Relative': relativeTime,
+        'Unix (seconds)': Math.floor(timestamp / 1000),
+        'Unix (ms)': timestamp
+      };
+
+      displayResults(results);
+      trackUsage();
+    }
+
+    function convertToTimestamp() {
+      const dateInput = document.getElementById('date-input').value;
+      const timezone = document.getElementById('timezone-select').value;
+
+      if (!dateInput) {
+        alert('Please select a date and time');
+        return;
+      }
+
+      const date = new Date(dateInput);
+      
+      if (isNaN(date.getTime())) {
+        alert('Invalid date');
+        return;
+      }
+
+      const timestamp = date.getTime();
+      const now = Date.now();
+      const relativeTime = getRelativeTime(timestamp, now);
+
+      const results = {
+        'Unix (seconds)': Math.floor(timestamp / 1000),
+        'Unix (ms)': timestamp,
+        'ISO 8601': date.toISOString(),
+        'UTC': date.toUTCString(),
+        'Relative': relativeTime,
+        'Day of Week': date.toLocaleDateString('en-US', { weekday: 'long' }),
+        'Week of Year': getWeekNumber(date),
+        'Days Since Epoch': Math.floor(timestamp / (1000 * 60 * 60 * 24))
+      };
+
+      displayResults(results);
+      trackUsage();
+    }
+
+    function displayResults(results) {
+      const resultsDiv = document.getElementById('results');
+      const contentDiv = document.getElementById('results-content');
+      
+      contentDiv.innerHTML = '';
+      
+      for (const [label, value] of Object.entries(results)) {
+        const item = document.createElement('div');
+        item.className = 'result-item';
+        item.innerHTML = `
+          <span class="result-label">${label}:</span>
+          <span>
+            <span class="result-value">${value}</span>
+            <button class="copy-btn" onclick="copyValue('${String(value).replace(/'/g, "\\'")}')">📋</button>
+          </span>
+        `;
+        contentDiv.appendChild(item);
+      }
+
+      resultsDiv.style.display = 'block';
+    }
+
+    function getRelativeTime(timestamp, now) {
+      const diff = timestamp - now;
+      const absDiff = Math.abs(diff);
+      const isPast = diff < 0;
+
+      const seconds = Math.floor(absDiff / 1000);
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.floor(minutes / 60);
+      const days = Math.floor(hours / 24);
+      const weeks = Math.floor(days / 7);
+      const months = Math.floor(days / 30);
+      const years = Math.floor(days / 365);
+
+      let timeStr;
+      if (seconds < 60) {
+        timeStr = `${seconds} second${seconds !== 1 ? 's' : ''}`;
+      } else if (minutes < 60) {
+        timeStr = `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+      } else if (hours < 24) {
+        timeStr = `${hours} hour${hours !== 1 ? 's' : ''}`;
+      } else if (days < 7) {
+        timeStr = `${days} day${days !== 1 ? 's' : ''}`;
+      } else if (weeks < 4) {
+        timeStr = `${weeks} week${weeks !== 1 ? 's' : ''}`;
+      } else if (months < 12) {
+        timeStr = `${months} month${months !== 1 ? 's' : ''}`;
+      } else {
+        timeStr = `${years} year${years !== 1 ? 's' : ''}`;
+      }
+
+      return isPast ? `${timeStr} ago` : `in ${timeStr}`;
+    }
+
+    function getWeekNumber(date) {
+      const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+      const dayNum = d.getUTCDay() || 7;
+      d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+      const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+      return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    }
+
+    function copyValue(value) {
+      navigator.clipboard.writeText(value).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓';
+        setTimeout(() => { btn.textContent = original; }, 1500);
+      });
+    }
+
+    // Quick actions
+    function useNow() {
+      const now = Math.floor(Date.now() / 1000);
+      document.getElementById('timestamp-input').value = now;
+      convertToDate();
+    }
+
+    function useYesterday() {
+      const yesterday = Math.floor((Date.now() - 86400000) / 1000);
+      document.getElementById('timestamp-input').value = yesterday;
+      convertToDate();
+    }
+
+    function useTomorrow() {
+      const tomorrow = Math.floor((Date.now() + 86400000) / 1000);
+      document.getElementById('timestamp-input').value = tomorrow;
+      convertToDate();
+    }
+
+    function useStartOfDay() {
+      const start = new Date();
+      start.setHours(0, 0, 0, 0);
+      document.getElementById('timestamp-input').value = Math.floor(start.getTime() / 1000);
+      convertToDate();
+    }
+
+    function useEndOfDay() {
+      const end = new Date();
+      end.setHours(23, 59, 59, 999);
+      document.getElementById('timestamp-input').value = Math.floor(end.getTime() / 1000);
+      convertToDate();
+    }
+
+    function useWeekAgo() {
+      const weekAgo = Math.floor((Date.now() - 604800000) / 1000);
+      document.getElementById('timestamp-input').value = weekAgo;
+      convertToDate();
+    }
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    // Initialize
+    updateCurrentTime();
+    setInterval(updateCurrentTime, 1000);
+
+    // Set default date input to now
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    document.getElementById('date-input').value = now.toISOString().slice(0, 16);
+  </script>
+</body>
+</html>

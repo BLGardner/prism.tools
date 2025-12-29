@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Glassmorphism Generator - Prism.Tools</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #FFCB6B 0%, #F07178 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #e4e4e7; }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #FFCB6B;
+    }
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    .presets {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .preset-card {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .preset-card:hover {
+      border-color: #FFCB6B;
+      transform: translateY(-2px);
+    }
+    .preset-preview {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 0.5rem;
+      border-radius: 12px;
+      position: relative;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      overflow: hidden;
+    }
+    .preset-glass {
+      position: absolute;
+      inset: 10px;
+      border-radius: 8px;
+    }
+    .preset-name {
+      font-size: 0.75rem;
+      color: #a1a1aa;
+      font-weight: 600;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .controls-panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .panel-header {
+      background: #1f1f23;
+      padding: 0.75rem 0.875rem;
+      border-bottom: 1px solid #27272a;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #FFCB6B;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .panel-content {
+      padding: 1rem;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+    .control-group {
+      margin-bottom: 1.25rem;
+    }
+    .control-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #a1a1aa;
+      margin-bottom: 0.5rem;
+    }
+    .control-value {
+      color: #FFCB6B;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+    }
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      background: #27272a;
+      border-radius: 3px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      background: #FFCB6B;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      box-shadow: 0 0 0 4px rgba(255, 203, 107, 0.2);
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      background: #FFCB6B;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+    }
+    input[type="color"] {
+      width: 100%;
+      height: 45px;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .preview-panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .bg-selector {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      background: #1f1f23;
+      border-bottom: 1px solid #27272a;
+    }
+    .bg-btn {
+      flex: 1;
+      padding: 0.5rem;
+      background: rgba(255, 203, 107, 0.1);
+      border: 1px solid rgba(255, 203, 107, 0.3);
+      color: #FFCB6B;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .bg-btn:hover {
+      background: rgba(255, 203, 107, 0.2);
+    }
+    .bg-btn.active {
+      background: #FFCB6B;
+      color: #0a0a0f;
+      border-color: #FFCB6B;
+    }
+    .preview-content {
+      padding: 3rem;
+      min-height: 550px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s;
+      position: relative;
+    }
+    .preview-content.gradient1 {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .preview-content.gradient2 {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    .preview-content.gradient3 {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    .preview-content.image {
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect fill="%23667eea" width="400" height="400"/><circle fill="%23764ba2" cx="100" cy="100" r="80"/><circle fill="%23f093fb" cx="300" cy="100" r="60"/><circle fill="%234facfe" cx="100" cy="300" r="70"/><circle fill="%23f5576c" cx="300" cy="300" r="90"/></svg>') center/cover;
+    }
+    .glass-card {
+      width: 400px;
+      padding: 2rem;
+      border-radius: 20px;
+      transition: all 0.3s;
+    }
+    .glass-content {
+      position: relative;
+      z-index: 1;
+    }
+    .glass-content h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+      color: white;
+    }
+    .glass-content p {
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+    .glass-content button {
+      padding: 0.625rem 1.5rem;
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .glass-content button:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+    .code-panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .code-header {
+      background: #1f1f23;
+      padding: 0.625rem 0.875rem;
+      border-bottom: 1px solid #27272a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .code-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #FFCB6B;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .btn-small {
+      padding: 0.25rem 0.625rem;
+      background: rgba(255, 203, 107, 0.1);
+      border: 1px solid rgba(255, 203, 107, 0.3);
+      color: #FFCB6B;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .btn-small:hover {
+      background: rgba(255, 203, 107, 0.2);
+    }
+    .code-output {
+      padding: 1rem;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    @media (max-width: 1200px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>💎 Glassmorphism Generator</h1>
+      <p>Create stunning frosted glass UI effects with CSS</p>
+    </div>
+
+    <div class="presets">
+      <div class="preset-card" onclick="loadPreset('light')">
+        <div class="preset-preview">
+          <div class="preset-glass" style="background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3);"></div>
+        </div>
+        <div class="preset-name">Light Glass</div>
+      </div>
+      <div class="preset-card" onclick="loadPreset('dark')">
+        <div class="preset-preview">
+          <div class="preset-glass" style="background: rgba(0,0,0,0.3); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);"></div>
+        </div>
+        <div class="preset-name">Dark Glass</div>
+      </div>
+      <div class="preset-card" onclick="loadPreset('frosted')">
+        <div class="preset-preview">
+          <div class="preset-glass" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.4);"></div>
+        </div>
+        <div class="preset-name">Frosted</div>
+      </div>
+      <div class="preset-card" onclick="loadPreset('vibrant')">
+        <div class="preset-preview">
+          <div class="preset-glass" style="background: rgba(255,107,107,0.3); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.5);"></div>
+        </div>
+        <div class="preset-name">Vibrant</div>
+      </div>
+      <div class="preset-card" onclick="loadPreset('subtle')">
+        <div class="preset-preview">
+          <div class="preset-glass" style="background: rgba(255,255,255,0.08); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.15);"></div>
+        </div>
+        <div class="preset-name">Subtle</div>
+      </div>
+      <div class="preset-card" onclick="loadPreset('intense')">
+        <div class="preset-preview">
+          <div class="preset-glass" style="background: rgba(255,255,255,0.35); backdrop-filter: blur(30px); border: 1px solid rgba(255,255,255,0.6);"></div>
+        </div>
+        <div class="preset-name">Intense</div>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="controls-panel">
+        <div class="panel-header">Glass Properties</div>
+        <div class="panel-content">
+          <div class="control-group">
+            <div class="control-label">
+              <span>Transparency</span>
+              <span class="control-value" id="transparency-value">20%</span>
+            </div>
+            <input type="range" id="transparency" min="0" max="100" value="20" oninput="updateGlass()">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">
+              <span>Blur</span>
+              <span class="control-value" id="blur-value">10px</span>
+            </div>
+            <input type="range" id="blur" min="0" max="50" value="10" oninput="updateGlass()">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">
+              <span>Saturation</span>
+              <span class="control-value" id="saturation-value">100%</span>
+            </div>
+            <input type="range" id="saturation" min="0" max="200" value="100" oninput="updateGlass()">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">
+              <span>Border Thickness</span>
+              <span class="control-value" id="border-width-value">1px</span>
+            </div>
+            <input type="range" id="border-width" min="0" max="5" step="0.5" value="1" oninput="updateGlass()">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">
+              <span>Border Opacity</span>
+              <span class="control-value" id="border-opacity-value">30%</span>
+            </div>
+            <input type="range" id="border-opacity" min="0" max="100" value="30" oninput="updateGlass()">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">
+              <span>Border Radius</span>
+              <span class="control-value" id="border-radius-value">20px</span>
+            </div>
+            <input type="range" id="border-radius" min="0" max="50" value="20" oninput="updateGlass()">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">
+              <span>Shadow Blur</span>
+              <span class="control-value" id="shadow-blur-value">25px</span>
+            </div>
+            <input type="range" id="shadow-blur" min="0" max="100" value="25" oninput="updateGlass()">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">
+              <span>Shadow Opacity</span>
+              <span class="control-value" id="shadow-opacity-value">15%</span>
+            </div>
+            <input type="range" id="shadow-opacity" min="0" max="100" value="15" oninput="updateGlass()">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">
+              <span>Glass Color</span>
+            </div>
+            <input type="color" id="glass-color" value="#ffffff" oninput="updateGlass()">
+          </div>
+        </div>
+      </div>
+
+      <div class="preview-panel">
+        <div class="bg-selector">
+          <button class="bg-btn active" onclick="changeBg('gradient1')">Gradient 1</button>
+          <button class="bg-btn" onclick="changeBg('gradient2')">Gradient 2</button>
+          <button class="bg-btn" onclick="changeBg('gradient3')">Gradient 3</button>
+          <button class="bg-btn" onclick="changeBg('image')">Pattern</button>
+        </div>
+        <div class="preview-content gradient1" id="preview-bg">
+          <div class="glass-card" id="glass-card">
+            <div class="glass-content">
+              <h2>Glassmorphism</h2>
+              <p>A design trend that creates a frosted glass effect using backdrop filters and transparency. Perfect for modern, minimalist interfaces.</p>
+              <button>Learn More</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-panel">
+      <div class="code-header">
+        <span class="code-title">Generated CSS</span>
+        <button class="btn-small" onclick="copyCode()">📋 Copy</button>
+      </div>
+      <pre class="code-output" id="code-output"></pre>
+    </div>
+  </div>
+
+  <script>
+    const presets = {
+      light: { transparency: 20, blur: 10, saturation: 100, borderWidth: 1, borderOpacity: 30, borderRadius: 20, shadowBlur: 25, shadowOpacity: 15, color: '#ffffff' },
+      dark: { transparency: 30, blur: 10, saturation: 100, borderWidth: 1, borderOpacity: 20, borderRadius: 20, shadowBlur: 25, shadowOpacity: 30, color: '#000000' },
+      frosted: { transparency: 15, blur: 20, saturation: 100, borderWidth: 1.5, borderOpacity: 40, borderRadius: 20, shadowBlur: 30, shadowOpacity: 20, color: '#ffffff' },
+      vibrant: { transparency: 30, blur: 15, saturation: 150, borderWidth: 2, borderOpacity: 50, borderRadius: 20, shadowBlur: 35, shadowOpacity: 25, color: '#ff6b6b' },
+      subtle: { transparency: 8, blur: 8, saturation: 100, borderWidth: 0.5, borderOpacity: 15, borderRadius: 20, shadowBlur: 20, shadowOpacity: 10, color: '#ffffff' },
+      intense: { transparency: 35, blur: 30, saturation: 120, borderWidth: 2, borderOpacity: 60, borderRadius: 20, shadowBlur: 40, shadowOpacity: 30, color: '#ffffff' }
+    };
+
+    function hexToRgb(hex) {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : { r: 255, g: 255, b: 255 };
+    }
+
+    function updateGlass() {
+      const transparency = document.getElementById('transparency').value;
+      const blur = document.getElementById('blur').value;
+      const saturation = document.getElementById('saturation').value;
+      const borderWidth = document.getElementById('border-width').value;
+      const borderOpacity = document.getElementById('border-opacity').value;
+      const borderRadius = document.getElementById('border-radius').value;
+      const shadowBlur = document.getElementById('shadow-blur').value;
+      const shadowOpacity = document.getElementById('shadow-opacity').value;
+      const glassColor = document.getElementById('glass-color').value;
+
+      document.getElementById('transparency-value').textContent = transparency + '%';
+      document.getElementById('blur-value').textContent = blur + 'px';
+      document.getElementById('saturation-value').textContent = saturation + '%';
+      document.getElementById('border-width-value').textContent = borderWidth + 'px';
+      document.getElementById('border-opacity-value').textContent = borderOpacity + '%';
+      document.getElementById('border-radius-value').textContent = borderRadius + 'px';
+      document.getElementById('shadow-blur-value').textContent = shadowBlur + 'px';
+      document.getElementById('shadow-opacity-value').textContent = shadowOpacity + '%';
+
+      const rgb = hexToRgb(glassColor);
+      const bgColor = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${transparency / 100})`;
+      const borderColor = `rgba(255, 255, 255, ${borderOpacity / 100})`;
+      const shadowColor = `rgba(0, 0, 0, ${shadowOpacity / 100})`;
+
+      const glassCard = document.getElementById('glass-card');
+      glassCard.style.background = bgColor;
+      glassCard.style.backdropFilter = `blur(${blur}px) saturate(${saturation}%)`;
+      glassCard.style.webkitBackdropFilter = `blur(${blur}px) saturate(${saturation}%)`;
+      glassCard.style.border = `${borderWidth}px solid ${borderColor}`;
+      glassCard.style.borderRadius = borderRadius + 'px';
+      glassCard.style.boxShadow = `0 8px ${shadowBlur}px ${shadowColor}`;
+
+      const css = `.glass-card {
+  /* Glassmorphism effect */
+  background: ${bgColor};
+  backdrop-filter: blur(${blur}px) saturate(${saturation}%);
+  -webkit-backdrop-filter: blur(${blur}px) saturate(${saturation}%);
+  
+  /* Border */
+  border: ${borderWidth}px solid ${borderColor};
+  border-radius: ${borderRadius}px;
+  
+  /* Shadow */
+  box-shadow: 0 8px ${shadowBlur}px ${shadowColor};
+  
+  /* Optional: Additional styling */
+  padding: 2rem;
+}`;
+
+      document.getElementById('code-output').textContent = css;
+      trackUsage();
+    }
+
+    function loadPreset(name) {
+      const preset = presets[name];
+      document.getElementById('transparency').value = preset.transparency;
+      document.getElementById('blur').value = preset.blur;
+      document.getElementById('saturation').value = preset.saturation;
+      document.getElementById('border-width').value = preset.borderWidth;
+      document.getElementById('border-opacity').value = preset.borderOpacity;
+      document.getElementById('border-radius').value = preset.borderRadius;
+      document.getElementById('shadow-blur').value = preset.shadowBlur;
+      document.getElementById('shadow-opacity').value = preset.shadowOpacity;
+      document.getElementById('glass-color').value = preset.color;
+      updateGlass();
+    }
+
+    function changeBg(type) {
+      const bg = document.getElementById('preview-bg');
+      bg.className = 'preview-content ' + type;
+      
+      document.querySelectorAll('.bg-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    function copyCode() {
+      const code = document.getElementById('code-output').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      });
+    }
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    // Initialize
+    updateGlass();
+  </script>
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hash Generator - Prism.Tools</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f0f1e; color: #ffffff; line-height: 1.6; min-height: 100vh;
+    }
+    .navbar {
+      background: rgba(15, 15, 30, 0.95); backdrop-filter: blur(10px);
+      padding: 1rem 2rem; display: flex; justify-content: space-between;
+      align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .logo {
+      font-size: 1.5rem; font-weight: 800;
+      background: linear-gradient(135deg, #ffffff 0%, #a78bfa 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .back-link { color: #9ca3af; text-decoration: none; transition: color 0.2s; }
+    .back-link:hover { color: #ffffff; }
+    .container { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+    .tool-header { text-align: center; margin-bottom: 2rem; }
+    .tool-header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; color: #FFD93D; }
+    .tool-header p { color: #9ca3af; }
+    .tool-interface {
+      background: rgba(26, 26, 46, 0.6); border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px; padding: 2rem;
+    }
+    .input-group { margin-bottom: 1.5rem; }
+    .input-group label {
+      display: block; margin-bottom: 0.5rem; color: #9ca3af; font-weight: 600;
+    }
+    textarea {
+      width: 100%; min-height: 120px; padding: 1rem;
+      background: rgba(15, 15, 30, 0.8); border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px; color: #ffffff;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;
+      resize: vertical; transition: border-color 0.2s;
+    }
+    textarea:focus { outline: none; border-color: #FFD93D; }
+    .button-group {
+      display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;
+    }
+    button {
+      padding: 0.75rem 1.5rem; background: #FFD93D; color: #1a1a2e;
+      border: none; border-radius: 8px; font-weight: 600; cursor: pointer;
+      transition: all 0.2s; font-family: inherit;
+    }
+    button:hover {
+      transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 217, 61, 0.3);
+    }
+    .hash-results { display: grid; gap: 1rem; }
+    .hash-item {
+      background: rgba(15, 15, 30, 0.8); border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px; padding: 1rem; position: relative;
+    }
+    .hash-label {
+      color: #FFD93D; font-weight: 600; margin-bottom: 0.5rem;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .hash-value {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;
+      color: #9ca3af; word-break: break-all; line-height: 1.6;
+    }
+    .copy-btn {
+      padding: 0.25rem 0.75rem; font-size: 0.8rem; background: rgba(255, 217, 61, 0.2);
+      color: #FFD93D; border: none; border-radius: 4px; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .copy-btn:hover { background: rgba(255, 217, 61, 0.3); }
+    .file-input-wrapper {
+      position: relative; overflow: hidden; display: inline-block;
+      background: rgba(255, 217, 61, 0.2); color: #FFD93D;
+      padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer;
+      transition: all 0.2s; font-weight: 600;
+    }
+    .file-input-wrapper:hover { background: rgba(255, 217, 61, 0.3); }
+    .file-input-wrapper input[type="file"] {
+      position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer;
+    }
+    .info-box {
+      margin-top: 2rem; padding: 1.5rem;
+      background: rgba(167, 139, 250, 0.1); border: 1px solid rgba(167, 139, 250, 0.3);
+      border-radius: 8px;
+    }
+    .info-box h3 { color: #a78bfa; margin-bottom: 1rem; }
+    .info-box p { color: #9ca3af; margin-bottom: 0.5rem; font-size: 0.95rem; }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM.TOOLS</a>
+    <a href="../index.html" class="back-link">← Back to all tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="tool-header">
+      <h1>🔐 Hash Generator</h1>
+      <p>Generate cryptographic hashes from text or files</p>
+    </div>
+
+    <div class="tool-interface">
+      <div class="input-group">
+        <label for="text-input">Text Input</label>
+        <textarea id="text-input" placeholder="Enter text to hash..."></textarea>
+      </div>
+
+      <div class="button-group">
+        <button onclick="generateHashes()">🔐 Generate Hashes</button>
+        <label class="file-input-wrapper">
+          📁 Hash File
+          <input type="file" onchange="hashFile(event)">
+        </label>
+        <button onclick="clearAll()" style="background: rgba(255, 217, 61, 0.2); color: #FFD93D;">🗑️ Clear</button>
+      </div>
+
+      <div id="results" class="hash-results"></div>
+
+      <div class="info-box">
+        <h3>ℹ️ About Hash Functions</h3>
+        <p><strong>MD5:</strong> Fast but cryptographically broken. Use only for checksums, not security.</p>
+        <p><strong>SHA-1:</strong> Also deprecated for security. Suitable for legacy compatibility only.</p>
+        <p><strong>SHA-256:</strong> Secure and widely used. Part of the SHA-2 family. Recommended for most uses.</p>
+        <p><strong>SHA-512:</strong> More secure than SHA-256 with longer output. Best for high-security applications.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <script>
+    async function generateHashes() {
+      const input = document.getElementById('text-input').value;
+      
+      if (!input.trim()) {
+        alert('Please enter some text to hash');
+        return;
+      }
+
+      const results = document.getElementById('results');
+      results.innerHTML = '<div style="text-align: center; color: #FFD93D;">Generating hashes...</div>';
+
+      try {
+        // Using Web Crypto API for modern browsers
+        const encoder = new TextEncoder();
+        const data = encoder.encode(input);
+        
+        // SHA-256
+        const sha256Buffer = await crypto.subtle.digest('SHA-256', data);
+        const sha256Hash = Array.from(new Uint8Array(sha256Buffer))
+          .map(b => b.toString(16).padStart(2, '0')).join('');
+        
+        // SHA-512
+        const sha512Buffer = await crypto.subtle.digest('SHA-512', data);
+        const sha512Hash = Array.from(new Uint8Array(sha512Buffer))
+          .map(b => b.toString(16).padStart(2, '0')).join('');
+        
+        // SHA-1
+        const sha1Buffer = await crypto.subtle.digest('SHA-1', data);
+        const sha1Hash = Array.from(new Uint8Array(sha1Buffer))
+          .map(b => b.toString(16).padStart(2, '0')).join('');
+
+        // MD5 (using CryptoJS as Web Crypto doesn't support MD5)
+        const md5Hash = CryptoJS.MD5(input).toString();
+
+        displayResults({
+          'MD5': md5Hash,
+          'SHA-1': sha1Hash,
+          'SHA-256': sha256Hash,
+          'SHA-512': sha512Hash
+        });
+
+        trackUsage();
+      } catch (e) {
+        results.innerHTML = `<div style="color: #FF6B6B;">Error: ${e.message}</div>`;
+      }
+    }
+
+    async function hashFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const results = document.getElementById('results');
+      results.innerHTML = `<div style="text-align: center; color: #FFD93D;">Hashing file: ${file.name}...</div>`;
+
+      try {
+        const buffer = await file.arrayBuffer();
+        
+        const sha256Buffer = await crypto.subtle.digest('SHA-256', buffer);
+        const sha256Hash = Array.from(new Uint8Array(sha256Buffer))
+          .map(b => b.toString(16).padStart(2, '0')).join('');
+        
+        const sha512Buffer = await crypto.subtle.digest('SHA-512', buffer);
+        const sha512Hash = Array.from(new Uint8Array(sha512Buffer))
+          .map(b => b.toString(16).padStart(2, '0')).join('');
+        
+        const sha1Buffer = await crypto.subtle.digest('SHA-1', buffer);
+        const sha1Hash = Array.from(new Uint8Array(sha1Buffer))
+          .map(b => b.toString(16).padStart(2, '0')).join('');
+
+        // For MD5 with files, we need to read as text or use CryptoJS WordArray
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const wordArray = CryptoJS.lib.WordArray.create(e.target.result);
+          const md5Hash = CryptoJS.MD5(wordArray).toString();
+
+          displayResults({
+            'MD5': md5Hash,
+            'SHA-1': sha1Hash,
+            'SHA-256': sha256Hash,
+            'SHA-512': sha512Hash
+          }, file.name);
+        };
+        reader.readAsArrayBuffer(file);
+
+        trackUsage();
+      } catch (e) {
+        results.innerHTML = `<div style="color: #FF6B6B;">Error: ${e.message}</div>`;
+      }
+    }
+
+    function displayResults(hashes, filename = null) {
+      const results = document.getElementById('results');
+      
+      let html = '';
+      if (filename) {
+        html += `<div style="color: #9ca3af; margin-bottom: 1rem;">File: <strong>${filename}</strong></div>`;
+      }
+      
+      for (const [algo, hash] of Object.entries(hashes)) {
+        html += `
+          <div class="hash-item">
+            <div class="hash-label">
+              <span>${algo}</span>
+              <button class="copy-btn" onclick="copyHash('${hash}', this)">📋 Copy</button>
+            </div>
+            <div class="hash-value">${hash}</div>
+          </div>
+        `;
+      }
+      
+      results.innerHTML = html;
+    }
+
+    function copyHash(hash, btn) {
+      navigator.clipboard.writeText(hash).then(() => {
+        const originalText = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => {
+          btn.textContent = originalText;
+        }, 2000);
+      });
+    }
+
+    function clearAll() {
+      document.getElementById('text-input').value = '';
+      document.getElementById('results').innerHTML = '';
+    }
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    document.getElementById('text-input').focus();
+  </script>
+</body>
+</html>

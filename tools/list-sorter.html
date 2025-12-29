@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>List Sorter/Filter - Prism.Tools</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #F1FA8C 0%, #FFB86C 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #e4e4e7; }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #F1FA8C;
+    }
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    .toolbar {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .btn {
+      padding: 0.5rem 1rem;
+      background: rgba(241, 250, 140, 0.1);
+      border: 1px solid rgba(241, 250, 140, 0.3);
+      color: #F1FA8C;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .btn:hover {
+      background: rgba(241, 250, 140, 0.2);
+      transform: translateY(-1px);
+    }
+    .btn-primary {
+      background: #F1FA8C;
+      color: #0a0a0f;
+      border-color: #F1FA8C;
+    }
+    .btn-primary:hover {
+      background: #FFB86C;
+      border-color: #FFB86C;
+    }
+    .toolbar-divider {
+      width: 1px;
+      height: 30px;
+      background: #27272a;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .panel-header {
+      background: #1f1f23;
+      padding: 0.625rem 0.875rem;
+      border-bottom: 1px solid #27272a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .panel-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #F1FA8C;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .panel-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn-small {
+      padding: 0.25rem 0.625rem;
+      background: rgba(241, 250, 140, 0.1);
+      border: 1px solid rgba(241, 250, 140, 0.3);
+      color: #F1FA8C;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .btn-small:hover {
+      background: rgba(241, 250, 140, 0.2);
+    }
+    textarea {
+      flex: 1;
+      padding: 0.875rem;
+      background: #0a0a0f;
+      border: none;
+      color: #e4e4e7;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      resize: none;
+      line-height: 1.6;
+      min-height: 400px;
+    }
+    textarea:focus { outline: none; }
+    .stats-bar {
+      padding: 0.625rem 0.875rem;
+      background: #0a0a0f;
+      border-top: 1px solid #27272a;
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.75rem;
+      color: #71717a;
+    }
+    .stat-item {
+      display: flex;
+      gap: 0.4rem;
+    }
+    .stat-label {
+      color: #71717a;
+    }
+    .stat-value {
+      color: #F1FA8C;
+      font-weight: 600;
+    }
+    .options-section {
+      grid-column: 1 / -1;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .options-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #F1FA8C;
+      margin-bottom: 0.75rem;
+    }
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .option-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .option-label {
+      font-size: 0.8rem;
+      color: #a1a1aa;
+      font-weight: 600;
+    }
+    input[type="text"] {
+      padding: 0.5rem 0.75rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-size: 0.85rem;
+    }
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #F1FA8C;
+    }
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #F1FA8C;
+    }
+    .checkbox-label {
+      font-size: 0.85rem;
+      color: #e4e4e7;
+      cursor: pointer;
+    }
+    select {
+      padding: 0.5rem 0.75rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    select:focus {
+      outline: none;
+      border-color: #F1FA8C;
+    }
+    .samples {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    .samples-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #F1FA8C;
+      margin-bottom: 0.75rem;
+    }
+    .sample-buttons {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .sample-btn {
+      padding: 0.5rem 0.875rem;
+      background: rgba(241, 250, 140, 0.1);
+      border: 1px solid rgba(241, 250, 140, 0.3);
+      color: #F1FA8C;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .sample-btn:hover {
+      background: rgba(241, 250, 140, 0.2);
+    }
+    @media (max-width: 1024px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .toolbar {
+        justify-content: center;
+      }
+      .options-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>📋 List Sorter & Filter</h1>
+      <p>Sort, filter, and manipulate lists with powerful text processing tools</p>
+    </div>
+
+    <div class="toolbar">
+      <button class="btn btn-primary" onclick="sortAZ()">↑ Sort A-Z</button>
+      <button class="btn btn-primary" onclick="sortZA()">↓ Sort Z-A</button>
+      <button class="btn btn-primary" onclick="sortNumeric()">🔢 Numeric</button>
+      <button class="btn btn-primary" onclick="sortLength()">📏 By Length</button>
+      <div class="toolbar-divider"></div>
+      <button class="btn" onclick="removeDuplicates()">🗑️ Remove Duplicates</button>
+      <button class="btn" onclick="removeEmpty()">⚡ Remove Empty</button>
+      <button class="btn" onclick="trim()">✂️ Trim Whitespace</button>
+      <div class="toolbar-divider"></div>
+      <button class="btn" onclick="reverse()">🔄 Reverse</button>
+      <button class="btn" onclick="shuffle()">🎲 Shuffle</button>
+      <button class="btn" onclick="addNumbers()">1️⃣ Number Lines</button>
+    </div>
+
+    <div class="layout">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Input List</span>
+          <div class="panel-actions">
+            <button class="btn-small" onclick="pasteList()">📋 Paste</button>
+            <button class="btn-small" onclick="clearInput()">🗑️</button>
+          </div>
+        </div>
+        <textarea id="input" placeholder="Enter your list here (one item per line)...
+Apple
+Banana
+Cherry
+Date
+Elderberry">Apple
+Banana
+Cherry
+Date
+Elderberry</textarea>
+        <div class="stats-bar">
+          <div class="stat-item">
+            <span class="stat-label">Lines:</span>
+            <span class="stat-value" id="input-lines">0</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Characters:</span>
+            <span class="stat-value" id="input-chars">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Output List</span>
+          <div class="panel-actions">
+            <button class="btn-small" onclick="copyOutput()">📋 Copy</button>
+            <button class="btn-small" onclick="downloadOutput()">💾 Download</button>
+          </div>
+        </div>
+        <textarea id="output" placeholder="Processed list will appear here..." readonly></textarea>
+        <div class="stats-bar">
+          <div class="stat-item">
+            <span class="stat-label">Lines:</span>
+            <span class="stat-value" id="output-lines">0</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Characters:</span>
+            <span class="stat-value" id="output-chars">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="options-section">
+        <div class="options-title">Advanced Options</div>
+        <div class="options-grid">
+          <div class="option-group">
+            <label class="option-label">Filter Contains</label>
+            <input type="text" id="filter-contains" placeholder="Search text..." oninput="applyFilters()">
+          </div>
+          <div class="option-group">
+            <label class="option-label">Filter Starts With</label>
+            <input type="text" id="filter-starts" placeholder="Prefix..." oninput="applyFilters()">
+          </div>
+          <div class="option-group">
+            <label class="option-label">Filter Ends With</label>
+            <input type="text" id="filter-ends" placeholder="Suffix..." oninput="applyFilters()">
+          </div>
+          <div class="option-group">
+            <label class="option-label">Add Prefix</label>
+            <input type="text" id="add-prefix" placeholder="Prefix..." oninput="applyFilters()">
+          </div>
+          <div class="option-group">
+            <label class="option-label">Add Suffix</label>
+            <input type="text" id="add-suffix" placeholder="Suffix..." oninput="applyFilters()">
+          </div>
+          <div class="option-group">
+            <label class="option-label">Join With</label>
+            <select id="join-delimiter" onchange="applyFilters()">
+              <option value="newline">New Line</option>
+              <option value="comma">Comma (,)</option>
+              <option value="comma-space">Comma + Space (, )</option>
+              <option value="semicolon">Semicolon (;)</option>
+              <option value="pipe">Pipe (|)</option>
+              <option value="space">Space</option>
+              <option value="tab">Tab</option>
+            </select>
+          </div>
+          <div class="option-group">
+            <div class="checkbox-group">
+              <input type="checkbox" id="case-sensitive" onchange="applyFilters()">
+              <label class="checkbox-label" for="case-sensitive">Case Sensitive</label>
+            </div>
+            <div class="checkbox-group">
+              <input type="checkbox" id="wrap-quotes" onchange="applyFilters()">
+              <label class="checkbox-label" for="wrap-quotes">Wrap in Quotes</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="samples">
+      <div class="samples-title">Load Sample List</div>
+      <div class="sample-buttons">
+        <button class="sample-btn" onclick="loadSample('fruits')">🍎 Fruits</button>
+        <button class="sample-btn" onclick="loadSample('countries')">🌍 Countries</button>
+        <button class="sample-btn" onclick="loadSample('numbers')">🔢 Numbers</button>
+        <button class="sample-btn" onclick="loadSample('emails')">📧 Emails</button>
+        <button class="sample-btn" onclick="loadSample('urls')">🔗 URLs</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const samples = {
+      fruits: `Apple
+Banana
+Cherry
+Date
+Elderberry
+Fig
+Grape
+Honeydew
+Kiwi
+Lemon`,
+      countries: `United States
+Canada
+Mexico
+Brazil
+United Kingdom
+France
+Germany
+Japan
+China
+Australia`,
+      numbers: `42
+7
+156
+23
+891
+5
+34
+178
+9
+412`,
+      emails: `john.doe@example.com
+jane.smith@test.org
+bob.wilson@demo.net
+alice.jones@sample.io
+charlie.brown@mail.com`,
+      urls: `https://example.com
+https://github.com/username
+https://www.google.com
+https://stackoverflow.com
+https://developer.mozilla.org`
+    };
+
+    function getLines() {
+      const input = document.getElementById('input').value;
+      return input.split('\n');
+    }
+
+    function setOutput(lines) {
+      const delimiter = document.getElementById('join-delimiter').value;
+      const wrapQuotes = document.getElementById('wrap-quotes').checked;
+      
+      let processed = lines;
+      
+      if (wrapQuotes) {
+        processed = processed.map(line => `"${line}"`);
+      }
+      
+      let output;
+      switch(delimiter) {
+        case 'comma': output = processed.join(','); break;
+        case 'comma-space': output = processed.join(', '); break;
+        case 'semicolon': output = processed.join(';'); break;
+        case 'pipe': output = processed.join('|'); break;
+        case 'space': output = processed.join(' '); break;
+        case 'tab': output = processed.join('\t'); break;
+        default: output = processed.join('\n');
+      }
+      
+      document.getElementById('output').value = output;
+      updateStats();
+      trackUsage();
+    }
+
+    function applyFilters() {
+      let lines = getLines();
+      const filterContains = document.getElementById('filter-contains').value;
+      const filterStarts = document.getElementById('filter-starts').value;
+      const filterEnds = document.getElementById('filter-ends').value;
+      const caseSensitive = document.getElementById('case-sensitive').checked;
+      const addPrefix = document.getElementById('add-prefix').value;
+      const addSuffix = document.getElementById('add-suffix').value;
+      
+      // Apply filters
+      if (filterContains) {
+        lines = lines.filter(line => {
+          const l = caseSensitive ? line : line.toLowerCase();
+          const f = caseSensitive ? filterContains : filterContains.toLowerCase();
+          return l.includes(f);
+        });
+      }
+      
+      if (filterStarts) {
+        lines = lines.filter(line => {
+          const l = caseSensitive ? line : line.toLowerCase();
+          const f = caseSensitive ? filterStarts : filterStarts.toLowerCase();
+          return l.startsWith(f);
+        });
+      }
+      
+      if (filterEnds) {
+        lines = lines.filter(line => {
+          const l = caseSensitive ? line : line.toLowerCase();
+          const f = caseSensitive ? filterEnds : filterEnds.toLowerCase();
+          return l.endsWith(f);
+        });
+      }
+      
+      // Add prefix/suffix
+      if (addPrefix || addSuffix) {
+        lines = lines.map(line => addPrefix + line + addSuffix);
+      }
+      
+      setOutput(lines);
+    }
+
+    function sortAZ() {
+      let lines = getLines();
+      lines.sort((a, b) => a.localeCompare(b));
+      setOutput(lines);
+    }
+
+    function sortZA() {
+      let lines = getLines();
+      lines.sort((a, b) => b.localeCompare(a));
+      setOutput(lines);
+    }
+
+    function sortNumeric() {
+      let lines = getLines();
+      lines.sort((a, b) => {
+        const numA = parseFloat(a);
+        const numB = parseFloat(b);
+        return numA - numB;
+      });
+      setOutput(lines);
+    }
+
+    function sortLength() {
+      let lines = getLines();
+      lines.sort((a, b) => a.length - b.length);
+      setOutput(lines);
+    }
+
+    function removeDuplicates() {
+      let lines = getLines();
+      lines = [...new Set(lines)];
+      setOutput(lines);
+    }
+
+    function removeEmpty() {
+      let lines = getLines();
+      lines = lines.filter(line => line.trim().length > 0);
+      setOutput(lines);
+    }
+
+    function trim() {
+      let lines = getLines();
+      lines = lines.map(line => line.trim());
+      setOutput(lines);
+    }
+
+    function reverse() {
+      let lines = getLines();
+      lines.reverse();
+      setOutput(lines);
+    }
+
+    function shuffle() {
+      let lines = getLines();
+      for (let i = lines.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [lines[i], lines[j]] = [lines[j], lines[i]];
+      }
+      setOutput(lines);
+    }
+
+    function addNumbers() {
+      let lines = getLines();
+      lines = lines.map((line, i) => `${i + 1}. ${line}`);
+      setOutput(lines);
+    }
+
+    function clearInput() {
+      document.getElementById('input').value = '';
+      document.getElementById('output').value = '';
+      updateStats();
+    }
+
+    async function pasteList() {
+      try {
+        const text = await navigator.clipboard.readText();
+        document.getElementById('input').value = text;
+        updateStats();
+      } catch (e) {
+        alert('Could not paste from clipboard');
+      }
+    }
+
+    function copyOutput() {
+      const output = document.getElementById('output').value;
+      if (!output) {
+        alert('No output to copy');
+        return;
+      }
+      navigator.clipboard.writeText(output).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      });
+    }
+
+    function downloadOutput() {
+      const output = document.getElementById('output').value;
+      if (!output) {
+        alert('No output to download');
+        return;
+      }
+      const blob = new Blob([output], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'sorted-list.txt';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function loadSample(type) {
+      document.getElementById('input').value = samples[type];
+      updateStats();
+    }
+
+    function updateStats() {
+      const input = document.getElementById('input').value;
+      const output = document.getElementById('output').value;
+      
+      const inputLines = input ? input.split('\n').length : 0;
+      const outputLines = output ? (output.includes('\n') ? output.split('\n').length : (output ? 1 : 0)) : 0;
+      
+      document.getElementById('input-lines').textContent = inputLines;
+      document.getElementById('input-chars').textContent = input.length;
+      document.getElementById('output-lines').textContent = outputLines;
+      document.getElementById('output-chars').textContent = output.length;
+    }
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    // Update stats on input
+    document.getElementById('input').addEventListener('input', updateStats);
+
+    // Initialize
+    updateStats();
+    applyFilters();
+  </script>
+</body>
+</html>

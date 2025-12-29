@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON Formatter - Prism.Tools</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f0f1e;
+      color: #ffffff;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    
+    .navbar {
+      background: rgba(15, 15, 30, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #9ca3af 0%, #F07178 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    
+    .back-link {
+      color: #9ca3af;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    
+    .back-link:hover {
+      color: #ffffff;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    .tool-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    .tool-header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      color: #FFA500;
+    }
+    
+    .tool-header p {
+      color: #9ca3af;
+    }
+    
+    .tool-interface {
+      background: rgba(26, 26, 46, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 2rem;
+    }
+    
+    .input-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .input-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #9ca3af;
+      font-weight: 600;
+    }
+    
+    textarea {
+      width: 100%;
+      min-height: 300px;
+      padding: 1rem;
+      background: rgba(15, 15, 30, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: #ffffff;
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
+      font-size: 0.9rem;
+      resize: vertical;
+      transition: border-color 0.2s;
+    }
+    
+    textarea:focus {
+      outline: none;
+      border-color: #FFA500;
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    
+    button {
+      padding: 0.75rem 1.5rem;
+      background: #FFA500;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 165, 0, 0.3);
+    }
+    
+    button.secondary {
+      background: rgba(255, 165, 0, 0.2);
+      color: #FFA500;
+    }
+    
+    .output {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: rgba(15, 15, 30, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
+      font-size: 0.9rem;
+    }
+    
+    .output.success {
+      border-color: #6BCF7F;
+    }
+    
+    .output.error {
+      border-color: #FF6B6B;
+    }
+    
+    .stats {
+      display: flex;
+      gap: 2rem;
+      margin-top: 1rem;
+      padding: 1rem;
+      background: rgba(15, 15, 30, 0.5);
+      border-radius: 8px;
+    }
+    
+    .stat-item {
+      flex: 1;
+    }
+    
+    .stat-label {
+      color: #9ca3af;
+      font-size: 0.85rem;
+      margin-bottom: 0.25rem;
+    }
+    
+    .stat-value {
+      color: #FFA500;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+    
+    .keyboard-shortcuts {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      background: rgba(167, 139, 250, 0.1);
+      border: 1px solid rgba(167, 139, 250, 0.3);
+      border-radius: 8px;
+    }
+    
+    .keyboard-shortcuts h3 {
+      color: #a78bfa;
+      margin-bottom: 1rem;
+    }
+    
+    .shortcut {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      color: #9ca3af;
+    }
+    
+    .key {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="tool-header">
+      <h1>📋 JSON Formatter</h1>
+      <p>Format, validate, and beautify your JSON data</p>
+    </div>
+
+    <div class="tool-interface">
+      <div class="input-group">
+        <label for="json-input">Input JSON</label>
+        <textarea id="json-input" placeholder='Paste your JSON here... e.g. {"name":"John","age":30,"city":"New York"}'></textarea>
+      </div>
+
+      <div class="button-group">
+        <button onclick="formatJSON()">✨ Format & Validate</button>
+        <button class="secondary" onclick="minifyJSON()">📦 Minify</button>
+        <button class="secondary" onclick="copyOutput()">📋 Copy Output</button>
+        <button class="secondary" onclick="clearAll()">🗑️ Clear</button>
+      </div>
+
+      <div id="output" class="output" style="display: none;"></div>
+
+      <div id="stats" class="stats" style="display: none;">
+        <div class="stat-item">
+          <div class="stat-label">Status</div>
+          <div class="stat-value" id="status">-</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Size</div>
+          <div class="stat-value" id="size">-</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Keys</div>
+          <div class="stat-value" id="keys">-</div>
+        </div>
+      </div>
+
+      <div class="keyboard-shortcuts">
+        <h3>⌨️ Keyboard Shortcuts</h3>
+        <div class="shortcut">
+          <span>Format JSON</span>
+          <span class="key">Ctrl + Enter</span>
+        </div>
+        <div class="shortcut">
+          <span>Copy output</span>
+          <span class="key">Ctrl + Shift + C</span>
+        </div>
+        <div class="shortcut">
+          <span>Clear all</span>
+          <span class="key">Ctrl + K</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentOutput = '';
+
+    function countKeys(obj) {
+      let count = 0;
+      function recurse(o) {
+        for (let key in o) {
+          count++;
+          if (typeof o[key] === 'object' && o[key] !== null) {
+            recurse(o[key]);
+          }
+        }
+      }
+      recurse(obj);
+      return count;
+    }
+
+    function formatJSON() {
+      const input = document.getElementById('json-input').value;
+      const output = document.getElementById('output');
+      const stats = document.getElementById('stats');
+      
+      if (!input.trim()) {
+        output.innerHTML = '<span style="color: #FF6B6B;">⚠️ Please enter some JSON to format</span>';
+        output.style.display = 'block';
+        output.className = 'output error';
+        stats.style.display = 'none';
+        return;
+      }
+      
+      try {
+        const parsed = JSON.parse(input);
+        const formatted = JSON.stringify(parsed, null, 2);
+        currentOutput = formatted;
+        
+        output.innerHTML = `<pre style="margin: 0; overflow-x: auto;">${escapeHtml(formatted)}</pre>`;
+        output.style.display = 'block';
+        output.className = 'output success';
+        
+        // Show stats
+        stats.style.display = 'flex';
+        document.getElementById('status').textContent = '✓ Valid';
+        document.getElementById('status').style.color = '#6BCF7F';
+        document.getElementById('size').textContent = formatBytes(formatted.length);
+        document.getElementById('keys').textContent = countKeys(parsed);
+        
+        trackUsage();
+      } catch (e) {
+        output.innerHTML = `<span style="color: #FF6B6B;">✗ Invalid JSON</span><br><br>${escapeHtml(e.message)}`;
+        output.style.display = 'block';
+        output.className = 'output error';
+        
+        stats.style.display = 'flex';
+        document.getElementById('status').textContent = '✗ Invalid';
+        document.getElementById('status').style.color = '#FF6B6B';
+        document.getElementById('size').textContent = '-';
+        document.getElementById('keys').textContent = '-';
+      }
+    }
+
+    function minifyJSON() {
+      const input = document.getElementById('json-input').value;
+      const output = document.getElementById('output');
+      
+      if (!input.trim()) {
+        output.innerHTML = '<span style="color: #FF6B6B;">⚠️ Please enter some JSON to minify</span>';
+        output.style.display = 'block';
+        output.className = 'output error';
+        return;
+      }
+      
+      try {
+        const parsed = JSON.parse(input);
+        const minified = JSON.stringify(parsed);
+        currentOutput = minified;
+        
+        output.innerHTML = `<pre style="margin: 0; overflow-x: auto;">${escapeHtml(minified)}</pre>`;
+        output.style.display = 'block';
+        output.className = 'output success';
+        
+        document.getElementById('stats').style.display = 'flex';
+        document.getElementById('status').textContent = '✓ Valid';
+        document.getElementById('status').style.color = '#6BCF7F';
+        document.getElementById('size').textContent = formatBytes(minified.length);
+        document.getElementById('keys').textContent = countKeys(parsed);
+        
+        trackUsage();
+      } catch (e) {
+        output.innerHTML = `<span style="color: #FF6B6B;">✗ Invalid JSON</span><br><br>${escapeHtml(e.message)}`;
+        output.style.display = 'block';
+        output.className = 'output error';
+      }
+    }
+
+    function copyOutput() {
+      if (!currentOutput) {
+        alert('Nothing to copy! Format some JSON first.');
+        return;
+      }
+      
+      navigator.clipboard.writeText(currentOutput).then(() => {
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => {
+          btn.textContent = originalText;
+        }, 2000);
+      });
+    }
+
+    function clearAll() {
+      document.getElementById('json-input').value = '';
+      document.getElementById('output').style.display = 'none';
+      document.getElementById('stats').style.display = 'none';
+      currentOutput = '';
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function formatBytes(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.key === 'Enter') {
+        e.preventDefault();
+        formatJSON();
+      }
+      if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+        e.preventDefault();
+        copyOutput();
+      }
+      if (e.ctrlKey && e.key === 'k') {
+        e.preventDefault();
+        clearAll();
+      }
+    });
+
+    // Auto-focus input on load
+    document.getElementById('json-input').focus();
+  </script>
+</body>
+</html>

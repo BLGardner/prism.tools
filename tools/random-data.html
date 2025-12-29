@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Random Data Generator - Prism.Tools</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #F1FA8C 0%, #C9CC3F 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #e4e4e7; }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #F1FA8C;
+    }
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    .generators-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .generator-card {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .card-header {
+      background: #1f1f23;
+      padding: 0.75rem;
+      border-bottom: 1px solid #27272a;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .card-icon {
+      font-size: 1.25rem;
+    }
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #F1FA8C;
+    }
+    .card-content {
+      padding: 0.875rem;
+    }
+    .input-group {
+      margin-bottom: 0.75rem;
+    }
+    .input-label {
+      font-size: 0.75rem;
+      color: #71717a;
+      margin-bottom: 0.4rem;
+      display: block;
+    }
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 0.5rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-size: 0.85rem;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #F1FA8C;
+    }
+    .btn-generate {
+      width: 100%;
+      padding: 0.625rem;
+      background: #F1FA8C;
+      color: #0a0a0f;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 0.75rem;
+    }
+    .btn-generate:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(241, 250, 140, 0.3);
+    }
+    .output-box {
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      padding: 0.75rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      max-height: 200px;
+      overflow-y: auto;
+      word-break: break-all;
+    }
+    .output-item {
+      padding: 0.4rem;
+      margin-bottom: 0.25rem;
+      background: #18181b;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .copy-mini {
+      padding: 0.2rem 0.4rem;
+      background: rgba(241, 250, 140, 0.1);
+      border: 1px solid rgba(241, 250, 140, 0.3);
+      color: #F1FA8C;
+      border-radius: 3px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .copy-mini:hover {
+      background: rgba(241, 250, 140, 0.2);
+    }
+    .bulk-output {
+      grid-column: 1 / -1;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .bulk-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+    .bulk-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #F1FA8C;
+    }
+    .btn-small {
+      padding: 0.4rem 0.75rem;
+      background: rgba(241, 250, 140, 0.1);
+      border: 1px solid rgba(241, 250, 140, 0.3);
+      color: #F1FA8C;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .btn-small:hover {
+      background: rgba(241, 250, 140, 0.2);
+    }
+    .bulk-textarea {
+      width: 100%;
+      min-height: 300px;
+      padding: 0.875rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      resize: vertical;
+    }
+    @media (max-width: 768px) {
+      .generators-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>🎲 Random Data Generator</h1>
+      <p>Generate fake data for testing and development</p>
+    </div>
+
+    <div class="generators-grid">
+      <!-- Name Generator -->
+      <div class="generator-card">
+        <div class="card-header">
+          <span class="card-icon">👤</span>
+          <span class="card-title">Names</span>
+        </div>
+        <div class="card-content">
+          <div class="input-group">
+            <label class="input-label">Count</label>
+            <input type="number" id="name-count" value="5" min="1" max="100">
+          </div>
+          <button class="btn-generate" onclick="generateNames()">Generate Names</button>
+          <div class="output-box" id="name-output"></div>
+        </div>
+      </div>
+
+      <!-- Email Generator -->
+      <div class="generator-card">
+        <div class="card-header">
+          <span class="card-icon">📧</span>
+          <span class="card-title">Emails</span>
+        </div>
+        <div class="card-content">
+          <div class="input-group">
+            <label class="input-label">Count</label>
+            <input type="number" id="email-count" value="5" min="1" max="100">
+          </div>
+          <button class="btn-generate" onclick="generateEmails()">Generate Emails</button>
+          <div class="output-box" id="email-output"></div>
+        </div>
+      </div>
+
+      <!-- Phone Generator -->
+      <div class="generator-card">
+        <div class="card-header">
+          <span class="card-icon">📱</span>
+          <span class="card-title">Phone Numbers</span>
+        </div>
+        <div class="card-content">
+          <div class="input-group">
+            <label class="input-label">Format</label>
+            <select id="phone-format">
+              <option value="us">(555) 123-4567</option>
+              <option value="intl">+1-555-123-4567</option>
+              <option value="dots">555.123.4567</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Count</label>
+            <input type="number" id="phone-count" value="5" min="1" max="100">
+          </div>
+          <button class="btn-generate" onclick="generatePhones()">Generate Phones</button>
+          <div class="output-box" id="phone-output"></div>
+        </div>
+      </div>
+
+      <!-- Address Generator -->
+      <div class="generator-card">
+        <div class="card-header">
+          <span class="card-icon">🏠</span>
+          <span class="card-title">Addresses</span>
+        </div>
+        <div class="card-content">
+          <div class="input-group">
+            <label class="input-label">Count</label>
+            <input type="number" id="address-count" value="3" min="1" max="50">
+          </div>
+          <button class="btn-generate" onclick="generateAddresses()">Generate Addresses</button>
+          <div class="output-box" id="address-output"></div>
+        </div>
+      </div>
+
+      <!-- UUID Generator -->
+      <div class="generator-card">
+        <div class="card-header">
+          <span class="card-icon">🆔</span>
+          <span class="card-title">UUIDs</span>
+        </div>
+        <div class="card-content">
+          <div class="input-group">
+            <label class="input-label">Version</label>
+            <select id="uuid-version">
+              <option value="v4">Version 4 (Random)</option>
+              <option value="v1">Version 1 (Time-based)</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Count</label>
+            <input type="number" id="uuid-count" value="5" min="1" max="100">
+          </div>
+          <button class="btn-generate" onclick="generateUUIDs()">Generate UUIDs</button>
+          <div class="output-box" id="uuid-output"></div>
+        </div>
+      </div>
+
+      <!-- Numbers Generator -->
+      <div class="generator-card">
+        <div class="card-header">
+          <span class="card-icon">🔢</span>
+          <span class="card-title">Random Numbers</span>
+        </div>
+        <div class="card-content">
+          <div class="input-group">
+            <label class="input-label">Min</label>
+            <input type="number" id="num-min" value="1">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Max</label>
+            <input type="number" id="num-max" value="100">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Count</label>
+            <input type="number" id="num-count" value="10" min="1" max="100">
+          </div>
+          <button class="btn-generate" onclick="generateNumbers()">Generate Numbers</button>
+          <div class="output-box" id="num-output"></div>
+        </div>
+      </div>
+
+      <!-- Date Generator -->
+      <div class="generator-card">
+        <div class="card-header">
+          <span class="card-icon">📅</span>
+          <span class="card-title">Random Dates</span>
+        </div>
+        <div class="card-content">
+          <div class="input-group">
+            <label class="input-label">Range</label>
+            <select id="date-range">
+              <option value="past-year">Past Year</option>
+              <option value="past-month">Past Month</option>
+              <option value="future-year">Next Year</option>
+              <option value="future-month">Next Month</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Count</label>
+            <input type="number" id="date-count" value="5" min="1" max="100">
+          </div>
+          <button class="btn-generate" onclick="generateDates()">Generate Dates</button>
+          <div class="output-box" id="date-output"></div>
+        </div>
+      </div>
+
+      <!-- Credit Card Generator -->
+      <div class="generator-card">
+        <div class="card-header">
+          <span class="card-icon">💳</span>
+          <span class="card-title">Test Credit Cards</span>
+        </div>
+        <div class="card-content">
+          <div class="input-group">
+            <label class="input-label">Type</label>
+            <select id="card-type">
+              <option value="visa">Visa</option>
+              <option value="mastercard">Mastercard</option>
+              <option value="amex">American Express</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Count</label>
+            <input type="number" id="card-count" value="3" min="1" max="20">
+          </div>
+          <button class="btn-generate" onclick="generateCards()">Generate Cards</button>
+          <div class="output-box" id="card-output"></div>
+        </div>
+      </div>
+
+      <!-- Bulk JSON Generator -->
+      <div class="bulk-output">
+        <div class="bulk-header">
+          <span class="bulk-title">📦 Bulk JSON Generator</span>
+          <div>
+            <button class="btn-small" onclick="generateBulkJSON()">Generate</button>
+            <button class="btn-small" onclick="copyBulkJSON()">📋 Copy</button>
+          </div>
+        </div>
+        <textarea class="bulk-textarea" id="bulk-output" placeholder="Click 'Generate' to create bulk JSON data..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const firstNames = ['James', 'Mary', 'John', 'Patricia', 'Robert', 'Jennifer', 'Michael', 'Linda', 'William', 'Elizabeth', 'David', 'Susan', 'Richard', 'Jessica', 'Joseph', 'Sarah', 'Thomas', 'Karen', 'Christopher', 'Nancy'];
+    const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez', 'Hernandez', 'Lopez', 'Gonzalez', 'Wilson', 'Anderson', 'Thomas', 'Taylor', 'Moore', 'Jackson', 'Martin'];
+    const streets = ['Main', 'Oak', 'Pine', 'Maple', 'Cedar', 'Elm', 'Washington', 'Lake', 'Hill', 'Park'];
+    const cities = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'Philadelphia', 'San Antonio', 'San Diego', 'Dallas', 'Austin'];
+    const states = ['NY', 'CA', 'IL', 'TX', 'AZ', 'PA', 'FL', 'OH', 'GA', 'NC'];
+    const domains = ['gmail.com', 'yahoo.com', 'outlook.com', 'example.com', 'test.com'];
+
+    function random(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function randomItem(arr) {
+      return arr[random(0, arr.length - 1)];
+    }
+
+    function generateNames() {
+      const count = parseInt(document.getElementById('name-count').value);
+      const output = document.getElementById('name-output');
+      output.innerHTML = '';
+      
+      for (let i = 0; i < count; i++) {
+        const name = `${randomItem(firstNames)} ${randomItem(lastNames)}`;
+        addOutputItem(output, name);
+      }
+      trackUsage();
+    }
+
+    function generateEmails() {
+      const count = parseInt(document.getElementById('email-count').value);
+      const output = document.getElementById('email-output');
+      output.innerHTML = '';
+      
+      for (let i = 0; i < count; i++) {
+        const first = randomItem(firstNames).toLowerCase();
+        const last = randomItem(lastNames).toLowerCase();
+        const email = `${first}.${last}${random(1, 999)}@${randomItem(domains)}`;
+        addOutputItem(output, email);
+      }
+      trackUsage();
+    }
+
+    function generatePhones() {
+      const count = parseInt(document.getElementById('phone-count').value);
+      const format = document.getElementById('phone-format').value;
+      const output = document.getElementById('phone-output');
+      output.innerHTML = '';
+      
+      for (let i = 0; i < count; i++) {
+        const area = random(200, 999);
+        const prefix = random(200, 999);
+        const line = random(1000, 9999);
+        
+        let phone;
+        if (format === 'us') phone = `(${area}) ${prefix}-${line}`;
+        else if (format === 'intl') phone = `+1-${area}-${prefix}-${line}`;
+        else phone = `${area}.${prefix}.${line}`;
+        
+        addOutputItem(output, phone);
+      }
+      trackUsage();
+    }
+
+    function generateAddresses() {
+      const count = parseInt(document.getElementById('address-count').value);
+      const output = document.getElementById('address-output');
+      output.innerHTML = '';
+      
+      for (let i = 0; i < count; i++) {
+        const num = random(100, 9999);
+        const street = randomItem(streets);
+        const city = randomItem(cities);
+        const state = randomItem(states);
+        const zip = random(10000, 99999);
+        const address = `${num} ${street} St, ${city}, ${state} ${zip}`;
+        addOutputItem(output, address);
+      }
+      trackUsage();
+    }
+
+    function generateUUIDs() {
+      const count = parseInt(document.getElementById('uuid-count').value);
+      const version = document.getElementById('uuid-version').value;
+      const output = document.getElementById('uuid-output');
+      output.innerHTML = '';
+      
+      for (let i = 0; i < count; i++) {
+        const uuid = version === 'v4' ? generateUUIDv4() : generateUUIDv1();
+        addOutputItem(output, uuid);
+      }
+      trackUsage();
+    }
+
+    function generateUUIDv4() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+
+    function generateUUIDv1() {
+      const now = Date.now();
+      const rand = Math.random().toString(16).substring(2, 14);
+      return `${now.toString(16).padStart(12, '0')}-1000-${rand}`;
+    }
+
+    function generateNumbers() {
+      const min = parseInt(document.getElementById('num-min').value);
+      const max = parseInt(document.getElementById('num-max').value);
+      const count = parseInt(document.getElementById('num-count').value);
+      const output = document.getElementById('num-output');
+      output.innerHTML = '';
+      
+      for (let i = 0; i < count; i++) {
+        const num = random(min, max);
+        addOutputItem(output, num.toString());
+      }
+      trackUsage();
+    }
+
+    function generateDates() {
+      const count = parseInt(document.getElementById('date-count').value);
+      const range = document.getElementById('date-range').value;
+      const output = document.getElementById('date-output');
+      output.innerHTML = '';
+      
+      const now = Date.now();
+      let min, max;
+      
+      if (range === 'past-year') { min = now - 365*24*60*60*1000; max = now; }
+      else if (range === 'past-month') { min = now - 30*24*60*60*1000; max = now; }
+      else if (range === 'future-year') { min = now; max = now + 365*24*60*60*1000; }
+      else { min = now; max = now + 30*24*60*60*1000; }
+      
+      for (let i = 0; i < count; i++) {
+        const timestamp = random(min, max);
+        const date = new Date(timestamp).toISOString().split('T')[0];
+        addOutputItem(output, date);
+      }
+      trackUsage();
+    }
+
+    function generateCards() {
+      const count = parseInt(document.getElementById('card-count').value);
+      const type = document.getElementById('card-type').value;
+      const output = document.getElementById('card-output');
+      output.innerHTML = '';
+      
+      for (let i = 0; i < count; i++) {
+        let card;
+        if (type === 'visa') card = '4' + Array.from({length: 15}, () => random(0, 9)).join('');
+        else if (type === 'mastercard') card = '5' + random(1, 5) + Array.from({length: 14}, () => random(0, 9)).join('');
+        else card = '3' + random(4, 7) + Array.from({length: 13}, () => random(0, 9)).join('');
+        
+        const formatted = card.match(/.{1,4}/g).join(' ');
+        addOutputItem(output, formatted);
+      }
+      trackUsage();
+    }
+
+    function generateBulkJSON() {
+      const data = [];
+      for (let i = 0; i < 10; i++) {
+        data.push({
+          id: i + 1,
+          name: `${randomItem(firstNames)} ${randomItem(lastNames)}`,
+          email: `${randomItem(firstNames).toLowerCase()}.${randomItem(lastNames).toLowerCase()}@${randomItem(domains)}`,
+          phone: `(${random(200, 999)}) ${random(200, 999)}-${random(1000, 9999)}`,
+          address: `${random(100, 9999)} ${randomItem(streets)} St`,
+          city: randomItem(cities),
+          state: randomItem(states),
+          zip: random(10000, 99999).toString(),
+          age: random(18, 80),
+          active: Math.random() > 0.5
+        });
+      }
+      document.getElementById('bulk-output').value = JSON.stringify(data, null, 2);
+      trackUsage();
+    }
+
+    function copyBulkJSON() {
+      const text = document.getElementById('bulk-output').value;
+      if (!text) {
+        alert('Generate JSON first');
+        return;
+      }
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      });
+    }
+
+    function addOutputItem(container, text) {
+      const item = document.createElement('div');
+      item.className = 'output-item';
+      item.innerHTML = `
+        <span>${text}</span>
+        <button class="copy-mini" onclick="copyItem('${text.replace(/'/g, "\\'")}')">📋</button>
+      `;
+      container.appendChild(item);
+    }
+
+    function copyItem(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓';
+        setTimeout(() => { btn.textContent = original; }, 1500);
+      });
+    }
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+  </script>
+</body>
+</html>

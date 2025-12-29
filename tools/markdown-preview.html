@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Markdown Preview - Prism.Tools</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #50FA7B 0%, #37C768 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #e4e4e7; }
+    .container {
+      max-width: 100%;
+      height: calc(100vh - 110px);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+    }
+    .header {
+      text-align: center;
+      padding: 1rem 0 0.75rem;
+    }
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #50FA7B;
+    }
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    .controls {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .view-toggle {
+      display: flex;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .view-btn {
+      padding: 0.4rem 0.875rem;
+      background: transparent;
+      border: none;
+      color: #a1a1aa;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .view-btn.active {
+      background: #50FA7B;
+      color: #0a0a0f;
+    }
+    .action-btn {
+      padding: 0.4rem 0.875rem;
+      background: rgba(80, 250, 123, 0.1);
+      border: 1px solid rgba(80, 250, 123, 0.3);
+      color: #50FA7B;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .action-btn:hover {
+      background: rgba(80, 250, 123, 0.2);
+    }
+    .editor-container {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      overflow: hidden;
+    }
+    .editor-container.editor-only {
+      grid-template-columns: 1fr;
+    }
+    .editor-container.preview-only {
+      grid-template-columns: 1fr;
+    }
+    .panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .panel.hidden {
+      display: none;
+    }
+    .panel-header {
+      background: #1f1f23;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid #27272a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .panel-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #a1a1aa;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .word-count {
+      font-size: 0.7rem;
+      color: #71717a;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    textarea {
+      flex: 1;
+      padding: 0.875rem;
+      background: #0a0a0f;
+      border: none;
+      color: #e4e4e7;
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
+      font-size: 0.85rem;
+      resize: none;
+      line-height: 1.6;
+    }
+    textarea:focus { outline: none; }
+    .preview-content {
+      flex: 1;
+      padding: 1.5rem;
+      background: #0a0a0f;
+      overflow-y: auto;
+      line-height: 1.7;
+    }
+    
+    /* Markdown Styling */
+    .preview-content h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: #e4e4e7;
+      border-bottom: 2px solid #27272a;
+      padding-bottom: 0.5rem;
+    }
+    .preview-content h2 {
+      font-size: 1.5rem;
+      margin: 1.5rem 0 0.75rem;
+      color: #e4e4e7;
+      border-bottom: 1px solid #27272a;
+      padding-bottom: 0.4rem;
+    }
+    .preview-content h3 {
+      font-size: 1.25rem;
+      margin: 1.25rem 0 0.625rem;
+      color: #e4e4e7;
+    }
+    .preview-content h4 {
+      font-size: 1.1rem;
+      margin: 1rem 0 0.5rem;
+      color: #e4e4e7;
+    }
+    .preview-content p {
+      margin-bottom: 1rem;
+      color: #a1a1aa;
+    }
+    .preview-content a {
+      color: #50FA7B;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(80, 250, 123, 0.3);
+    }
+    .preview-content a:hover {
+      border-bottom-color: #50FA7B;
+    }
+    .preview-content code {
+      background: #18181b;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: #50FA7B;
+    }
+    .preview-content pre {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      padding: 0.875rem;
+      margin-bottom: 1rem;
+      overflow-x: auto;
+    }
+    .preview-content pre code {
+      background: none;
+      padding: 0;
+      color: #e4e4e7;
+    }
+    .preview-content blockquote {
+      border-left: 4px solid #50FA7B;
+      padding-left: 1rem;
+      margin: 1rem 0;
+      color: #a1a1aa;
+      font-style: italic;
+    }
+    .preview-content ul, .preview-content ol {
+      margin-bottom: 1rem;
+      padding-left: 2rem;
+      color: #a1a1aa;
+    }
+    .preview-content li {
+      margin-bottom: 0.5rem;
+    }
+    .preview-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+    .preview-content th, .preview-content td {
+      border: 1px solid #27272a;
+      padding: 0.5rem 0.75rem;
+      text-align: left;
+    }
+    .preview-content th {
+      background: #18181b;
+      font-weight: 600;
+      color: #e4e4e7;
+    }
+    .preview-content td {
+      color: #a1a1aa;
+    }
+    .preview-content img {
+      max-width: 100%;
+      border-radius: 6px;
+      margin: 1rem 0;
+    }
+    .preview-content hr {
+      border: none;
+      border-top: 2px solid #27272a;
+      margin: 2rem 0;
+    }
+    .toolbar {
+      padding: 0.5rem 0.75rem;
+      background: #18181b;
+      border-bottom: 1px solid #27272a;
+      display: flex;
+      gap: 0.25rem;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+    .toolbar-btn {
+      padding: 0.3rem 0.5rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 4px;
+      color: #a1a1aa;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .toolbar-btn:hover {
+      border-color: #50FA7B;
+      color: #50FA7B;
+    }
+    @media (max-width: 768px) {
+      .editor-container {
+        grid-template-columns: 1fr;
+      }
+      .view-toggle {
+        width: 100%;
+      }
+      .view-btn {
+        flex: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>📝 Markdown Preview</h1>
+      <p>Live markdown editor with instant preview</p>
+    </div>
+
+    <div class="controls">
+      <div class="view-toggle">
+        <button class="view-btn active" onclick="setView('split')">Split</button>
+        <button class="view-btn" onclick="setView('editor')">Editor</button>
+        <button class="view-btn" onclick="setView('preview')">Preview</button>
+      </div>
+      <button class="action-btn" onclick="copyMarkdown()">📋 Copy MD</button>
+      <button class="action-btn" onclick="copyHTML()">📋 Copy HTML</button>
+      <button class="action-btn" onclick="downloadMarkdown()">💾 Download MD</button>
+      <button class="action-btn" onclick="clearEditor()">🗑️ Clear</button>
+    </div>
+
+    <div class="editor-container" id="editor-container">
+      <div class="panel" id="editor-panel">
+        <div class="panel-header">
+          <span class="panel-title">Markdown Editor</span>
+          <span class="word-count" id="word-count">0 words</span>
+        </div>
+        <div class="toolbar">
+          <button class="toolbar-btn" onclick="insertMarkdown('# ', '')">H1</button>
+          <button class="toolbar-btn" onclick="insertMarkdown('## ', '')">H2</button>
+          <button class="toolbar-btn" onclick="insertMarkdown('### ', '')">H3</button>
+          <button class="toolbar-btn" onclick="insertMarkdown('**', '**')">Bold</button>
+          <button class="toolbar-btn" onclick="insertMarkdown('*', '*')">Italic</button>
+          <button class="toolbar-btn" onclick="insertMarkdown('`', '`')">Code</button>
+          <button class="toolbar-btn" onclick="insertMarkdown('[', '](url)')">Link</button>
+          <button class="toolbar-btn" onclick="insertMarkdown('![alt](', ')')">Image</button>
+          <button class="toolbar-btn" onclick="insertMarkdown('- ', '')">List</button>
+          <button class="toolbar-btn" onclick="insertMarkdown('> ', '')">Quote</button>
+          <button class="toolbar-btn" onclick="insertMarkdown('```\n', '\n```')">Block</button>
+        </div>
+        <textarea id="markdown-input" placeholder="# Start typing markdown here...
+
+## Features
+- Live preview
+- Syntax highlighting
+- Export options
+
+**Bold text** and *italic text*
+
+```javascript
+console.log('Hello, World!');
+```
+
+> This is a blockquote
+
+[Link](https://prism.tools)"></textarea>
+      </div>
+
+      <div class="panel" id="preview-panel">
+        <div class="panel-header">
+          <span class="panel-title">Live Preview</span>
+        </div>
+        <div class="preview-content" id="preview"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const editor = document.getElementById('markdown-input');
+    const preview = document.getElementById('preview');
+    let currentView = 'split';
+
+    // Configure marked options
+    marked.setOptions({
+      breaks: true,
+      gfm: true
+    });
+
+    function updatePreview() {
+      const markdown = editor.value;
+      preview.innerHTML = marked.parse(markdown);
+      updateWordCount();
+      trackUsage();
+    }
+
+    function updateWordCount() {
+      const text = editor.value;
+      const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
+      const chars = text.length;
+      document.getElementById('word-count').textContent = `${words} words, ${chars} chars`;
+    }
+
+    function setView(view) {
+      currentView = view;
+      document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+
+      const container = document.getElementById('editor-container');
+      const editorPanel = document.getElementById('editor-panel');
+      const previewPanel = document.getElementById('preview-panel');
+
+      container.className = 'editor-container';
+      editorPanel.classList.remove('hidden');
+      previewPanel.classList.remove('hidden');
+
+      if (view === 'editor') {
+        container.classList.add('editor-only');
+        previewPanel.classList.add('hidden');
+      } else if (view === 'preview') {
+        container.classList.add('preview-only');
+        editorPanel.classList.add('hidden');
+      }
+    }
+
+    function insertMarkdown(before, after) {
+      const start = editor.selectionStart;
+      const end = editor.selectionEnd;
+      const text = editor.value;
+      const selectedText = text.substring(start, end);
+
+      const newText = text.substring(0, start) + before + selectedText + after + text.substring(end);
+      editor.value = newText;
+
+      const newCursorPos = start + before.length + selectedText.length;
+      editor.setSelectionRange(newCursorPos, newCursorPos);
+      editor.focus();
+      updatePreview();
+    }
+
+    function copyMarkdown() {
+      const markdown = editor.value;
+      if (!markdown) {
+        alert('Nothing to copy');
+        return;
+      }
+      navigator.clipboard.writeText(markdown).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      });
+    }
+
+    function copyHTML() {
+      const html = preview.innerHTML;
+      if (!html) {
+        alert('Nothing to copy');
+        return;
+      }
+      navigator.clipboard.writeText(html).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      });
+    }
+
+    function downloadMarkdown() {
+      const markdown = editor.value;
+      if (!markdown) {
+        alert('Nothing to download');
+        return;
+      }
+      const blob = new Blob([markdown], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'document.md';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function clearEditor() {
+      if (confirm('Clear all content?')) {
+        editor.value = '';
+        updatePreview();
+      }
+    }
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    // Keyboard shortcuts
+    editor.addEventListener('keydown', (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === 'b') {
+          e.preventDefault();
+          insertMarkdown('**', '**');
+        } else if (e.key === 'i') {
+          e.preventDefault();
+          insertMarkdown('*', '*');
+        } else if (e.key === 'k') {
+          e.preventDefault();
+          insertMarkdown('[', '](url)');
+        }
+      }
+      
+      // Tab for indentation
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = editor.selectionStart;
+        const end = editor.selectionEnd;
+        editor.value = editor.value.substring(0, start) + '  ' + editor.value.substring(end);
+        editor.selectionStart = editor.selectionEnd = start + 2;
+      }
+    });
+
+    // Auto-update preview
+    editor.addEventListener('input', updatePreview);
+
+    // Initialize
+    updatePreview();
+  </script>
+</body>
+</html>

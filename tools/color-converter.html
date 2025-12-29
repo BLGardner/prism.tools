@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Color Converter - Prism.Tools</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #FF6B9D 0%, #C44569 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #e4e4e7; }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #FF6B9D;
+    }
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .color-preview {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .color-display {
+      width: 100%;
+      height: 200px;
+      border-radius: 8px;
+      border: 2px solid #27272a;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .color-display::after {
+      content: 'Click to pick color';
+      position: absolute;
+      bottom: 0.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .color-display:hover::after {
+      opacity: 1;
+    }
+    .color-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+    }
+    .contrast-ratio {
+      padding: 0.4rem 0.75rem;
+      background: #0a0a0f;
+      border-radius: 6px;
+      font-family: monospace;
+    }
+    .formats-panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .format-group {
+      margin-bottom: 1rem;
+    }
+    .format-group:last-child {
+      margin-bottom: 0;
+    }
+    .format-label {
+      font-size: 0.75rem;
+      color: #71717a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.4rem;
+      display: block;
+    }
+    .format-input-wrapper {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .format-input-wrapper input {
+      flex: 1;
+      padding: 0.5rem 0.75rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      transition: border-color 0.2s;
+    }
+    .format-input-wrapper input:focus {
+      outline: none;
+      border-color: #FF6B9D;
+    }
+    .copy-btn {
+      padding: 0.5rem 0.75rem;
+      background: rgba(255, 107, 157, 0.1);
+      border: 1px solid rgba(255, 107, 157, 0.3);
+      color: #FF6B9D;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .copy-btn:hover {
+      background: rgba(255, 107, 157, 0.2);
+      transform: translateY(-1px);
+    }
+    .color-picker-wrapper {
+      position: relative;
+    }
+    input[type="color"] {
+      position: absolute;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+    .palette-section {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    .section-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #a1a1aa;
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .palette-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      gap: 0.5rem;
+    }
+    .palette-color {
+      aspect-ratio: 1;
+      border-radius: 6px;
+      border: 2px solid #27272a;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.2s;
+    }
+    .palette-color:hover {
+      transform: scale(1.05);
+      border-color: #FF6B9D;
+    }
+    .palette-color-label {
+      position: absolute;
+      bottom: 0.25rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 0.15rem 0.4rem;
+      border-radius: 3px;
+      font-size: 0.65rem;
+      font-family: monospace;
+      white-space: nowrap;
+    }
+    .harmony-buttons {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .harmony-btn {
+      padding: 0.4rem 0.75rem;
+      background: rgba(255, 107, 157, 0.1);
+      border: 1px solid rgba(255, 107, 157, 0.3);
+      color: #FF6B9D;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .harmony-btn:hover {
+      background: rgba(255, 107, 157, 0.2);
+    }
+    .harmony-btn.active {
+      background: #FF6B9D;
+      color: #0a0a0f;
+    }
+    .shades-grid {
+      display: grid;
+      grid-template-columns: repeat(11, 1fr);
+      gap: 0.25rem;
+    }
+    .shade-box {
+      aspect-ratio: 1;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: transform 0.2s;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .shade-box:hover {
+      transform: scale(1.1);
+      z-index: 10;
+    }
+    @media (max-width: 768px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+      .palette-grid {
+        grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>🎨 Color Converter</h1>
+      <p>Convert between color formats and generate palettes</p>
+    </div>
+
+    <div class="main-grid">
+      <div class="color-preview">
+        <div class="color-picker-wrapper">
+          <div class="color-display" id="color-display"></div>
+          <input type="color" id="color-picker" value="#FF6B9D">
+        </div>
+        <div class="color-info">
+          <span id="color-name">Pink</span>
+          <span class="contrast-ratio" id="contrast-ratio">4.5:1</span>
+        </div>
+      </div>
+
+      <div class="formats-panel">
+        <div class="format-group">
+          <label class="format-label">HEX</label>
+          <div class="format-input-wrapper">
+            <input type="text" id="hex-input" value="#FF6B9D">
+            <button class="copy-btn" onclick="copyFormat('hex')">📋</button>
+          </div>
+        </div>
+
+        <div class="format-group">
+          <label class="format-label">RGB</label>
+          <div class="format-input-wrapper">
+            <input type="text" id="rgb-input" value="rgb(255, 107, 157)">
+            <button class="copy-btn" onclick="copyFormat('rgb')">📋</button>
+          </div>
+        </div>
+
+        <div class="format-group">
+          <label class="format-label">HSL</label>
+          <div class="format-input-wrapper">
+            <input type="text" id="hsl-input" value="hsl(340, 100%, 71%)">
+            <button class="copy-btn" onclick="copyFormat('hsl')">📋</button>
+          </div>
+        </div>
+
+        <div class="format-group">
+          <label class="format-label">HSV</label>
+          <div class="format-input-wrapper">
+            <input type="text" id="hsv-input" value="hsv(340, 58%, 100%)">
+            <button class="copy-btn" onclick="copyFormat('hsv')">📋</button>
+          </div>
+        </div>
+
+        <div class="format-group">
+          <label class="format-label">CMYK</label>
+          <div class="format-input-wrapper">
+            <input type="text" id="cmyk-input" value="cmyk(0%, 58%, 38%, 0%)">
+            <button class="copy-btn" onclick="copyFormat('cmyk')">📋</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="palette-section">
+      <div class="section-title">Shades & Tints</div>
+      <div class="shades-grid" id="shades-grid"></div>
+    </div>
+
+    <div class="palette-section">
+      <div class="section-title">Color Harmonies</div>
+      <div class="harmony-buttons">
+        <button class="harmony-btn" onclick="generateHarmony('complementary')">Complementary</button>
+        <button class="harmony-btn" onclick="generateHarmony('analogous')">Analogous</button>
+        <button class="harmony-btn" onclick="generateHarmony('triadic')">Triadic</button>
+        <button class="harmony-btn" onclick="generateHarmony('tetradic')">Tetradic</button>
+        <button class="harmony-btn" onclick="generateHarmony('split')">Split Complementary</button>
+      </div>
+      <div class="palette-grid" id="harmony-palette"></div>
+    </div>
+  </div>
+
+  <script>
+    let currentColor = { r: 255, g: 107, b: 157 };
+
+    function hexToRgb(hex) {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : null;
+    }
+
+    function rgbToHex(r, g, b) {
+      return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+    }
+
+    function rgbToHsl(r, g, b) {
+      r /= 255; g /= 255; b /= 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      let h, s, l = (max + min) / 2;
+
+      if (max === min) {
+        h = s = 0;
+      } else {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+          case g: h = ((b - r) / d + 2) / 6; break;
+          case b: h = ((r - g) / d + 4) / 6; break;
+        }
+      }
+      return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
+    }
+
+    function hslToRgb(h, s, l) {
+      h /= 360; s /= 100; l /= 100;
+      let r, g, b;
+
+      if (s === 0) {
+        r = g = b = l;
+      } else {
+        const hue2rgb = (p, q, t) => {
+          if (t < 0) t += 1;
+          if (t > 1) t -= 1;
+          if (t < 1/6) return p + (q - p) * 6 * t;
+          if (t < 1/2) return q;
+          if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+          return p;
+        };
+        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        const p = 2 * l - q;
+        r = hue2rgb(p, q, h + 1/3);
+        g = hue2rgb(p, q, h);
+        b = hue2rgb(p, q, h - 1/3);
+      }
+      return {
+        r: Math.round(r * 255),
+        g: Math.round(g * 255),
+        b: Math.round(b * 255)
+      };
+    }
+
+    function rgbToHsv(r, g, b) {
+      r /= 255; g /= 255; b /= 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      const d = max - min;
+      let h, s = max === 0 ? 0 : d / max, v = max;
+
+      if (max === min) {
+        h = 0;
+      } else {
+        switch (max) {
+          case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+          case g: h = ((b - r) / d + 2) / 6; break;
+          case b: h = ((r - g) / d + 4) / 6; break;
+        }
+      }
+      return { h: Math.round(h * 360), s: Math.round(s * 100), v: Math.round(v * 100) };
+    }
+
+    function rgbToCmyk(r, g, b) {
+      r /= 255; g /= 255; b /= 255;
+      const k = 1 - Math.max(r, g, b);
+      const c = k === 1 ? 0 : (1 - r - k) / (1 - k);
+      const m = k === 1 ? 0 : (1 - g - k) / (1 - k);
+      const y = k === 1 ? 0 : (1 - b - k) / (1 - k);
+      return {
+        c: Math.round(c * 100),
+        m: Math.round(m * 100),
+        y: Math.round(y * 100),
+        k: Math.round(k * 100)
+      };
+    }
+
+    function updateAllFormats(r, g, b) {
+      currentColor = { r, g, b };
+      
+      const hex = rgbToHex(r, g, b);
+      const hsl = rgbToHsl(r, g, b);
+      const hsv = rgbToHsv(r, g, b);
+      const cmyk = rgbToCmyk(r, g, b);
+
+      document.getElementById('hex-input').value = hex;
+      document.getElementById('rgb-input').value = `rgb(${r}, ${g}, ${b})`;
+      document.getElementById('hsl-input').value = `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+      document.getElementById('hsv-input').value = `hsv(${hsv.h}, ${hsv.s}%, ${hsv.v}%)`;
+      document.getElementById('cmyk-input').value = `cmyk(${cmyk.c}%, ${cmyk.m}%, ${cmyk.y}%, ${cmyk.k}%)`;
+
+      document.getElementById('color-display').style.background = hex;
+      document.getElementById('color-picker').value = hex;
+      
+      updateColorName(hex);
+      updateContrastRatio(r, g, b);
+      generateShades(r, g, b);
+      trackUsage();
+    }
+
+    function updateColorName(hex) {
+      const colorNames = {
+        '#FF6B9D': 'Pink', '#FF6B6B': 'Red', '#4ECDC4': 'Cyan',
+        '#FFD93D': 'Yellow', '#6BCF7F': 'Green', '#A78BFA': 'Purple'
+      };
+      document.getElementById('color-name').textContent = colorNames[hex] || hex;
+    }
+
+    function updateContrastRatio(r, g, b) {
+      const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+      const bgLuminance = 0.05; // Dark background
+      const ratio = luminance > bgLuminance 
+        ? (luminance + 0.05) / (bgLuminance + 0.05)
+        : (bgLuminance + 0.05) / (luminance + 0.05);
+      document.getElementById('contrast-ratio').textContent = ratio.toFixed(1) + ':1';
+    }
+
+    function generateShades(r, g, b) {
+      const grid = document.getElementById('shades-grid');
+      grid.innerHTML = '';
+      
+      const hsl = rgbToHsl(r, g, b);
+      
+      for (let i = 0; i <= 10; i++) {
+        const lightness = i * 10;
+        const rgb = hslToRgb(hsl.h, hsl.s, lightness);
+        const hex = rgbToHex(rgb.r, rgb.g, rgb.b);
+        
+        const shade = document.createElement('div');
+        shade.className = 'shade-box';
+        shade.style.background = hex;
+        shade.title = hex;
+        shade.onclick = () => updateAllFormats(rgb.r, rgb.g, rgb.b);
+        grid.appendChild(shade);
+      }
+    }
+
+    function generateHarmony(type) {
+      const hsl = rgbToHsl(currentColor.r, currentColor.g, currentColor.b);
+      const colors = [];
+      
+      switch (type) {
+        case 'complementary':
+          colors.push(hsl.h, (hsl.h + 180) % 360);
+          break;
+        case 'analogous':
+          colors.push((hsl.h - 30 + 360) % 360, hsl.h, (hsl.h + 30) % 360);
+          break;
+        case 'triadic':
+          colors.push(hsl.h, (hsl.h + 120) % 360, (hsl.h + 240) % 360);
+          break;
+        case 'tetradic':
+          colors.push(hsl.h, (hsl.h + 90) % 360, (hsl.h + 180) % 360, (hsl.h + 270) % 360);
+          break;
+        case 'split':
+          colors.push(hsl.h, (hsl.h + 150) % 360, (hsl.h + 210) % 360);
+          break;
+      }
+
+      const palette = document.getElementById('harmony-palette');
+      palette.innerHTML = '';
+      
+      colors.forEach(h => {
+        const rgb = hslToRgb(h, hsl.s, hsl.l);
+        const hex = rgbToHex(rgb.r, rgb.g, rgb.b);
+        
+        const color = document.createElement('div');
+        color.className = 'palette-color';
+        color.style.background = hex;
+        color.onclick = () => updateAllFormats(rgb.r, rgb.g, rgb.b);
+        
+        const label = document.createElement('div');
+        label.className = 'palette-color-label';
+        label.textContent = hex;
+        color.appendChild(label);
+        
+        palette.appendChild(color);
+      });
+    }
+
+    function copyFormat(format) {
+      const input = document.getElementById(format + '-input');
+      navigator.clipboard.writeText(input.value).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓';
+        setTimeout(() => { btn.textContent = original; }, 1500);
+      });
+    }
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    // Event listeners
+    document.getElementById('color-picker').addEventListener('input', (e) => {
+      const rgb = hexToRgb(e.target.value);
+      updateAllFormats(rgb.r, rgb.g, rgb.b);
+    });
+
+    document.getElementById('hex-input').addEventListener('change', (e) => {
+      const rgb = hexToRgb(e.target.value);
+      if (rgb) updateAllFormats(rgb.r, rgb.g, rgb.b);
+    });
+
+    // Initialize
+    updateAllFormats(currentColor.r, currentColor.g, currentColor.b);
+    generateHarmony('complementary');
+  </script>
+</body>
+</html>

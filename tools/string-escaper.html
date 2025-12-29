@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>String Escaper - Prism.Tools</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #C3E88D 0%, #82AAFF 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #e4e4e7; }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #C3E88D;
+    }
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+    }
+    .tab {
+      padding: 0.625rem 1.25rem;
+      background: rgba(195, 232, 141, 0.1);
+      border: 1px solid rgba(195, 232, 141, 0.3);
+      color: #C3E88D;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .tab:hover {
+      background: rgba(195, 232, 141, 0.2);
+    }
+    .tab.active {
+      background: #C3E88D;
+      color: #0a0a0f;
+      border-color: #C3E88D;
+    }
+    .controls {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 0.875rem;
+      margin-bottom: 1rem;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .btn {
+      padding: 0.5rem 1rem;
+      background: #C3E88D;
+      color: #0a0a0f;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(195, 232, 141, 0.3);
+    }
+    .btn-secondary {
+      background: rgba(195, 232, 141, 0.1);
+      color: #C3E88D;
+      border: 1px solid rgba(195, 232, 141, 0.3);
+    }
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-left: auto;
+    }
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #C3E88D;
+    }
+    .checkbox-label {
+      font-size: 0.85rem;
+      color: #e4e4e7;
+      cursor: pointer;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .panel-header {
+      background: #1f1f23;
+      padding: 0.625rem 0.875rem;
+      border-bottom: 1px solid #27272a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .panel-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #C3E88D;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .panel-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn-small {
+      padding: 0.25rem 0.625rem;
+      background: rgba(195, 232, 141, 0.1);
+      border: 1px solid rgba(195, 232, 141, 0.3);
+      color: #C3E88D;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .btn-small:hover {
+      background: rgba(195, 232, 141, 0.2);
+    }
+    textarea {
+      flex: 1;
+      padding: 0.875rem;
+      background: #0a0a0f;
+      border: none;
+      color: #e4e4e7;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      resize: none;
+      line-height: 1.6;
+      min-height: 400px;
+    }
+    textarea:focus { outline: none; }
+    .info-box {
+      background: rgba(195, 232, 141, 0.1);
+      border: 1px solid rgba(195, 232, 141, 0.2);
+      border-radius: 8px;
+      padding: 0.875rem;
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      color: #a1a1aa;
+      line-height: 1.5;
+    }
+    .info-title {
+      color: #C3E88D;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    .code-example {
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      padding: 0.75rem;
+      margin-top: 0.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: #e4e4e7;
+      overflow-x: auto;
+    }
+    .samples {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    .samples-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #C3E88D;
+      margin-bottom: 0.75rem;
+    }
+    .sample-buttons {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .sample-btn {
+      padding: 0.5rem 0.875rem;
+      background: rgba(195, 232, 141, 0.1);
+      border: 1px solid rgba(195, 232, 141, 0.3);
+      color: #C3E88D;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .sample-btn:hover {
+      background: rgba(195, 232, 141, 0.2);
+    }
+    @media (max-width: 1024px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>🔤 String Escaper</h1>
+      <p>Escape and unescape strings for multiple programming languages</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchLanguage('javascript')" id="tab-javascript">JavaScript</button>
+      <button class="tab" onclick="switchLanguage('python')" id="tab-python">Python</button>
+      <button class="tab" onclick="switchLanguage('java')" id="tab-java">Java</button>
+      <button class="tab" onclick="switchLanguage('csharp')" id="tab-csharp">C#</button>
+      <button class="tab" onclick="switchLanguage('c')" id="tab-c">C/C++</button>
+      <button class="tab" onclick="switchLanguage('json')" id="tab-json">JSON</button>
+      <button class="tab" onclick="switchLanguage('xml')" id="tab-xml">XML</button>
+      <button class="tab" onclick="switchLanguage('sql')" id="tab-sql">SQL</button>
+    </div>
+
+    <div class="controls">
+      <button class="btn" onclick="escapeString()">→ Escape</button>
+      <button class="btn btn-secondary" onclick="unescapeString()">← Unescape</button>
+      <button class="btn btn-secondary" onclick="swapPanels()">⇄ Swap</button>
+      <div class="checkbox-group">
+        <input type="checkbox" id="auto-process" checked>
+        <label class="checkbox-label" for="auto-process">Auto-process</label>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Input String</span>
+          <div class="panel-actions">
+            <button class="btn-small" onclick="pasteInput()">📋 Paste</button>
+            <button class="btn-small" onclick="clearAll()">🗑️</button>
+          </div>
+        </div>
+        <textarea id="input" placeholder="Enter your string here...">Hello "World"
+Line 1
+Line 2
+Special chars: \ / ' "</textarea>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Escaped Output</span>
+          <div class="panel-actions">
+            <button class="btn-small" onclick="copyOutput()">📋 Copy</button>
+          </div>
+        </div>
+        <textarea id="output" placeholder="Escaped string will appear here..." readonly></textarea>
+      </div>
+    </div>
+
+    <div class="samples">
+      <div class="samples-title">Load Sample</div>
+      <div class="sample-buttons">
+        <button class="sample-btn" onclick="loadSample('quotes')">Quotes & Apostrophes</button>
+        <button class="sample-btn" onclick="loadSample('multiline')">Multi-line Text</button>
+        <button class="sample-btn" onclick="loadSample('special')">Special Characters</button>
+        <button class="sample-btn" onclick="loadSample('unicode')">Unicode & Emoji</button>
+        <button class="sample-btn" onclick="loadSample('path')">File Path</button>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <div class="info-title" id="info-title">JavaScript String Escaping</div>
+      <div id="info-content">
+        Escapes special characters for use in JavaScript strings:
+        <div class="code-example" id="info-example">const str = "Hello \"World\"\nNew line";</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentLanguage = 'javascript';
+
+    const samples = {
+      quotes: `She said, "Hello!"
+He replied, 'Hi there!'
+It's a beautiful day.`,
+      multiline: `Line 1: First line
+Line 2: Second line
+Line 3: Third line
+End of text.`,
+      special: `Special characters: \ / " ' 
+Symbols: @ # $ % ^ & * ( ) 
+Brackets: [ ] { } < >`,
+      unicode: `Unicode: café, naïve, Zürich
+Emoji: 😀 🎉 ❤️ 🚀
+Math: π ≈ 3.14`,
+      path: `C:\Users\Username\Documents\file.txt`
+    };
+
+    const languageInfo = {
+      javascript: {
+        title: 'JavaScript String Escaping',
+        desc: 'Escapes special characters for use in JavaScript strings:',
+        example: 'const str = "Hello \\"World\\"\\nNew line";'
+      },
+      python: {
+        title: 'Python String Escaping',
+        desc: 'Escapes special characters for use in Python strings:',
+        example: 'text = "Hello \\"World\\"\\nNew line"'
+      },
+      java: {
+        title: 'Java String Escaping',
+        desc: 'Escapes special characters for use in Java strings:',
+        example: 'String str = "Hello \\"World\\"\\nNew line";'
+      },
+      csharp: {
+        title: 'C# String Escaping',
+        desc: 'Escapes special characters for use in C# strings:',
+        example: 'string str = "Hello \\"World\\"\\nNew line";'
+      },
+      c: {
+        title: 'C/C++ String Escaping',
+        desc: 'Escapes special characters for use in C/C++ strings:',
+        example: 'char* str = "Hello \\"World\\"\\nNew line";'
+      },
+      json: {
+        title: 'JSON String Escaping',
+        desc: 'Escapes special characters for use in JSON:',
+        example: '{"text": "Hello \\"World\\"\\nNew line"}'
+      },
+      xml: {
+        title: 'XML String Escaping',
+        desc: 'Escapes special characters for use in XML:',
+        example: '<text>Hello &quot;World&quot; &amp; more</text>'
+      },
+      sql: {
+        title: 'SQL String Escaping',
+        desc: 'Escapes special characters for use in SQL queries:',
+        example: "SELECT * FROM users WHERE name = 'O''Brien';"
+      }
+    };
+
+    function switchLanguage(lang) {
+      currentLanguage = lang;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.getElementById(`tab-${lang}`).classList.add('active');
+      
+      const info = languageInfo[lang];
+      document.getElementById('info-title').textContent = info.title;
+      document.getElementById('info-content').innerHTML = info.desc + 
+        '<div class="code-example">' + info.example + '</div>';
+      
+      if (document.getElementById('auto-process').checked) {
+        escapeString();
+      }
+    }
+
+    function escapeString() {
+      const input = document.getElementById('input').value;
+      let output = '';
+
+      switch(currentLanguage) {
+        case 'javascript':
+        case 'java':
+        case 'csharp':
+        case 'c':
+          output = input
+            .replace(/\\/g, '\\\\')
+            .replace(/"/g, '\\"')
+            .replace(/'/g, "\\'")
+            .replace(/\n/g, '\\n')
+            .replace(/\r/g, '\\r')
+            .replace(/\t/g, '\\t')
+            .replace(/\b/g, '\\b')
+            .replace(/\f/g, '\\f');
+          break;
+
+        case 'python':
+          output = input
+            .replace(/\\/g, '\\\\')
+            .replace(/"/g, '\\"')
+            .replace(/'/g, "\\'")
+            .replace(/\n/g, '\\n')
+            .replace(/\r/g, '\\r')
+            .replace(/\t/g, '\\t');
+          break;
+
+        case 'json':
+          output = input
+            .replace(/\\/g, '\\\\')
+            .replace(/"/g, '\\"')
+            .replace(/\n/g, '\\n')
+            .replace(/\r/g, '\\r')
+            .replace(/\t/g, '\\t')
+            .replace(/\b/g, '\\b')
+            .replace(/\f/g, '\\f')
+            .replace(/[\u0000-\u001F]/g, (c) => '\\u' + ('0000' + c.charCodeAt(0).toString(16)).slice(-4));
+          break;
+
+        case 'xml':
+          output = input
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&apos;');
+          break;
+
+        case 'sql':
+          output = input.replace(/'/g, "''");
+          break;
+      }
+
+      document.getElementById('output').value = output;
+      trackUsage();
+    }
+
+    function unescapeString() {
+      const input = document.getElementById('input').value;
+      let output = '';
+
+      switch(currentLanguage) {
+        case 'javascript':
+        case 'java':
+        case 'csharp':
+        case 'c':
+        case 'python':
+          output = input
+            .replace(/\\n/g, '\n')
+            .replace(/\\r/g, '\r')
+            .replace(/\\t/g, '\t')
+            .replace(/\\b/g, '\b')
+            .replace(/\\f/g, '\f')
+            .replace(/\\'/g, "'")
+            .replace(/\\"/g, '"')
+            .replace(/\\\\/g, '\\');
+          break;
+
+        case 'json':
+          try {
+            output = JSON.parse('"' + input + '"');
+          } catch(e) {
+            output = input
+              .replace(/\\n/g, '\n')
+              .replace(/\\r/g, '\r')
+              .replace(/\\t/g, '\t')
+              .replace(/\\b/g, '\b')
+              .replace(/\\f/g, '\f')
+              .replace(/\\"/g, '"')
+              .replace(/\\\\/g, '\\')
+              .replace(/\\u([0-9a-fA-F]{4})/g, (match, hex) => String.fromCharCode(parseInt(hex, 16)));
+          }
+          break;
+
+        case 'xml':
+          output = input
+            .replace(/&quot;/g, '"')
+            .replace(/&apos;/g, "'")
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&amp;/g, '&');
+          break;
+
+        case 'sql':
+          output = input.replace(/''/g, "'");
+          break;
+      }
+
+      document.getElementById('output').value = output;
+      trackUsage();
+    }
+
+    function swapPanels() {
+      const input = document.getElementById('input').value;
+      const output = document.getElementById('output').value;
+      document.getElementById('input').value = output;
+      document.getElementById('output').value = input;
+    }
+
+    function clearAll() {
+      document.getElementById('input').value = '';
+      document.getElementById('output').value = '';
+    }
+
+    async function pasteInput() {
+      try {
+        const text = await navigator.clipboard.readText();
+        document.getElementById('input').value = text;
+        if (document.getElementById('auto-process').checked) {
+          escapeString();
+        }
+      } catch (e) {
+        alert('Could not paste from clipboard');
+      }
+    }
+
+    function copyOutput() {
+      const output = document.getElementById('output').value;
+      if (!output) {
+        alert('No output to copy');
+        return;
+      }
+      navigator.clipboard.writeText(output).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      });
+    }
+
+    function loadSample(type) {
+      document.getElementById('input').value = samples[type];
+      if (document.getElementById('auto-process').checked) {
+        escapeString();
+      }
+    }
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    // Auto-process on input
+    document.getElementById('input').addEventListener('input', () => {
+      if (document.getElementById('auto-process').checked) {
+        escapeString();
+      }
+    });
+
+    // Initialize
+    escapeString();
+  </script>
+</body>
+</html>

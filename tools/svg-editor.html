@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>SVG Editor - Prism.Tools</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                background: #0a0a0f;
+                color: #e4e4e7;
+                line-height: 1.4;
+                font-size: 14px;
+                min-height: 100vh;
+            }
+
+            .navbar {
+                background: rgba(10, 10, 15, 0.98);
+                backdrop-filter: blur(12px);
+                padding: 0.75rem 1.5rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 1px solid #27272a;
+                position: sticky;
+                top: 0;
+                z-index: 100;
+            }
+
+            .logo {
+                font-size: 1.25rem;
+                font-weight: 700;
+                background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                text-decoration: none;
+            }
+
+            .back-link {
+                color: #a1a1aa;
+                text-decoration: none;
+                font-size: 0.875rem;
+                transition: color 0.2s;
+            }
+
+            .back-link:hover {
+                color: #e4e4e7;
+            }
+
+            .container {
+                max-width: 1600px;
+                margin: 0 auto;
+                padding: 1rem;
+            }
+
+            .header {
+                text-align: center;
+                padding: 1.5rem 0 1rem;
+            }
+
+            .header h1 {
+                font-size: 1.75rem;
+                margin-bottom: 0.25rem;
+                color: #a78bfa;
+            }
+
+            .header p {
+                color: #a1a1aa;
+                font-size: 0.875rem;
+            }
+
+            .toolbar {
+                background: #18181b;
+                border: 1px solid #27272a;
+                border-radius: 8px;
+                padding: 0.75rem;
+                margin-bottom: 1rem;
+                display: flex;
+                gap: 0.75rem;
+                flex-wrap: wrap;
+                align-items: center;
+            }
+
+            .tool-group {
+                display: flex;
+                gap: 0.5rem;
+                align-items: center;
+            }
+
+            .tool-btn {
+                width: 40px;
+                height: 40px;
+                background: rgba(167, 139, 250, 0.1);
+                border: 1px solid rgba(167, 139, 250, 0.3);
+                color: #a78bfa;
+                border-radius: 6px;
+                font-size: 1.25rem;
+                cursor: pointer;
+                transition: all 0.2s;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .tool-btn:hover {
+                background: rgba(167, 139, 250, 0.2);
+                transform: translateY(-1px);
+            }
+
+            .tool-btn.active {
+                background: #a78bfa;
+                color: #0a0a0f;
+                border-color: #a78bfa;
+            }
+
+            .toolbar-divider {
+                width: 1px;
+                height: 40px;
+                background: #27272a;
+            }
+
+            .color-picker-group {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .color-picker-group label {
+                font-size: 0.8rem;
+                color: #a1a1aa;
+                font-weight: 600;
+            }
+
+            .color-picker-group input[type='color'] {
+                width: 40px;
+                height: 40px;
+                border: 1px solid #27272a;
+                border-radius: 6px;
+                cursor: pointer;
+                background: #0a0a0f;
+                padding: 2px;
+            }
+
+            .number-input-group {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .number-input-group label {
+                font-size: 0.8rem;
+                color: #a1a1aa;
+                font-weight: 600;
+            }
+
+            .number-input-group input {
+                width: 60px;
+                padding: 0.5rem;
+                background: #0a0a0f;
+                border: 1px solid #27272a;
+                border-radius: 6px;
+                color: #e4e4e7;
+                font-size: 0.85rem;
+            }
+
+            .btn-icon {
+                width: 40px;
+                height: 40px;
+                background: rgba(167, 139, 250, 0.1);
+                border: 1px solid rgba(167, 139, 250, 0.3);
+                color: #a78bfa;
+                border-radius: 6px;
+                font-size: 1rem;
+                cursor: pointer;
+                transition: all 0.2s;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 600;
+            }
+
+            .btn-icon:hover {
+                background: rgba(167, 139, 250, 0.2);
+                transform: translateY(-1px);
+            }
+
+            .editor-layout {
+                display: grid;
+                grid-template-columns: 1fr 300px;
+                gap: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .canvas-panel {
+                background: #18181b;
+                border: 1px solid #27272a;
+                border-radius: 8px;
+                overflow: hidden;
+            }
+
+            .canvas-header {
+                background: #1f1f23;
+                padding: 0.75rem 0.875rem;
+                border-bottom: 1px solid #27272a;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .canvas-title {
+                font-size: 0.85rem;
+                font-weight: 600;
+                color: #a78bfa;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .canvas-controls {
+                display: flex;
+                gap: 0.5rem;
+            }
+
+            .btn-small {
+                padding: 0.25rem 0.625rem;
+                background: rgba(167, 139, 250, 0.1);
+                border: 1px solid rgba(167, 139, 250, 0.3);
+                color: #a78bfa;
+                border-radius: 4px;
+                font-size: 0.75rem;
+                cursor: pointer;
+                transition: all 0.2s;
+                font-weight: 600;
+            }
+
+            .btn-small:hover {
+                background: rgba(167, 139, 250, 0.2);
+            }
+
+            .canvas-container {
+                padding: 1rem;
+                background: #0a0a0f;
+                overflow: auto;
+                max-height: 700px;
+            }
+
+            #canvas {
+                border: 1px solid #27272a;
+                cursor: crosshair;
+                display: block;
+            }
+
+            .properties-panel {
+                background: #18181b;
+                border: 1px solid #27272a;
+                border-radius: 8px;
+                overflow: hidden;
+            }
+
+            .panel-header {
+                background: #1f1f23;
+                padding: 0.75rem 0.875rem;
+                border-bottom: 1px solid #27272a;
+                font-size: 0.85rem;
+                font-weight: 600;
+                color: #a78bfa;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .panel-content {
+                padding: 1rem;
+                max-height: 650px;
+                overflow-y: auto;
+            }
+
+            .property-empty {
+                text-align: center;
+                color: #71717a;
+                font-size: 0.85rem;
+                padding: 2rem 1rem;
+            }
+
+            .property-group {
+                margin-bottom: 1rem;
+            }
+
+            .property-label {
+                display: block;
+                font-size: 0.8rem;
+                font-weight: 600;
+                color: #a1a1aa;
+                margin-bottom: 0.5rem;
+            }
+
+            .property-input {
+                width: 100%;
+                padding: 0.5rem 0.75rem;
+                background: #0a0a0f;
+                border: 1px solid #27272a;
+                border-radius: 6px;
+                color: #e4e4e7;
+                font-size: 0.85rem;
+            }
+
+            .property-input:focus {
+                outline: none;
+                border-color: #a78bfa;
+            }
+
+            .code-panel {
+                background: #18181b;
+                border: 1px solid #27272a;
+                border-radius: 8px;
+                overflow: hidden;
+            }
+
+            .code-header {
+                background: #1f1f23;
+                padding: 0.75rem 0.875rem;
+                border-bottom: 1px solid #27272a;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .code-title {
+                font-size: 0.85rem;
+                font-weight: 600;
+                color: #a78bfa;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .code-output {
+                padding: 1rem;
+                background: #0a0a0f;
+                color: #e4e4e7;
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 0.8rem;
+                line-height: 1.6;
+                overflow-x: auto;
+                max-height: 300px;
+                overflow-y: auto;
+            }
+
+            @media (max-width: 1200px) {
+                .editor-layout {
+                    grid-template-columns: 1fr;
+                }
+
+                .toolbar {
+                    justify-content: center;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <nav class="navbar">
+            <a href="../index.html" class="logo">PRISM</a>
+            <a href="../index.html" class="back-link">← All Tools</a>
+        </nav>
+
+        <div class="container">
+            <div class="header">
+                <h1>🎨 SVG Editor</h1>
+                <p>Create and edit SVG graphics with drawing tools</p>
+            </div>
+
+            <div class="toolbar">
+                <div class="tool-group">
+                    <button class="tool-btn active" data-tool="select" title="Select">
+                        <span>👆</span>
+                    </button>
+                    <button class="tool-btn" data-tool="rect" title="Rectangle">
+                        <span>▭</span>
+                    </button>
+                    <button class="tool-btn" data-tool="circle" title="Circle">
+                        <span>●</span>
+                    </button>
+                    <button class="tool-btn" data-tool="line" title="Line">
+                        <span>╱</span>
+                    </button>
+                    <button class="tool-btn" data-tool="pen" title="Pen">
+                        <span>✏️</span>
+                    </button>
+                    <button class="tool-btn" data-tool="text" title="Text">
+                        <span>T</span>
+                    </button>
+                </div>
+
+                <div class="toolbar-divider"></div>
+
+                <div class="tool-group">
+                    <div class="color-picker-group">
+                        <label>Fill:</label>
+                        <input type="color" id="fill-color" value="#A78BFA" />
+                    </div>
+                    <div class="color-picker-group">
+                        <label>Stroke:</label>
+                        <input type="color" id="stroke-color" value="#000000" />
+                    </div>
+                    <div class="number-input-group">
+                        <label>Width:</label>
+                        <input type="number" id="stroke-width" min="0" max="50" value="2" />
+                    </div>
+                </div>
+
+                <div class="toolbar-divider"></div>
+
+                <div class="tool-group">
+                    <button class="btn-icon" onclick="undo()" title="Undo">↶</button>
+                    <button class="btn-icon" onclick="redo()" title="Redo">↷</button>
+                    <button class="btn-icon" onclick="deleteSelected()" title="Delete">🗑️</button>
+                    <button class="btn-icon" onclick="clearCanvas()" title="Clear All">⊗</button>
+                </div>
+
+                <div class="toolbar-divider"></div>
+
+                <div class="tool-group">
+                    <button class="btn-icon" onclick="downloadSVG()" title="Download SVG">
+                        💾
+                    </button>
+                    <button class="btn-icon" onclick="downloadPNG()" title="Download PNG">
+                        🖼️
+                    </button>
+                    <button class="btn-icon" onclick="copySVGCode()" title="Copy SVG Code">
+                        📋
+                    </button>
+                </div>
+            </div>
+
+            <div class="editor-layout">
+                <div class="canvas-panel">
+                    <div class="canvas-header">
+                        <span class="canvas-title">Canvas</span>
+                        <div class="canvas-controls">
+                            <button class="btn-small" onclick="setCanvasSize(800, 600)">
+                                800×600
+                            </button>
+                            <button class="btn-small" onclick="setCanvasSize(1200, 800)">
+                                1200×800
+                            </button>
+                            <button class="btn-small" onclick="toggleGrid()">Grid</button>
+                        </div>
+                    </div>
+                    <div class="canvas-container" id="canvas-container">
+                        <svg id="canvas" width="800" height="600">
+                            <defs>
+                                <pattern
+                                    id="grid"
+                                    width="20"
+                                    height="20"
+                                    patternUnits="userSpaceOnUse"
+                                >
+                                    <path
+                                        d="M 20 0 L 0 0 0 20"
+                                        fill="none"
+                                        stroke="#27272a"
+                                        stroke-width="0.5"
+                                    />
+                                </pattern>
+                            </defs>
+                            <rect width="100%" height="100%" fill="#0a0a0f" />
+                            <rect
+                                id="grid-layer"
+                                width="100%"
+                                height="100%"
+                                fill="url(#grid)"
+                                style="display: none"
+                            />
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="properties-panel">
+                    <div class="panel-header">Properties</div>
+                    <div class="panel-content" id="properties-content">
+                        <div class="property-empty">Select an object to edit properties</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-panel">
+                <div class="code-header">
+                    <span class="code-title">SVG Code</span>
+                    <button class="btn-small" onclick="copySVGCode()">📋 Copy</button>
+                </div>
+                <pre class="code-output" id="svg-code"></pre>
+            </div>
+        </div>
+
+        <script>
+            let currentTool = 'select';
+            let isDrawing = false;
+            let startX, startY;
+            let currentShape = null;
+            let selectedElement = null;
+            let shapes = [];
+            let history = [];
+            let historyIndex = -1;
+
+            const canvas = document.getElementById('canvas');
+            const svgNS = 'http://www.w3.org/2000/svg';
+
+            // Tool selection
+            document.querySelectorAll('.tool-btn').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    document
+                        .querySelectorAll('.tool-btn')
+                        .forEach((b) => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentTool = btn.dataset.tool;
+                    canvas.style.cursor = currentTool === 'select' ? 'default' : 'crosshair';
+                    deselectElement();
+                });
+            });
+
+            // Mouse events
+            canvas.addEventListener('mousedown', handleMouseDown);
+            canvas.addEventListener('mousemove', handleMouseMove);
+            canvas.addEventListener('mouseup', handleMouseUp);
+
+            function handleMouseDown(e) {
+                const rect = canvas.getBoundingClientRect();
+                startX = e.clientX - rect.left;
+                startY = e.clientY - rect.top;
+
+                if (currentTool === 'select') {
+                    const target = e.target;
+                    if (target !== canvas && target.id !== 'grid-layer') {
+                        selectElement(target);
+                    } else {
+                        deselectElement();
+                    }
+                    return;
+                }
+
+                isDrawing = true;
+
+                const fillColor = document.getElementById('fill-color').value;
+                const strokeColor = document.getElementById('stroke-color').value;
+                const strokeWidth = document.getElementById('stroke-width').value;
+
+                if (currentTool === 'rect') {
+                    currentShape = document.createElementNS(svgNS, 'rect');
+                    currentShape.setAttribute('x', startX);
+                    currentShape.setAttribute('y', startY);
+                    currentShape.setAttribute('fill', fillColor);
+                    currentShape.setAttribute('stroke', strokeColor);
+                    currentShape.setAttribute('stroke-width', strokeWidth);
+                    canvas.appendChild(currentShape);
+                } else if (currentTool === 'circle') {
+                    currentShape = document.createElementNS(svgNS, 'circle');
+                    currentShape.setAttribute('cx', startX);
+                    currentShape.setAttribute('cy', startY);
+                    currentShape.setAttribute('r', 0);
+                    currentShape.setAttribute('fill', fillColor);
+                    currentShape.setAttribute('stroke', strokeColor);
+                    currentShape.setAttribute('stroke-width', strokeWidth);
+                    canvas.appendChild(currentShape);
+                } else if (currentTool === 'line') {
+                    currentShape = document.createElementNS(svgNS, 'line');
+                    currentShape.setAttribute('x1', startX);
+                    currentShape.setAttribute('y1', startY);
+                    currentShape.setAttribute('x2', startX);
+                    currentShape.setAttribute('y2', startY);
+                    currentShape.setAttribute('stroke', strokeColor);
+                    currentShape.setAttribute('stroke-width', strokeWidth);
+                    canvas.appendChild(currentShape);
+                } else if (currentTool === 'pen') {
+                    currentShape = document.createElementNS(svgNS, 'path');
+                    currentShape.setAttribute('d', `M ${startX} ${startY}`);
+                    currentShape.setAttribute('fill', 'none');
+                    currentShape.setAttribute('stroke', strokeColor);
+                    currentShape.setAttribute('stroke-width', strokeWidth);
+                    currentShape.setAttribute('stroke-linecap', 'round');
+                    currentShape.setAttribute('stroke-linejoin', 'round');
+                    canvas.appendChild(currentShape);
+                } else if (currentTool === 'text') {
+                    const text = prompt('Enter text:', 'Text');
+                    if (text) {
+                        const textElement = document.createElementNS(svgNS, 'text');
+                        textElement.setAttribute('x', startX);
+                        textElement.setAttribute('y', startY);
+                        textElement.setAttribute('fill', fillColor);
+                        textElement.setAttribute('font-size', '24');
+                        textElement.setAttribute('font-family', 'Arial');
+                        textElement.textContent = text;
+                        canvas.appendChild(textElement);
+                        shapes.push(textElement);
+                        saveHistory();
+                        updateSVGCode();
+                    }
+                    isDrawing = false;
+                }
+            }
+
+            function handleMouseMove(e) {
+                if (!isDrawing || !currentShape) return;
+
+                const rect = canvas.getBoundingClientRect();
+                const currentX = e.clientX - rect.left;
+                const currentY = e.clientY - rect.top;
+
+                if (currentTool === 'rect') {
+                    const width = currentX - startX;
+                    const height = currentY - startY;
+
+                    if (width < 0) {
+                        currentShape.setAttribute('x', currentX);
+                        currentShape.setAttribute('width', Math.abs(width));
+                    } else {
+                        currentShape.setAttribute('width', width);
+                    }
+
+                    if (height < 0) {
+                        currentShape.setAttribute('y', currentY);
+                        currentShape.setAttribute('height', Math.abs(height));
+                    } else {
+                        currentShape.setAttribute('height', height);
+                    }
+                } else if (currentTool === 'circle') {
+                    const radius = Math.sqrt(
+                        Math.pow(currentX - startX, 2) + Math.pow(currentY - startY, 2)
+                    );
+                    currentShape.setAttribute('r', radius);
+                } else if (currentTool === 'line') {
+                    currentShape.setAttribute('x2', currentX);
+                    currentShape.setAttribute('y2', currentY);
+                } else if (currentTool === 'pen') {
+                    const d = currentShape.getAttribute('d');
+                    currentShape.setAttribute('d', d + ` L ${currentX} ${currentY}`);
+                }
+            }
+
+            function handleMouseUp(e) {
+                if (isDrawing && currentShape) {
+                    shapes.push(currentShape);
+                    saveHistory();
+                    updateSVGCode();
+                }
+                isDrawing = false;
+                currentShape = null;
+            }
+
+            function selectElement(element) {
+                deselectElement();
+                selectedElement = element;
+                element.setAttribute('stroke-dasharray', '5,5');
+                element.setAttribute(
+                    'data-original-stroke',
+                    element.getAttribute('stroke') || 'none'
+                );
+                element.setAttribute('stroke', '#A78BFA');
+                showProperties(element);
+            }
+
+            function deselectElement() {
+                if (selectedElement) {
+                    selectedElement.removeAttribute('stroke-dasharray');
+                    const originalStroke = selectedElement.getAttribute('data-original-stroke');
+                    if (originalStroke !== 'none') {
+                        selectedElement.setAttribute('stroke', originalStroke);
+                    }
+                    selectedElement.removeAttribute('data-original-stroke');
+                    selectedElement = null;
+                }
+                hideProperties();
+            }
+
+            function showProperties(element) {
+                const panel = document.getElementById('properties-content');
+                const tagName = element.tagName;
+
+                let html = '';
+
+                if (tagName === 'rect') {
+                    html = `
+      <div class="property-group">
+        <label class="property-label">X Position</label>
+        <input type="number" class="property-input" value="${element.getAttribute(
+            'x'
+        )}" onchange="updateProperty('x', this.value)">
+      </div>
+      <div class="property-group">
+        <label class="property-label">Y Position</label>
+        <input type="number" class="property-input" value="${element.getAttribute(
+            'y'
+        )}" onchange="updateProperty('y', this.value)">
+      </div>
+      <div class="property-group">
+        <label class="property-label">Width</label>
+        <input type="number" class="property-input" value="${element.getAttribute(
+            'width'
+        )}" onchange="updateProperty('width', this.value)">
+      </div>
+      <div class="property-group">
+        <label class="property-label">Height</label>
+        <input type="number" class="property-input" value="${element.getAttribute(
+            'height'
+        )}" onchange="updateProperty('height', this.value)">
+      </div>
+    `;
+                } else if (tagName === 'circle') {
+                    html = `
+      <div class="property-group">
+        <label class="property-label">Center X</label>
+        <input type="number" class="property-input" value="${element.getAttribute(
+            'cx'
+        )}" onchange="updateProperty('cx', this.value)">
+      </div>
+      <div class="property-group">
+        <label class="property-label">Center Y</label>
+        <input type="number" class="property-input" value="${element.getAttribute(
+            'cy'
+        )}" onchange="updateProperty('cy', this.value)">
+      </div>
+      <div class="property-group">
+        <label class="property-label">Radius</label>
+        <input type="number" class="property-input" value="${element.getAttribute(
+            'r'
+        )}" onchange="updateProperty('r', this.value)">
+      </div>
+    `;
+                } else if (tagName === 'line') {
+                    html = `
+      <div class="property-group">
+        <label class="property-label">X1</label>
+        <input type="number" class="property-input" value="${element.getAttribute(
+            'x1'
+        )}" onchange="updateProperty('x1', this.value)">
+      </div>
+      <div class="property-group">
+        <label class="property-label">Y1</label>
+        <input type="number" class="property-input" value="${element.getAttribute(
+            'y1'
+        )}" onchange="updateProperty('y1', this.value)">
+      </div>
+      <div class="property-group">
+        <label class="property-label">X2</label>
+        <input type="number" class="property-input" value="${element.getAttribute(
+            'x2'
+        )}" onchange="updateProperty('x2', this.value)">
+      </div>
+      <div class="property-group">
+        <label class="property-label">Y2</label>
+        <input type="number" class="property-input" value="${element.getAttribute(
+            'y2'
+        )}" onchange="updateProperty('y2', this.value)">
+      </div>
+    `;
+                } else if (tagName === 'text') {
+                    html = `
+      <div class="property-group">
+        <label class="property-label">Text Content</label>
+        <input type="text" class="property-input" value="${
+            element.textContent
+        }" onchange="updateProperty('textContent', this.value)">
+      </div>
+      <div class="property-group">
+        <label class="property-label">X Position</label>
+        <input type="number" class="property-input" value="${element.getAttribute(
+            'x'
+        )}" onchange="updateProperty('x', this.value)">
+      </div>
+      <div class="property-group">
+        <label class="property-label">Y Position</label>
+        <input type="number" class="property-input" value="${element.getAttribute(
+            'y'
+        )}" onchange="updateProperty('y', this.value)">
+      </div>
+      <div class="property-group">
+        <label class="property-label">Font Size</label>
+        <input type="number" class="property-input" value="${element.getAttribute(
+            'font-size'
+        )}" onchange="updateProperty('font-size', this.value)">
+      </div>
+    `;
+                }
+
+                // Common properties for all shapes
+                html += `
+    <div class="property-group">
+      <label class="property-label">Fill Color</label>
+      <input type="color" class="property-input" value="${
+          element.getAttribute('fill') || '#000000'
+      }" onchange="updateProperty('fill', this.value)">
+    </div>
+  `;
+
+                if (tagName !== 'text') {
+                    html += `
+      <div class="property-group">
+        <label class="property-label">Stroke Color</label>
+        <input type="color" class="property-input" value="${
+            element.getAttribute('stroke') || '#000000'
+        }" onchange="updateProperty('stroke', this.value)">
+      </div>
+      <div class="property-group">
+        <label class="property-label">Stroke Width</label>
+        <input type="number" class="property-input" value="${
+            element.getAttribute('stroke-width') || '1'
+        }" onchange="updateProperty('stroke-width', this.value)">
+      </div>
+    `;
+                }
+
+                panel.innerHTML = html;
+            }
+
+            function hideProperties() {
+                const panel = document.getElementById('properties-content');
+                panel.innerHTML =
+                    '<div class="property-empty">Select an object to edit properties</div>';
+            }
+
+            function updateProperty(prop, value) {
+                if (!selectedElement) return;
+
+                if (prop === 'textContent') {
+                    selectedElement.textContent = value;
+                } else {
+                    selectedElement.setAttribute(prop, value);
+                }
+
+                saveHistory();
+                updateSVGCode();
+            }
+
+            function deleteSelected() {
+                if (selectedElement && selectedElement !== canvas) {
+                    selectedElement.remove();
+                    shapes = shapes.filter((s) => s !== selectedElement);
+                    selectedElement = null;
+                    hideProperties();
+                    saveHistory();
+                    updateSVGCode();
+                }
+            }
+
+            function clearCanvas() {
+                if (confirm('Clear all shapes?')) {
+                    shapes.forEach((shape) => shape.remove());
+                    shapes = [];
+                    deselectElement();
+                    saveHistory();
+                    updateSVGCode();
+                }
+            }
+
+            function saveHistory() {
+                history = history.slice(0, historyIndex + 1);
+                history.push(canvas.innerHTML);
+                historyIndex++;
+                if (history.length > 50) {
+                    history.shift();
+                    historyIndex--;
+                }
+            }
+
+            function undo() {
+                if (historyIndex > 0) {
+                    historyIndex--;
+                    canvas.innerHTML = history[historyIndex];
+                    updateShapesArray();
+                    updateSVGCode();
+                    deselectElement();
+                }
+            }
+
+            function redo() {
+                if (historyIndex < history.length - 1) {
+                    historyIndex++;
+                    canvas.innerHTML = history[historyIndex];
+                    updateShapesArray();
+                    updateSVGCode();
+                    deselectElement();
+                }
+            }
+
+            function updateShapesArray() {
+                shapes = Array.from(canvas.children).filter(
+                    (el) =>
+                        (el.tagName !== 'defs' &&
+                            el.id !== 'grid-layer' &&
+                            el.tagName !== 'rect') ||
+                        el.id !== 'grid-layer'
+                );
+            }
+
+            function setCanvasSize(width, height) {
+                canvas.setAttribute('width', width);
+                canvas.setAttribute('height', height);
+                updateSVGCode();
+            }
+
+            function toggleGrid() {
+                const grid = document.getElementById('grid-layer');
+                grid.style.display = grid.style.display === 'none' ? 'block' : 'none';
+            }
+
+            function updateSVGCode() {
+                const code = document.getElementById('svg-code');
+                const svgClone = canvas.cloneNode(true);
+
+                // Remove grid from export
+                const grid = svgClone.querySelector('#grid-layer');
+                if (grid) grid.remove();
+
+                // Remove selection indicators
+                Array.from(svgClone.children).forEach((child) => {
+                    child.removeAttribute('stroke-dasharray');
+                    if (child.getAttribute('data-original-stroke')) {
+                        child.setAttribute('stroke', child.getAttribute('data-original-stroke'));
+                        child.removeAttribute('data-original-stroke');
+                    }
+                });
+
+                // Format SVG
+                const serializer = new XMLSerializer();
+                let svgString = serializer.serializeToString(svgClone);
+                svgString = svgString.replace(/></g, '>\n<');
+
+                code.textContent = svgString;
+                trackUsage();
+            }
+
+            function copySVGCode() {
+                const code = document.getElementById('svg-code').textContent;
+                navigator.clipboard.writeText(code).then(() => {
+                    alert('SVG code copied to clipboard!');
+                });
+            }
+
+            function downloadSVG() {
+                const code = document.getElementById('svg-code').textContent;
+                const blob = new Blob([code], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'drawing.svg';
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+
+            function downloadPNG() {
+                const svgClone = canvas.cloneNode(true);
+                const grid = svgClone.querySelector('#grid-layer');
+                if (grid) grid.remove();
+
+                Array.from(svgClone.children).forEach((child) => {
+                    child.removeAttribute('stroke-dasharray');
+                    if (child.getAttribute('data-original-stroke')) {
+                        child.setAttribute('stroke', child.getAttribute('data-original-stroke'));
+                        child.removeAttribute('data-original-stroke');
+                    }
+                });
+
+                const serializer = new XMLSerializer();
+                const svgString = serializer.serializeToString(svgClone);
+                const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(svgBlob);
+
+                const img = new Image();
+                img.onload = () => {
+                    const canvas2d = document.createElement('canvas');
+                    canvas2d.width = parseInt(canvas.getAttribute('width'));
+                    canvas2d.height = parseInt(canvas.getAttribute('height'));
+                    const ctx = canvas2d.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+
+                    canvas2d.toBlob((blob) => {
+                        const pngUrl = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = pngUrl;
+                        a.download = 'drawing.png';
+                        a.click();
+                        URL.revokeObjectURL(pngUrl);
+                        URL.revokeObjectURL(url);
+                    });
+                };
+                img.src = url;
+            }
+
+            function trackUsage() {
+                let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+                count++;
+                localStorage.setItem('prism-usage-count', count);
+            }
+
+            // Initialize
+            saveHistory();
+            updateSVGCode();
+        </script>
+    </body>
+</html>

@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code Generator - Prism.Tools</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #C77DFF 0%, #9D4EDD 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #e4e4e7; }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #C77DFF;
+    }
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .panel-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #a1a1aa;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.75rem;
+    }
+    .input-group {
+      margin-bottom: 0.75rem;
+    }
+    .input-label {
+      font-size: 0.75rem;
+      color: #71717a;
+      margin-bottom: 0.4rem;
+      display: block;
+    }
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 0.75rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      resize: vertical;
+      line-height: 1.5;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: #C77DFF;
+    }
+    input[type="number"],
+    input[type="color"],
+    select {
+      width: 100%;
+      padding: 0.5rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-size: 0.85rem;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #C77DFF;
+    }
+    .color-input-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 60px;
+      gap: 0.5rem;
+    }
+    input[type="color"] {
+      height: 40px;
+      cursor: pointer;
+    }
+    .btn {
+      width: 100%;
+      padding: 0.75rem;
+      background: #C77DFF;
+      color: #0a0a0f;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(199, 125, 255, 0.3);
+    }
+    .qr-display {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 400px;
+    }
+    #qr-canvas {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      margin-bottom: 1rem;
+    }
+    .empty-state {
+      text-align: center;
+      color: #71717a;
+      padding: 2rem;
+    }
+    .empty-state-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.3;
+    }
+    .download-buttons {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .btn-download {
+      flex: 1;
+      padding: 0.625rem;
+      background: rgba(199, 125, 255, 0.1);
+      border: 1px solid rgba(199, 125, 255, 0.3);
+      color: #C77DFF;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-download:hover {
+      background: rgba(199, 125, 255, 0.2);
+    }
+    .quick-presets {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .preset-btn {
+      padding: 0.5rem;
+      background: rgba(199, 125, 255, 0.1);
+      border: 1px solid rgba(199, 125, 255, 0.3);
+      color: #C77DFF;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .preset-btn:hover {
+      background: rgba(199, 125, 255, 0.2);
+    }
+    .info-box {
+      background: rgba(199, 125, 255, 0.1);
+      border: 1px solid rgba(199, 125, 255, 0.3);
+      padding: 0.875rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+    }
+    .info-box h3 {
+      font-size: 0.875rem;
+      color: #C77DFF;
+      margin-bottom: 0.5rem;
+    }
+    .info-box p {
+      font-size: 0.8rem;
+      color: #a1a1aa;
+      margin-bottom: 0.4rem;
+    }
+    @media (max-width: 768px) {
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>📱 QR Code Generator</h1>
+      <p>Create customizable QR codes for URLs, text, and more</p>
+    </div>
+
+    <div class="content-grid">
+      <div class="panel">
+        <div class="panel-title">QR Code Content</div>
+        
+        <div class="quick-presets">
+          <button class="preset-btn" onclick="setPreset('url')">🔗 URL</button>
+          <button class="preset-btn" onclick="setPreset('email')">📧 Email</button>
+          <button class="preset-btn" onclick="setPreset('phone')">📱 Phone</button>
+          <button class="preset-btn" onclick="setPreset('wifi')">📶 WiFi</button>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">Text or URL</label>
+          <textarea id="qr-text" placeholder="Enter text, URL, or data to encode...">https://prism.tools</textarea>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">Size (pixels)</label>
+          <input type="number" id="qr-size" value="300" min="100" max="1000" step="50">
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">Error Correction</label>
+          <select id="qr-error">
+            <option value="L">Low (7%)</option>
+            <option value="M" selected>Medium (15%)</option>
+            <option value="Q">Quartile (25%)</option>
+            <option value="H">High (30%)</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">Foreground Color</label>
+          <div class="color-input-wrapper">
+            <input type="text" id="qr-fg-text" value="#000000">
+            <input type="color" id="qr-fg" value="#000000">
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">Background Color</label>
+          <div class="color-input-wrapper">
+            <input type="text" id="qr-bg-text" value="#FFFFFF">
+            <input type="color" id="qr-bg" value="#FFFFFF">
+          </div>
+        </div>
+
+        <button class="btn" onclick="generateQR()">Generate QR Code</button>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Preview & Download</div>
+        <div class="qr-display" id="qr-display">
+          <div class="empty-state">
+            <div class="empty-state-icon">📱</div>
+            <p>Enter content and click "Generate QR Code"</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <h3>ℹ️ About QR Codes</h3>
+      <p><strong>Error Correction:</strong> Higher levels allow the QR code to be read even if partially damaged or obscured.</p>
+      <p><strong>Size:</strong> Larger QR codes are easier to scan from a distance. Minimum recommended: 200x200px.</p>
+      <p><strong>Color:</strong> High contrast is essential for reliable scanning. Dark foreground on light background works best.</p>
+      <p><strong>Usage:</strong> QR codes can store URLs, plain text, contact info, WiFi credentials, and more.</p>
+    </div>
+  </div>
+
+  <script>
+    // Simple QR Code generator (no external library needed)
+    function generateQR() {
+      const text = document.getElementById('qr-text').value;
+      const size = parseInt(document.getElementById('qr-size').value);
+      const fg = document.getElementById('qr-fg').value;
+      const bg = document.getElementById('qr-bg').value;
+
+      if (!text) {
+        alert('Please enter text or URL');
+        return;
+      }
+
+      // Use a free QR code API
+      const apiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(text)}&color=${fg.replace('#', '')}&bgcolor=${bg.replace('#', '')}`;
+
+      const display = document.getElementById('qr-display');
+      display.innerHTML = `
+        <img src="${apiUrl}" alt="QR Code" id="qr-image" style="max-width: 100%; border-radius: 8px;">
+        <div class="download-buttons">
+          <button class="btn-download" onclick="downloadQR('png')">💾 Download PNG</button>
+          <button class="btn-download" onclick="downloadQR('svg')">💾 Download SVG</button>
+        </div>
+      `;
+
+      trackUsage();
+    }
+
+    function downloadQR(format) {
+      const text = document.getElementById('qr-text').value;
+      const size = parseInt(document.getElementById('qr-size').value);
+      const fg = document.getElementById('qr-fg').value;
+      const bg = document.getElementById('qr-bg').value;
+
+      let url;
+      if (format === 'svg') {
+        url = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&format=svg&data=${encodeURIComponent(text)}&color=${fg.replace('#', '')}&bgcolor=${bg.replace('#', '')}`;
+      } else {
+        url = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(text)}&color=${fg.replace('#', '')}&bgcolor=${bg.replace('#', '')}`;
+      }
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `qrcode.${format}`;
+      a.click();
+    }
+
+    function setPreset(type) {
+      const input = document.getElementById('qr-text');
+      
+      switch(type) {
+        case 'url':
+          input.value = 'https://example.com';
+          break;
+        case 'email':
+          input.value = 'mailto:contact@example.com?subject=Hello&body=Your message here';
+          break;
+        case 'phone':
+          input.value = 'tel:+1-555-123-4567';
+          break;
+        case 'wifi':
+          input.value = 'WIFI:T:WPA;S:NetworkName;P:Password123;;';
+          break;
+      }
+    }
+
+    // Sync color inputs
+    document.getElementById('qr-fg').addEventListener('input', (e) => {
+      document.getElementById('qr-fg-text').value = e.target.value;
+    });
+
+    document.getElementById('qr-fg-text').addEventListener('input', (e) => {
+      if (/^#[0-9A-F]{6}$/i.test(e.target.value)) {
+        document.getElementById('qr-fg').value = e.target.value;
+      }
+    });
+
+    document.getElementById('qr-bg').addEventListener('input', (e) => {
+      document.getElementById('qr-bg-text').value = e.target.value;
+    });
+
+    document.getElementById('qr-bg-text').addEventListener('input', (e) => {
+      if (/^#[0-9A-F]{6}$/i.test(e.target.value)) {
+        document.getElementById('qr-bg').value = e.target.value;
+      }
+    });
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    // Auto-generate on load
+    generateQR();
+  </script>
+</body>
+</html>

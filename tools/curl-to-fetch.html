@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CURL to Fetch - Prism.Tools</title>
+  <style>
+    /* Prism.Tools Core Styles */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+    }
+
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+
+    .tool-wrapper {
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      flex-grow: 1;
+      width: 100%;
+    }
+
+    .tool-header h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #ffffff 0%, #ec4899 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .grid-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .card {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 0.75rem 1rem;
+      background: #27272a;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 700;
+      color: #a1a1aa;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    textarea {
+      flex-grow: 1;
+      width: 100%;
+      height: 450px;
+      background: transparent;
+      border: none;
+      color: #e4e4e7;
+      padding: 1.25rem;
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-size: 13px;
+      resize: none;
+      outline: none;
+      line-height: 1.6;
+    }
+
+    #output-area {
+      background: #0a0a0f;
+      color: #ec4899;
+    }
+
+    .btn-copy {
+      background: #ec4899;
+      color: white;
+      border: none;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .btn-copy:hover { opacity: 0.9; }
+
+    .error-toast {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      padding: 0.75rem;
+      margin-top: 1rem;
+      border-radius: 6px;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      display: none;
+    }
+
+    @media (max-width: 850px) {
+      .grid-layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+  </nav>
+
+  <div class="tool-wrapper">
+    <div class="tool-header">
+      <h1>CURL to Fetch</h1>
+      <p style="color: #71717a;">Instantly convert CURL commands into clean JavaScript Fetch requests.</p>
+    </div>
+
+    <div class="grid-layout">
+      <div class="card">
+        <div class="card-header">CURL Command</div>
+        <textarea id="curl-input" placeholder="curl -X POST https://api.example.com/data \
+  -H 'Content-Type: application/json' \
+  -d '{&quot;name&quot;: &quot;Prism&quot;}'" oninput="convert()"></textarea>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          JavaScript Fetch
+          <button class="btn-copy" onclick="copyOutput()">Copy Code</button>
+        </div>
+        <textarea id="output-area" readonly placeholder="Fetch code will appear here..."></textarea>
+      </div>
+    </div>
+    <div id="error-box" class="error-toast"></div>
+  </div>
+
+  <script>
+    function convert() {
+      const input = document.getElementById('curl-input').value.trim();
+      const output = document.getElementById('output-area');
+      const errorBox = document.getElementById('error-box');
+      
+      if (!input) {
+        output.value = '';
+        errorBox.style.display = 'none';
+        return;
+      }
+
+      try {
+        errorBox.style.display = 'none';
+        const parsed = parseCurl(input);
+        output.value = generateFetch(parsed);
+        
+        // Track usage for Prism stats
+        if(window.localStorage) {
+           let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+           localStorage.setItem('prism-usage-count', count + 1);
+        }
+      } catch (e) {
+        errorBox.textContent = "Error parsing CURL: " + e.message;
+        errorBox.style.display = 'block';
+        output.value = '';
+      }
+    }
+
+    function parseCurl(s) {
+      const result = { method: 'GET', headers: {}, data: null, url: '' };
+      
+      // Clean up multiline and escaped chars
+      s = s.replace(/\\\n/g, ' ');
+      
+      // Simple regex-based tokenization
+      const parts = s.match(/"[^"]*"|'[^']*'|\S+/g) || [];
+      
+      for (let i = 0; i < parts.length; i++) {
+        let part = parts[i].replace(/^['"]|['"]$/g, '');
+        
+        if (part.startsWith('http')) {
+          result.url = part;
+        } else if (part === '-X' || part === '--request') {
+          result.method = parts[++i].replace(/^['"]|['"]$/g, '');
+        } else if (part === '-H' || part === '--header') {
+          const header = parts[++i].replace(/^['"]|['"]$/g, '');
+          const [key, ...val] = header.split(':');
+          result.headers[key.trim()] = val.join(':').trim();
+        } else if (part === '-d' || part === '--data' || part === '--data-raw') {
+          result.data = parts[++i].replace(/^['"]|['"]$/g, '');
+          if (result.method === 'GET') result.method = 'POST';
+        }
+      }
+      
+      if (!result.url) throw new Error("Could not find a valid URL");
+      return result;
+    }
+
+    function generateFetch(parsed) {
+      let code = `const response = await fetch('${parsed.url}', {\n`;
+      code += `  method: '${parsed.method.toUpperCase()}',\n`;
+      
+      if (Object.keys(parsed.headers).length > 0) {
+        code += `  headers: {\n`;
+        for (const [key, val] of Object.entries(parsed.headers)) {
+          code += `    '${key}': '${val}',\n`;
+        }
+        code += `  },\n`;
+      }
+      
+      if (parsed.data) {
+        // Try to prettify JSON if possible
+        try {
+          const json = JSON.parse(parsed.data);
+          code += `  body: JSON.stringify(${JSON.stringify(json, null, 2).replace(/\n/g, '\n    ')})\n`;
+        } catch {
+          code += `  body: '${parsed.data}'\n`;
+        }
+      }
+      
+      code += `});\n\nconst data = await response.json();`;
+      return code;
+    }
+
+    function copyOutput() {
+      const output = document.getElementById('output-area');
+      output.select();
+      document.execCommand('copy');
+      const btn = document.querySelector('.btn-copy');
+      btn.innerText = 'Copied!';
+      setTimeout(() => btn.innerText = 'Copy Code', 2000);
+    }
+  </script>
+</body>
+</html>

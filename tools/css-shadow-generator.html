@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSS Shadow Generator - Prism.Tools</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #BD93F9 0%, #A78BFA 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #e4e4e7; }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #BD93F9;
+    }
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      justify-content: center;
+    }
+    .tab {
+      padding: 0.625rem 1.25rem;
+      background: rgba(189, 147, 249, 0.1);
+      border: 1px solid rgba(189, 147, 249, 0.3);
+      color: #BD93F9;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .tab:hover {
+      background: rgba(189, 147, 249, 0.2);
+    }
+    .tab.active {
+      background: #BD93F9;
+      color: #0a0a0f;
+      border-color: #BD93F9;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      gap: 1rem;
+    }
+    .section {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .section-header {
+      background: #1f1f23;
+      padding: 0.75rem 0.875rem;
+      border-bottom: 1px solid #27272a;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #BD93F9;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .section-content {
+      padding: 1rem;
+    }
+    .control-group {
+      margin-bottom: 1.25rem;
+    }
+    .control-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #a1a1aa;
+      margin-bottom: 0.5rem;
+    }
+    .control-value {
+      color: #BD93F9;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+    }
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      background: #27272a;
+      border-radius: 3px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      background: #BD93F9;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      box-shadow: 0 0 0 4px rgba(189, 147, 249, 0.2);
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      background: #BD93F9;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+    }
+    input[type="color"] {
+      width: 100%;
+      height: 40px;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      cursor: pointer;
+      padding: 4px;
+    }
+    input[type="color"]::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+    input[type="color"]::-webkit-color-swatch {
+      border: none;
+      border-radius: 4px;
+    }
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #BD93F9;
+    }
+    .checkbox-label {
+      font-size: 0.85rem;
+      color: #e4e4e7;
+      cursor: pointer;
+    }
+    .preview-area {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+      height: 100%;
+      min-height: 500px;
+    }
+    .preview-header {
+      background: #1f1f23;
+      padding: 0.75rem 0.875rem;
+      border-bottom: 1px solid #27272a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .preview-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #BD93F9;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .bg-toggle {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .bg-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .bg-btn.active {
+      border-color: #BD93F9;
+    }
+    .bg-btn.light { background: #f5f5f5; }
+    .bg-btn.dark { background: #1a1a1a; }
+    .bg-btn.gradient { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .preview-canvas {
+      padding: 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 400px;
+      transition: background 0.3s;
+    }
+    .preview-canvas.light { background: #f5f5f5; }
+    .preview-canvas.dark { background: #1a1a1a; }
+    .preview-canvas.gradient { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .preview-box {
+      background: white;
+      border-radius: 12px;
+      padding: 3rem;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #333;
+      min-width: 200px;
+    }
+    .preview-text {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #333;
+      transition: all 0.3s;
+    }
+    .layers-list {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .layer-item {
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .layer-item:hover {
+      background: #18181b;
+      border-color: #BD93F9;
+    }
+    .layer-item.active {
+      border-color: #BD93F9;
+      background: rgba(189, 147, 249, 0.1);
+    }
+    .layer-info {
+      font-size: 0.75rem;
+      color: #a1a1aa;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .layer-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn-icon {
+      padding: 0.25rem 0.5rem;
+      background: rgba(189, 147, 249, 0.1);
+      border: 1px solid rgba(189, 147, 249, 0.3);
+      color: #BD93F9;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .btn-icon:hover {
+      background: rgba(189, 147, 249, 0.2);
+    }
+    .btn {
+      padding: 0.625rem 1.25rem;
+      background: #BD93F9;
+      color: #0a0a0f;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+      margin-top: 0.75rem;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(189, 147, 249, 0.3);
+    }
+    .btn-secondary {
+      background: rgba(189, 147, 249, 0.1);
+      color: #BD93F9;
+      border: 1px solid rgba(189, 147, 249, 0.3);
+    }
+    .output-panel {
+      grid-column: 1 / -1;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 1rem;
+    }
+    .output-header {
+      background: #1f1f23;
+      padding: 0.625rem 0.875rem;
+      border-bottom: 1px solid #27272a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .panel-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn-small {
+      padding: 0.25rem 0.625rem;
+      background: rgba(189, 147, 249, 0.1);
+      border: 1px solid rgba(189, 147, 249, 0.3);
+      color: #BD93F9;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .btn-small:hover {
+      background: rgba(189, 147, 249, 0.2);
+    }
+    .output-code {
+      padding: 1rem;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .presets {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .preset-card {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .preset-card:hover {
+      border-color: #BD93F9;
+      transform: translateY(-2px);
+    }
+    .preset-preview {
+      width: 60px;
+      height: 60px;
+      background: white;
+      border-radius: 8px;
+      margin: 0 auto 0.5rem;
+    }
+    .preset-name {
+      font-size: 0.75rem;
+      color: #a1a1aa;
+      font-weight: 600;
+    }
+    @media (max-width: 1024px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>💎 CSS Shadow Generator</h1>
+      <p>Create beautiful box-shadow and text-shadow effects with live preview</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchMode('box')" id="tab-box">Box Shadow</button>
+      <button class="tab" onclick="switchMode('text')" id="tab-text">Text Shadow</button>
+    </div>
+
+    <div class="presets">
+      <div class="preset-card" onclick="loadPreset('soft')">
+        <div class="preset-preview" style="box-shadow: 0 2px 8px rgba(0,0,0,0.1);"></div>
+        <div class="preset-name">Soft</div>
+      </div>
+      <div class="preset-card" onclick="loadPreset('medium')">
+        <div class="preset-preview" style="box-shadow: 0 4px 16px rgba(0,0,0,0.15);"></div>
+        <div class="preset-name">Medium</div>
+      </div>
+      <div class="preset-card" onclick="loadPreset('hard')">
+        <div class="preset-preview" style="box-shadow: 0 8px 24px rgba(0,0,0,0.25);"></div>
+        <div class="preset-name">Hard</div>
+      </div>
+      <div class="preset-card" onclick="loadPreset('inner')">
+        <div class="preset-preview" style="box-shadow: inset 0 2px 8px rgba(0,0,0,0.15);"></div>
+        <div class="preset-name">Inner</div>
+      </div>
+      <div class="preset-card" onclick="loadPreset('neon')">
+        <div class="preset-preview" style="box-shadow: 0 0 20px #BD93F9;"></div>
+        <div class="preset-name">Neon</div>
+      </div>
+      <div class="preset-card" onclick="loadPreset('layered')">
+        <div class="preset-preview" style="box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 8px 16px rgba(0,0,0,0.1);"></div>
+        <div class="preset-name">Layered</div>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="section">
+        <div class="section-header">Shadow Controls</div>
+        <div class="section-content">
+          <div class="control-group">
+            <div class="control-label">
+              <span>Horizontal Offset</span>
+              <span class="control-value" id="h-value">0px</span>
+            </div>
+            <input type="range" id="h-offset" min="-100" max="100" value="0" oninput="updateShadow()">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">
+              <span>Vertical Offset</span>
+              <span class="control-value" id="v-value">4px</span>
+            </div>
+            <input type="range" id="v-offset" min="-100" max="100" value="4" oninput="updateShadow()">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">
+              <span>Blur Radius</span>
+              <span class="control-value" id="blur-value">16px</span>
+            </div>
+            <input type="range" id="blur" min="0" max="100" value="16" oninput="updateShadow()">
+          </div>
+
+          <div class="control-group" id="spread-control">
+            <div class="control-label">
+              <span>Spread Radius</span>
+              <span class="control-value" id="spread-value">0px</span>
+            </div>
+            <input type="range" id="spread" min="-50" max="50" value="0" oninput="updateShadow()">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">
+              <span>Shadow Color</span>
+            </div>
+            <input type="color" id="shadow-color" value="#000000" oninput="updateShadow()">
+          </div>
+
+          <div class="control-group">
+            <div class="control-label">
+              <span>Opacity</span>
+              <span class="control-value" id="opacity-value">15%</span>
+            </div>
+            <input type="range" id="opacity" min="0" max="100" value="15" oninput="updateShadow()">
+          </div>
+
+          <div class="checkbox-group" id="inset-control">
+            <input type="checkbox" id="inset" onchange="updateShadow()">
+            <label class="checkbox-label" for="inset">Inset Shadow</label>
+          </div>
+
+          <div id="layers-section">
+            <div class="control-label" style="margin-top: 1.5rem;">
+              <span>Shadow Layers</span>
+            </div>
+            <div class="layers-list" id="layers-list">
+              <div class="layer-item active" data-layer="0">
+                <span class="layer-info">Layer 1</span>
+                <div class="layer-actions">
+                  <button class="btn-icon" onclick="duplicateLayer(0)">📋</button>
+                  <button class="btn-icon" onclick="deleteLayer(0)">🗑️</button>
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-secondary" onclick="addLayer()">+ Add Layer</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="preview-area">
+        <div class="preview-header">
+          <span class="preview-title">Live Preview</span>
+          <div class="bg-toggle">
+            <div class="bg-btn light active" onclick="changeBg('light')"></div>
+            <div class="bg-btn dark" onclick="changeBg('dark')"></div>
+            <div class="bg-btn gradient" onclick="changeBg('gradient')"></div>
+          </div>
+        </div>
+        <div class="preview-canvas light" id="preview-canvas">
+          <div class="preview-box" id="preview-box">Shadow Box</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="output-panel">
+      <div class="output-header">
+        <span class="preview-title">Generated CSS</span>
+        <div class="panel-actions">
+          <button class="btn-small" onclick="copyCss()">📋 Copy</button>
+          <button class="btn-small" onclick="downloadCss()">💾 Download</button>
+        </div>
+      </div>
+      <pre class="output-code" id="output">box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.15);</pre>
+    </div>
+  </div>
+
+  <script>
+    let mode = 'box';
+    let currentLayer = 0;
+    let layers = [
+      { h: 0, v: 4, blur: 16, spread: 0, color: '#000000', opacity: 15, inset: false }
+    ];
+
+    function switchMode(newMode) {
+      mode = newMode;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.getElementById(`tab-${newMode}`).classList.add('active');
+      
+      const spreadControl = document.getElementById('spread-control');
+      const insetControl = document.getElementById('inset-control');
+      const layersSection = document.getElementById('layers-section');
+      const previewBox = document.getElementById('preview-box');
+      
+      if (newMode === 'text') {
+        spreadControl.style.display = 'none';
+        insetControl.style.display = 'none';
+        layersSection.style.display = 'none';
+        previewBox.className = 'preview-text';
+        previewBox.textContent = 'Shadow Text';
+      } else {
+        spreadControl.style.display = 'block';
+        insetControl.style.display = 'flex';
+        layersSection.style.display = 'block';
+        previewBox.className = 'preview-box';
+        previewBox.textContent = 'Shadow Box';
+      }
+      
+      updateShadow();
+    }
+
+    function updateShadow() {
+      const layer = layers[currentLayer];
+      
+      layer.h = parseInt(document.getElementById('h-offset').value);
+      layer.v = parseInt(document.getElementById('v-offset').value);
+      layer.blur = parseInt(document.getElementById('blur').value);
+      layer.spread = parseInt(document.getElementById('spread').value);
+      layer.color = document.getElementById('shadow-color').value;
+      layer.opacity = parseInt(document.getElementById('opacity').value);
+      layer.inset = document.getElementById('inset').checked;
+      
+      document.getElementById('h-value').textContent = layer.h + 'px';
+      document.getElementById('v-value').textContent = layer.v + 'px';
+      document.getElementById('blur-value').textContent = layer.blur + 'px';
+      document.getElementById('spread-value').textContent = layer.spread + 'px';
+      document.getElementById('opacity-value').textContent = layer.opacity + '%';
+      
+      applyShadow();
+    }
+
+    function applyShadow() {
+      const box = document.getElementById('preview-box');
+      const shadowParts = layers.map(layer => {
+        const rgb = hexToRgb(layer.color);
+        const rgba = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${layer.opacity / 100})`;
+        const inset = mode === 'box' && layer.inset ? 'inset ' : '';
+        const spread = mode === 'box' ? ` ${layer.spread}px` : '';
+        return `${inset}${layer.h}px ${layer.v}px ${layer.blur}px${spread} ${rgba}`;
+      });
+      
+      const shadowCss = shadowParts.join(', ');
+      const property = mode === 'box' ? 'box-shadow' : 'text-shadow';
+      
+      box.style[mode === 'box' ? 'boxShadow' : 'textShadow'] = shadowCss;
+      
+      document.getElementById('output').textContent = `${property}: ${shadowCss};`;
+      
+      trackUsage();
+    }
+
+    function hexToRgb(hex) {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : { r: 0, g: 0, b: 0 };
+    }
+
+    function loadLayer(index) {
+      currentLayer = index;
+      const layer = layers[index];
+      
+      document.getElementById('h-offset').value = layer.h;
+      document.getElementById('v-offset').value = layer.v;
+      document.getElementById('blur').value = layer.blur;
+      document.getElementById('spread').value = layer.spread;
+      document.getElementById('shadow-color').value = layer.color;
+      document.getElementById('opacity').value = layer.opacity;
+      document.getElementById('inset').checked = layer.inset;
+      
+      document.querySelectorAll('.layer-item').forEach(item => item.classList.remove('active'));
+      document.querySelector(`[data-layer="${index}"]`).classList.add('active');
+      
+      updateShadow();
+    }
+
+    function addLayer() {
+      layers.push({
+        h: 0, v: 4, blur: 16, spread: 0,
+        color: '#000000', opacity: 15, inset: false
+      });
+      renderLayers();
+      loadLayer(layers.length - 1);
+    }
+
+    function duplicateLayer(index) {
+      const newLayer = { ...layers[index] };
+      layers.splice(index + 1, 0, newLayer);
+      renderLayers();
+      loadLayer(index + 1);
+    }
+
+    function deleteLayer(index) {
+      if (layers.length === 1) {
+        alert('Cannot delete the last layer');
+        return;
+      }
+      layers.splice(index, 1);
+      currentLayer = Math.max(0, currentLayer - 1);
+      renderLayers();
+      loadLayer(currentLayer);
+    }
+
+    function renderLayers() {
+      const list = document.getElementById('layers-list');
+      list.innerHTML = layers.map((layer, i) => {
+        const rgb = hexToRgb(layer.color);
+        const rgba = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${layer.opacity / 100})`;
+        return `
+          <div class="layer-item ${i === currentLayer ? 'active' : ''}" data-layer="${i}" onclick="loadLayer(${i})">
+            <span class="layer-info">Layer ${i + 1}: ${layer.h}px ${layer.v}px ${layer.blur}px</span>
+            <div class="layer-actions">
+              <button class="btn-icon" onclick="event.stopPropagation(); duplicateLayer(${i})">📋</button>
+              <button class="btn-icon" onclick="event.stopPropagation(); deleteLayer(${i})">🗑️</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function loadPreset(type) {
+      if (type === 'soft') {
+        layers = [{ h: 0, v: 2, blur: 8, spread: 0, color: '#000000', opacity: 10, inset: false }];
+      } else if (type === 'medium') {
+        layers = [{ h: 0, v: 4, blur: 16, spread: 0, color: '#000000', opacity: 15, inset: false }];
+      } else if (type === 'hard') {
+        layers = [{ h: 0, v: 8, blur: 24, spread: 0, color: '#000000', opacity: 25, inset: false }];
+      } else if (type === 'inner') {
+        layers = [{ h: 0, v: 2, blur: 8, spread: 0, color: '#000000', opacity: 15, inset: true }];
+      } else if (type === 'neon') {
+        layers = [{ h: 0, v: 0, blur: 20, spread: 0, color: '#BD93F9', opacity: 80, inset: false }];
+      } else if (type === 'layered') {
+        layers = [
+          { h: 0, v: 2, blur: 4, spread: 0, color: '#000000', opacity: 10, inset: false },
+          { h: 0, v: 8, blur: 16, spread: 0, color: '#000000', opacity: 10, inset: false }
+        ];
+      }
+      
+      currentLayer = 0;
+      renderLayers();
+      loadLayer(0);
+    }
+
+    function changeBg(type) {
+      const canvas = document.getElementById('preview-canvas');
+      canvas.className = 'preview-canvas ' + type;
+      
+      document.querySelectorAll('.bg-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelector('.bg-btn.' + type).classList.add('active');
+    }
+
+    function copyCss() {
+      const text = document.getElementById('output').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      });
+    }
+
+    function downloadCss() {
+      const text = document.getElementById('output').textContent;
+      const blob = new Blob([text], { type: 'text/css' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'shadow.css';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    // Initialize
+    renderLayers();
+    updateShadow();
+  </script>
+</body>
+</html>
