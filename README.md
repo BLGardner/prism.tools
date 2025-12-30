@@ -108,7 +108,6 @@ prism.tools/
 │   ├── base64.html
 │   ├── jwt-decoder.html
 │   └── ... (35+ more)
-├── tool_colors.json        # Tool color definitions
 └── README.md
 ```
 
