@@ -2,7 +2,7 @@
 
 **Developer Utilities, Refined**
 
-A collection of 38+ privacy-focused, client-side developer tools. No tracking, no ads, no server-side processing. Everything runs in your browser.
+A collection of privacy-focused, client-side developer tools. No tracking, no ads, no server-side processing. Everything runs in your browser.
 
 [![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://blgardner.github.io/prism.tools/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -107,7 +107,7 @@ prism.tools/
 │   ├── json-formatter.html
 │   ├── base64.html
 │   ├── jwt-decoder.html
-│   └── ... (35+ more)
+│   └── ... (+35 more)
 └── README.md
 ```
 
