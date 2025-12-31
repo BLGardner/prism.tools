@@ -10,11 +10,10 @@ A collection of privacy-focused, client-side developer tools. No tracking, no ad
 
 ## ✨ Features
 
-- **100% Client-Side** - All processing happens in your browser
+- **Client-Side** - All processing happens in your browser
 - **Privacy First** - No data collection, no tracking, no analytics
-- **Zero Cost to Run** - Static hosting means $0/month server costs
-- **Open Source** - Free to use, modify, and distribute
-- **38+ Tools** - Constantly growing collection
+- **Always Free** - Free to use, online and local
+- **38 Tools** - Constantly growing collection
 - **Modern UI** - Clean, dark-themed interface
 - **Keyboard Shortcuts** - Press `/` to search tools
 - **Recent Tools** - Quick access to your last used tools
