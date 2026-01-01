@@ -1,11 +1,11 @@
-# 🎨 Prism.Tools
+# 💠 Prism.Tools
 
 **Developer Utilities, Refined**
 
 A collection of privacy-focused, client-side developer tools. No tracking, no ads, no server-side processing. Everything runs in your browser.
 
 [![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://blgardner.github.io/prism.tools/)
-[![License](https://img.shields.io/badge/License-Custom-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-Custom-blue.svg)](LICENSE.md)
 [![Donate](https://img.shields.io/badge/donate-PayPal-blue.svg)](https://www.paypal.com/paypalme/BLGApps)
 
 ## ✨ Features
