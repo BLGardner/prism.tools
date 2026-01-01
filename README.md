@@ -96,7 +96,7 @@ prism.tools/
 │   ├── json-formatter.html
 │   ├── base64.html
 │   ├── jwt-decoder.html
-│   └── ... (+35 more)
+│   └── ... (+ more)
 ├── README.md
 └── LICENSE.md
 ```
