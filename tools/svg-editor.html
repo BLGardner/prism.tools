@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- Copyright (c) 2025 BLGardner. All Rights Reserved. -->
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
@@ -52,6 +53,20 @@
             .back-link:hover {
                 color: #e4e4e7;
             }
+		    .donate-btn {
+                padding: 0.4rem 1rem;
+                background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%);
+                color: white;
+                border-radius: 6px;
+                text-decoration: none;
+                font-weight: 600;
+                font-size: 0.875rem;
+                transition: transform 0.2s;
+                white-space: nowrap;
+            }
+              
+              .donate-btn:hover { transform: translateY(-1px); }
+
 
             .container {
                 max-width: 1600px;
@@ -361,10 +376,11 @@
         </style>
     </head>
     <body>
-        <nav class="navbar">
-            <a href="../index.html" class="logo">PRISM</a>
-            <a href="../index.html" class="back-link">← All Tools</a>
-        </nav>
+          <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="https://www.paypal.com/paypalme/BLGApps" target="_blank" class="donate-btn">☕ Donate</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
 
         <div class="container">
             <div class="header">
@@ -373,6 +389,15 @@
             </div>
 
             <div class="toolbar">
+                <div class="tool-group">
+                    <button class="tool-btn" onclick="document.getElementById('svg-file-input').click()" title="Import SVG">
+                        <span>📂</span>
+                    </button>
+                    <input type="file" id="svg-file-input" accept=".svg,image/svg+xml" style="display: none;">
+                </div>
+                
+                <div class="toolbar-divider"></div>
+                
                 <div class="tool-group">
                     <button class="tool-btn active" data-tool="select" title="Select">
                         <span>👆</span>
@@ -393,9 +418,9 @@
                         <span>T</span>
                     </button>
                 </div>
-
+            
                 <div class="toolbar-divider"></div>
-
+            
                 <div class="tool-group">
                     <div class="color-picker-group">
                         <label>Fill:</label>
@@ -410,18 +435,18 @@
                         <input type="number" id="stroke-width" min="0" max="50" value="2" />
                     </div>
                 </div>
-
+            
                 <div class="toolbar-divider"></div>
-
+            
                 <div class="tool-group">
                     <button class="btn-icon" onclick="undo()" title="Undo">↶</button>
                     <button class="btn-icon" onclick="redo()" title="Redo">↷</button>
                     <button class="btn-icon" onclick="deleteSelected()" title="Delete">🗑️</button>
                     <button class="btn-icon" onclick="clearCanvas()" title="Clear All">⊗</button>
                 </div>
-
+            
                 <div class="toolbar-divider"></div>
-
+            
                 <div class="tool-group">
                     <button class="btn-icon" onclick="downloadSVG()" title="Download SVG">
                         💾
@@ -993,6 +1018,69 @@
                 count++;
                 localStorage.setItem('prism-usage-count', count);
             }
+
+            // SVG Import functionality
+            document.getElementById('svg-file-input').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        const parser = new DOMParser();
+                        const svgDoc = parser.parseFromString(event.target.result, 'image/svg+xml');
+                        const importedSvg = svgDoc.querySelector('svg');
+                        
+                        if (!importedSvg) {
+                            alert('Invalid SVG file');
+                            return;
+                        }
+                        
+                        // Clear current canvas (except background and grid)
+                        const background = canvas.querySelector('rect[width="100%"]');
+                        const gridLayer = canvas.querySelector('#grid-layer');
+                        const defs = canvas.querySelector('defs');
+                        
+                        // Remove all shapes
+                        shapes.forEach(shape => shape.remove());
+                        shapes = [];
+                        
+                        // Import all elements from the SVG
+                        Array.from(importedSvg.children).forEach(child => {
+                            if (child.tagName === 'defs') return; // Skip defs
+                            
+                            const imported = child.cloneNode(true);
+                            canvas.appendChild(imported);
+                            
+                            // Add to shapes array if it's a drawable element
+                            if (['rect', 'circle', 'line', 'path', 'text', 'polygon', 'polyline', 'ellipse'].includes(imported.tagName)) {
+                                shapes.push(imported);
+                            }
+                        });
+                        
+                        // Update canvas size if specified in imported SVG
+                        const width = importedSvg.getAttribute('width');
+                        const height = importedSvg.getAttribute('height');
+                        if (width && height) {
+                            canvas.setAttribute('width', width);
+                            canvas.setAttribute('height', height);
+                        }
+                        
+                        saveHistory();
+                        updateSVGCode();
+                        alert('SVG imported successfully!');
+                        
+                    } catch (error) {
+                        console.error('Error importing SVG:', error);
+                        alert('Error importing SVG file. Please ensure it\'s a valid SVG.');
+                    }
+                    
+                    // Reset file input
+                    e.target.value = '';
+                };
+                
+                reader.readAsText(file);
+            });
 
             // Initialize
             saveHistory();

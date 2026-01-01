@@ -1,9 +1,12 @@
 <!DOCTYPE html>
+<!-- Copyright (c) 2025 BLGardner. All Rights Reserved. -->
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Diff Checker - Prism.Tools</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -46,6 +49,18 @@
       margin: 0 auto;
       padding: 1rem;
     }
+    .donate-btn {
+      padding: 0.4rem 1rem;
+      background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%);
+      color: white;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.875rem;
+      transition: transform 0.2s;
+      white-space: nowrap;
+    }
+    .donate-btn:hover { transform: translateY(-1px); }
     .header {
       text-align: center;
       padding: 1.5rem 0 1rem;
@@ -87,6 +102,38 @@
     .mode-btn.active {
       background: #FF6B6B;
       color: #0a0a0f;
+    }
+    .option-group {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    .option-label {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      color: #a1a1aa;
+      cursor: pointer;
+    }
+    .option-label input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: #FF6B6B;
+    }
+    #language-select {
+      padding: 0.5rem 0.75rem;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    #language-select:focus {
+      outline: none;
+      border-color: #FF6B6B;
     }
     .action-btn {
       padding: 0.5rem 1rem;
@@ -131,6 +178,40 @@
       letter-spacing: 0.5px;
       margin-top: 0.25rem;
     }
+    .filter-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 0.75rem;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    .filter-label {
+      font-size: 0.8rem;
+      color: #71717a;
+      font-weight: 600;
+    }
+    .filter-option {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+    }
+    .filter-option input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: #FF6B6B;
+    }
+    .filter-text {
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .filter-text.added { color: #50FA7B; }
+    .filter-text.removed { color: #FF6B6B; }
     .diff-container {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -178,15 +259,16 @@
       background: rgba(255, 107, 107, 0.2);
     }
     textarea {
-      flex: 1;
       padding: 0.875rem;
       background: #0a0a0f;
       border: none;
       color: #e4e4e7;
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.8rem;
-      resize: none;
+      resize: vertical;
       line-height: 1.6;
+      min-height: 200px;
+      max-height: 600px;
     }
     textarea:focus { outline: none; }
     .diff-output {
@@ -215,6 +297,9 @@
       display: flex;
       align-items: flex-start;
       min-height: 1.6em;
+    }
+    .diff-line.hidden {
+      display: none;
     }
     .line-number {
       min-width: 40px;
@@ -250,6 +335,16 @@
     .line-unchanged {
       color: #a1a1aa;
     }
+    .word-added {
+      background: rgba(80, 250, 123, 0.3);
+      color: #50FA7B;
+      padding: 0 2px;
+    }
+    .word-removed {
+      background: rgba(255, 107, 107, 0.3);
+      color: #FF6B6B;
+      padding: 0 2px;
+    }
     .char-added {
       background: rgba(80, 250, 123, 0.3);
       color: #50FA7B;
@@ -272,6 +367,10 @@
       padding: 3rem 1rem;
       color: #71717a;
     }
+    .hljs {
+      background: transparent !important;
+      padding: 0 !important;
+    }
     @media (max-width: 1024px) {
       .diff-container {
         grid-template-columns: 1fr;
@@ -283,12 +382,23 @@
         border-right: none;
         border-bottom: 1px solid #27272a;
       }
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .mode-toggle {
+        width: 100%;
+      }
+      .mode-btn {
+        flex: 1;
+      }
     }
   </style>
 </head>
 <body>
   <nav class="navbar">
     <a href="../index.html" class="logo">PRISM</a>
+    <a href="https://www.paypal.com/paypalme/BLGApps" target="_blank" class="donate-btn">☕ Donate</a>
     <a href="../index.html" class="back-link">← All Tools</a>
   </nav>
 
@@ -302,10 +412,46 @@
       <div class="mode-toggle">
         <button class="mode-btn active" onclick="setMode('split')" id="mode-split">Split View</button>
         <button class="mode-btn" onclick="setMode('unified')" id="mode-unified">Unified View</button>
+        <button class="mode-btn" onclick="setMode('word')" id="mode-word">Word Level</button>
         <button class="mode-btn" onclick="setMode('char')" id="mode-char">Character Level</button>
       </div>
-      <button class="action-btn" onclick="swapTexts()">🔄 Swap Texts</button>
-      <button class="action-btn" onclick="clearAll()">🗑️ Clear All</button>
+      
+      <div class="option-group">
+        <label class="option-label">
+          <input type="checkbox" id="ignore-whitespace" onchange="computeDiff()">
+          Ignore Whitespace
+        </label>
+        <label class="option-label">
+          <input type="checkbox" id="syntax-highlight" onchange="computeDiff()">
+          Syntax Highlighting
+        </label>
+      </div>
+      
+      <select id="language-select" onchange="computeDiff()">
+        <option value="plaintext">Plain Text</option>
+        <option value="javascript">JavaScript</option>
+        <option value="python">Python</option>
+        <option value="java">Java</option>
+        <option value="cpp">C++</option>
+        <option value="csharp">C#</option>
+        <option value="php">PHP</option>
+        <option value="ruby">Ruby</option>
+        <option value="go">Go</option>
+        <option value="rust">Rust</option>
+        <option value="typescript">TypeScript</option>
+        <option value="html">HTML</option>
+        <option value="css">CSS</option>
+        <option value="sql">SQL</option>
+        <option value="json">JSON</option>
+        <option value="xml">XML</option>
+        <option value="yaml">YAML</option>
+        <option value="markdown">Markdown</option>
+        <option value="bash">Bash</option>
+        <option value="powershell">PowerShell</option>
+      </select>
+      
+      <button class="action-btn" onclick="swapTexts()">🔄 Swap</button>
+      <button class="action-btn" onclick="clearAll()">🗑️ Clear</button>
     </div>
 
     <div class="stats-bar" id="stats-bar" style="display: none;">
@@ -323,6 +469,22 @@
       </div>
     </div>
 
+    <div class="filter-bar" id="filter-bar" style="display: none;">
+      <span class="filter-label">Show:</span>
+      <label class="filter-option">
+        <input type="checkbox" id="show-added" checked onchange="applyFilters()">
+        <span class="filter-text added">Added</span>
+      </label>
+      <label class="filter-option">
+        <input type="checkbox" id="show-removed" checked onchange="applyFilters()">
+        <span class="filter-text removed">Removed</span>
+      </label>
+      <label class="filter-option">
+        <input type="checkbox" id="show-unchanged" checked onchange="applyFilters()">
+        <span class="filter-text">Unchanged</span>
+      </label>
+    </div>
+
     <div class="diff-container">
       <div class="input-panel">
         <div class="panel-header">
@@ -332,9 +494,10 @@
             <button class="btn-small" onclick="clearText('original')">🗑️</button>
           </div>
         </div>
-        <textarea id="original-text" placeholder="Paste your original text here...">The quick brown fox jumps over the lazy dog.
-This is the first version of the text.
-Some lines will remain the same.</textarea>
+        <textarea id="original-text" placeholder="Paste your original text here...">function greet(name) {
+  console.log("Hello, " + name);
+  return true;
+}</textarea>
       </div>
 
       <div class="input-panel">
@@ -345,15 +508,20 @@ Some lines will remain the same.</textarea>
             <button class="btn-small" onclick="clearText('modified')">🗑️</button>
           </div>
         </div>
-        <textarea id="modified-text" placeholder="Paste your modified text here...">The quick brown fox jumps over the lazy cat.
-This is the second version of the text.
-Some lines will remain the same.
-This is a new line added at the end.</textarea>
+        <textarea id="modified-text" placeholder="Paste your modified text here...">function greet(name) {
+  console.log(`Hello, ${name}!`);
+  console.log("Welcome to the app");
+  return true;
+}</textarea>
       </div>
 
       <div class="diff-output">
         <div class="panel-header">
           <span class="panel-title">Differences</span>
+          <div class="panel-actions">
+            <button class="btn-small" onclick="copyDiff()">📋 Copy Diff</button>
+            <button class="btn-small" onclick="downloadDiff()">💾 Download .diff</button>
+          </div>
         </div>
         <div id="diff-result"></div>
       </div>
@@ -361,15 +529,16 @@ This is a new line added at the end.</textarea>
   </div>
 
   <script>
+    
     let currentMode = 'split';
-
+    
     function setMode(mode) {
       currentMode = mode;
       document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
       document.getElementById('mode-' + mode).classList.add('active');
       computeDiff();
     }
-
+    
     function computeDiff() {
       const original = document.getElementById('original-text').value;
       const modified = document.getElementById('modified-text').value;
@@ -377,18 +546,30 @@ This is a new line added at the end.</textarea>
       if (!original && !modified) {
         document.getElementById('diff-result').innerHTML = '<div class="empty-state">Enter text in both panels to see differences</div>';
         document.getElementById('stats-bar').style.display = 'none';
+        document.getElementById('filter-bar').style.display = 'none';
         return;
       }
-
+    
+      let origText = original;
+      let modText = modified;
+      
+      if (document.getElementById('ignore-whitespace').checked) {
+        origText = original.replace(/\s+/g, ' ').trim();
+        modText = modified.replace(/\s+/g, ' ').trim();
+      }
+    
       if (currentMode === 'char') {
-        computeCharDiff(original, modified);
+        computeCharDiff(origText, modText);
+      } else if (currentMode === 'word') {
+        computeWordDiff(origText, modText);
       } else {
-        computeLineDiff(original, modified);
+        computeLineDiff(origText, modText);
       }
       
+      document.getElementById('filter-bar').style.display = 'flex';
       trackUsage();
     }
-
+    
     function computeLineDiff(original, modified) {
       const origLines = original.split('\n');
       const modLines = modified.split('\n');
@@ -402,13 +583,22 @@ This is a new line added at the end.</textarea>
       
       updateStats(diff);
     }
-
+    
+    function computeWordDiff(original, modified) {
+      const origWords = original.split(/(\s+)/);
+      const modWords = modified.split(/(\s+)/);
+      const diff = diffWords(origWords, modWords);
+      
+      renderWordDiff(diff);
+      updateWordStats(diff);
+    }
+    
     function computeCharDiff(original, modified) {
       const diff = diffChars(original, modified);
       renderCharDiff(diff);
       updateCharStats(diff);
     }
-
+    
     function diffLines(arr1, arr2) {
       const dp = [];
       for (let i = 0; i <= arr1.length; i++) {
@@ -423,7 +613,7 @@ This is a new line added at the end.</textarea>
           }
         }
       }
-
+    
       const result = [];
       let i = arr1.length, j = arr2.length;
       
@@ -442,7 +632,41 @@ This is a new line added at the end.</textarea>
       
       return result;
     }
-
+    
+    function diffWords(arr1, arr2) {
+      const dp = [];
+      for (let i = 0; i <= arr1.length; i++) {
+        dp[i] = [];
+        for (let j = 0; j <= arr2.length; j++) {
+          if (i === 0) dp[i][j] = j;
+          else if (j === 0) dp[i][j] = i;
+          else if (arr1[i - 1] === arr2[j - 1]) {
+            dp[i][j] = dp[i - 1][j - 1];
+          } else {
+            dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+          }
+        }
+      }
+    
+      const result = [];
+      let i = arr1.length, j = arr2.length;
+      
+      while (i > 0 || j > 0) {
+        if (i > 0 && j > 0 && arr1[i - 1] === arr2[j - 1]) {
+          result.unshift({ type: 'unchanged', word: arr1[i - 1] });
+          i--; j--;
+        } else if (j > 0 && (i === 0 || dp[i][j - 1] <= dp[i - 1][j])) {
+          result.unshift({ type: 'added', word: arr2[j - 1] });
+          j--;
+        } else {
+          result.unshift({ type: 'removed', word: arr1[i - 1] });
+          i--;
+        }
+      }
+      
+      return result;
+    }
+    
     function diffChars(str1, str2) {
       const dp = [];
       for (let i = 0; i <= str1.length; i++) {
@@ -457,7 +681,7 @@ This is a new line added at the end.</textarea>
           }
         }
       }
-
+    
       const result = [];
       let i = str1.length, j = str2.length;
       
@@ -476,38 +700,63 @@ This is a new line added at the end.</textarea>
       
       return result;
     }
-
+    
+    function applySyntaxHighlighting(code) {
+      if (!document.getElementById('syntax-highlight').checked) {
+        return escapeHtml(code);
+      }
+      
+      const language = document.getElementById('language-select').value;
+      
+      if (language === 'plaintext') {
+        return escapeHtml(code);
+      }
+      
+      try {
+        const result = hljs.highlight(code, { language: language });
+        return result.value;
+      } catch (e) {
+        return escapeHtml(code);
+      }
+    }
+    
     function renderSplitView(diff) {
       const resultDiv = document.getElementById('diff-result');
       let leftHTML = '';
       let rightHTML = '';
       let origLineNum = 1, modLineNum = 1;
-
+    
       diff.forEach(item => {
+        const typeClass = item.type === 'unchanged' ? 'line-unchanged' : 
+                         item.type === 'added' ? 'line-added' : 'line-removed';
+        
         if (item.type === 'unchanged') {
-          leftHTML += `<div class="diff-line line-unchanged">
+          const content = applySyntaxHighlighting(item.content);
+          leftHTML += `<div class="diff-line ${typeClass}" data-type="unchanged">
             <span class="line-number">${origLineNum++}</span>
-            <span class="line-content">${escapeHtml(item.content)}</span>
+            <span class="line-content">${content}</span>
           </div>`;
-          rightHTML += `<div class="diff-line line-unchanged">
+          rightHTML += `<div class="diff-line ${typeClass}" data-type="unchanged">
             <span class="line-number">${modLineNum++}</span>
-            <span class="line-content">${escapeHtml(item.content)}</span>
+            <span class="line-content">${content}</span>
           </div>`;
         } else if (item.type === 'removed') {
-          leftHTML += `<div class="diff-line line-removed">
+          const content = applySyntaxHighlighting(item.content);
+          leftHTML += `<div class="diff-line ${typeClass}" data-type="removed">
             <span class="line-number">${origLineNum++}</span>
-            <span class="line-content">${escapeHtml(item.content)}</span>
+            <span class="line-content">${content}</span>
           </div>`;
           rightHTML += `<div class="diff-line" style="min-height: 1.6em;"><span class="line-number"></span></div>`;
         } else {
+          const content = applySyntaxHighlighting(item.content);
           leftHTML += `<div class="diff-line" style="min-height: 1.6em;"><span class="line-number"></span></div>`;
-          rightHTML += `<div class="diff-line line-added">
+          rightHTML += `<div class="diff-line ${typeClass}" data-type="added">
             <span class="line-number">${modLineNum++}</span>
-            <span class="line-content">${escapeHtml(item.content)}</span>
+            <span class="line-content">${content}</span>
           </div>`;
         }
       });
-
+    
       resultDiv.innerHTML = `
         <div class="diff-view">
           <div class="diff-side left">${leftHTML}</div>
@@ -515,79 +764,130 @@ This is a new line added at the end.</textarea>
         </div>
       `;
     }
-
+    
     function renderUnifiedView(diff) {
       const resultDiv = document.getElementById('diff-result');
       let html = '';
       let lineNum = 1;
-
+    
       diff.forEach(item => {
+        const typeClass = item.type === 'unchanged' ? 'line-unchanged' : 
+                         item.type === 'added' ? 'line-added' : 'line-removed';
+        const content = applySyntaxHighlighting(item.content);
+        
         if (item.type === 'unchanged') {
-          html += `<div class="diff-line line-unchanged">
+          html += `<div class="diff-line ${typeClass}" data-type="unchanged">
             <span class="line-number">${lineNum++}</span>
-            <span class="line-content">${escapeHtml(item.content)}</span>
+            <span class="line-content">${content}</span>
           </div>`;
         } else if (item.type === 'removed') {
-          html += `<div class="diff-line line-removed">
+          html += `<div class="diff-line ${typeClass}" data-type="removed">
             <span class="line-number">-</span>
-            <span class="line-content">${escapeHtml(item.content)}</span>
+            <span class="line-content">${content}</span>
           </div>`;
         } else {
-          html += `<div class="diff-line line-added">
+          html += `<div class="diff-line ${typeClass}" data-type="added">
             <span class="line-number">+</span>
-            <span class="line-content">${escapeHtml(item.content)}</span>
+            <span class="line-content">${content}</span>
           </div>`;
         }
       });
-
+    
       resultDiv.innerHTML = `<div class="unified-view">${html}</div>`;
     }
-
+    
+    function renderWordDiff(diff) {
+      const resultDiv = document.getElementById('diff-result');
+      let html = '';
+    
+      diff.forEach(item => {
+        if (item.type === 'unchanged') {
+          html += escapeHtml(item.word);
+        } else if (item.type === 'added') {
+          html += `<span class="word-added" data-type="added">${escapeHtml(item.word)}</span>`;
+        } else {
+          html += `<span class="word-removed" data-type="removed">${escapeHtml(item.word)}</span>`;
+        }
+      });
+    
+      resultDiv.innerHTML = `<div class="unified-view" style="white-space: pre-wrap;">${html}</div>`;
+    }
+    
     function renderCharDiff(diff) {
       const resultDiv = document.getElementById('diff-result');
       let html = '';
-
+    
       diff.forEach(item => {
         if (item.type === 'unchanged') {
           html += escapeHtml(item.char);
         } else if (item.type === 'added') {
-          html += `<span class="char-added">${escapeHtml(item.char)}</span>`;
+          html += `<span class="char-added" data-type="added">${escapeHtml(item.char)}</span>`;
         } else {
-          html += `<span class="char-removed">${escapeHtml(item.char)}</span>`;
+          html += `<span class="char-removed" data-type="removed">${escapeHtml(item.char)}</span>`;
         }
       });
-
+    
       resultDiv.innerHTML = `<div class="unified-view" style="white-space: pre-wrap;">${html}</div>`;
     }
-
+    
     function updateStats(diff) {
       const added = diff.filter(d => d.type === 'added').length;
       const removed = diff.filter(d => d.type === 'removed').length;
       const unchanged = diff.filter(d => d.type === 'unchanged').length;
-
+    
       document.getElementById('stat-added').textContent = added;
       document.getElementById('stat-removed').textContent = removed;
       document.getElementById('stat-unchanged').textContent = unchanged;
       document.getElementById('stats-bar').style.display = 'flex';
     }
-
+    
+    function updateWordStats(diff) {
+      const added = diff.filter(d => d.type === 'added' && d.word.trim()).length;
+      const removed = diff.filter(d => d.type === 'removed' && d.word.trim()).length;
+      const unchanged = diff.filter(d => d.type === 'unchanged' && d.word.trim()).length;
+    
+      document.getElementById('stat-added').textContent = added + ' words';
+      document.getElementById('stat-removed').textContent = removed + ' words';
+      document.getElementById('stat-unchanged').textContent = unchanged + ' words';
+      document.getElementById('stats-bar').style.display = 'flex';
+    }
+    
     function updateCharStats(diff) {
       const added = diff.filter(d => d.type === 'added').length;
       const removed = diff.filter(d => d.type === 'removed').length;
       const unchanged = diff.filter(d => d.type === 'unchanged').length;
-
+    
       document.getElementById('stat-added').textContent = added + ' chars';
       document.getElementById('stat-removed').textContent = removed + ' chars';
       document.getElementById('stat-unchanged').textContent = unchanged + ' chars';
       document.getElementById('stats-bar').style.display = 'flex';
     }
-
+    
+    function applyFilters() {
+      const showAdded = document.getElementById('show-added').checked;
+      const showRemoved = document.getElementById('show-removed').checked;
+      const showUnchanged = document.getElementById('show-unchanged').checked;
+      
+      document.querySelectorAll('[data-type]').forEach(el => {
+        const type = el.getAttribute('data-type');
+        if (type === 'added' && !showAdded) {
+          el.classList.add('hidden');
+        } else if (type === 'removed' && !showRemoved) {
+          el.classList.add('hidden');
+        } else if (type === 'unchanged' && !showUnchanged) {
+          el.classList.add('hidden');
+        } else {
+          el.classList.remove('hidden');
+        }
+      });
+    }
+    
     function escapeHtml(text) {
       const div = document.createElement('div');
       div.textContent = text;
       return div.innerHTML;
     }
-
+    
     function swapTexts() {
       const orig = document.getElementById('original-text').value;
       const mod = document.getElementById('modified-text').value;
@@ -595,39 +895,121 @@ This is a new line added at the end.</textarea>
       document.getElementById('modified-text').value = orig;
       computeDiff();
     }
-
+    
     function clearAll() {
       document.getElementById('original-text').value = '';
       document.getElementById('modified-text').value = '';
       computeDiff();
     }
-
+    
     function clearText(which) {
       document.getElementById(which + '-text').value = '';
       computeDiff();
     }
-
+    
     async function pasteText(which) {
       try {
         const text = await navigator.clipboard.readText();
         document.getElementById(which + '-text').value = text;
+        autoResizeTextarea(document.getElementById(which + '-text'));
         computeDiff();
       } catch (e) {
         alert('Could not paste from clipboard');
       }
     }
-
+    
+    function copyDiff() {
+      const diffResult = document.getElementById('diff-result');
+      const lines = diffResult.querySelectorAll('.diff-line');
+      let text = '';
+      
+      lines.forEach(line => {
+        if (line.classList.contains('hidden')) return;
+        const content = line.querySelector('.line-content');
+        if (content) {
+          text += content.textContent + '\n';
+        }
+      });
+      
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('Diff copied to clipboard!');
+      });
+    }
+    
+    function downloadDiff() {
+      const original = document.getElementById('original-text').value;
+      const modified = document.getElementById('modified-text').value;
+      
+      const origLines = original.split('\n');
+      const modLines = modified.split('\n');
+      const diff = diffLines(origLines, modLines);
+      
+      let patchText = '--- original\n+++ modified\n';
+      
+      diff.forEach(item => {
+        if (item.type === 'removed') {
+          patchText += '-' + item.content + '\n';
+        } else if (item.type === 'added') {
+          patchText += '+' + item.content + '\n';
+        } else {
+          patchText += ' ' + item.content + '\n';
+        }
+      });
+      
+      const blob = new Blob([patchText], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'changes.diff';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        background: #18181b;
+        border: 1px solid #FF6B6B;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        z-index: 3000;
+        animation: slideIn 0.3s ease-out;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      `;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2000);
+    }
+    
+    function autoResizeTextarea(textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = Math.min(textarea.scrollHeight, 600) + 'px';
+    }
+    
     function trackUsage() {
       let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
       count++;
       localStorage.setItem('prism-usage-count', count);
     }
-
-    // Auto-compute on input
-    document.getElementById('original-text').addEventListener('input', computeDiff);
-    document.getElementById('modified-text').addEventListener('input', computeDiff);
-
+    
+    // Auto-resize textareas on input
+    document.getElementById('original-text').addEventListener('input', (e) => {
+      autoResizeTextarea(e.target);
+      computeDiff();
+    });
+    
+    document.getElementById('modified-text').addEventListener('input', (e) => {
+      autoResizeTextarea(e.target);
+      computeDiff();
+    });
+    
     // Initialize
+    autoResizeTextarea(document.getElementById('original-text'));
+    autoResizeTextarea(document.getElementById('modified-text'));
     computeDiff();
   </script>
 </body>
