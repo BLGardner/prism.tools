@@ -88,16 +88,6 @@ open index.html
 python -m http.server 8000
 ```
 
-### Option 3: Deploy Your Own
-Deploy to any static hosting provider:
-- GitHub Pages
-- Netlify
-- Vercel
-- Cloudflare Pages
-- AWS S3 + CloudFront
-
-Simply upload the files - no build process needed!
-
 ## 📁 Project Structure
 ```
 prism.tools/
@@ -107,55 +97,8 @@ prism.tools/
 │   ├── base64.html
 │   ├── jwt-decoder.html
 │   └── ... (+35 more)
-└── README.md
-```
-
-## 🎨 Adding a New Tool
-
-Each tool is a standalone HTML file with embedded CSS and JavaScript:
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Tool Name - Prism.Tools</title>
-  <style>
-    /* Tool-specific styles */
-  </style>
-</head>
-<body>
-  <nav class="navbar">
-    <a href="../index.html" class="logo">PRISM</a>
-    <a href="../index.html" class="back-link">← All Tools</a>
-  </nav>
-  
-  <div class="container">
-    <!-- Tool content -->
-  </div>
-  
-  <script>
-    // Tool logic
-    function trackUsage() {
-      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
-      count++;
-      localStorage.setItem('prism-usage-count', count);
-    }
-  </script>
-</body>
-</html>
-```
-
-Then add it to `index.html` in the `tools` array:
-```javascript
-{
-  id: 'your-tool',
-  name: 'Your Tool Name',
-  icon: '🎯',
-  description: 'Tool description',
-  color: '#A78BFA',
-  file: 'tools/your-tool.html',
-  category: 'formatters' // or security, visual, generators, encoders
-}
+├── README.md
+└── LICENSE.md
 ```
 
 ## 🎯 Design Principles
@@ -171,18 +114,8 @@ Then add it to `index.html` in the `tools` array:
 
 Contributions are welcome! Here's how you can help:
 
-1. **Add New Tools** - See "Adding a New Tool" above
-2. **Improve Existing Tools** - Bug fixes, feature additions
-3. **Report Issues** - Found a bug? Open an issue
-4. **Suggest Features** - Ideas for new tools or improvements
-5. **Documentation** - Help improve the README
-
-### Contribution Guidelines
-- Keep tools self-contained (single HTML file)
-- Follow the existing design patterns
-- Test on multiple browsers
-- No external dependencies that track users
-- Use only free CDN resources (cdnjs.cloudflare.com)
+1. **Report Issues** - Found a bug? Open an issue
+2. **Suggest Features** - Ideas for new tools or improvements
 
 ## 💖 Support
 
@@ -193,12 +126,11 @@ If you find Prism.Tools useful, consider supporting development:
 - 🐦 Share on social media
 - 🐛 Report bugs and suggest features
 
-**Running costs:** $0/month (static hosting)  
 **Your donations fund:** Development time and new features
 
 ## 📜 License
 
-MIT License - see [LICENSE](LICENSE) file for details
+License - see [LICENSE](LICENSE.md) file for details
 
 ## 🔗 Links
 
@@ -220,4 +152,4 @@ Special thanks to all contributors and supporters! 💜
 
 Made with 💜 by developers, for developers
 
-*Privacy-focused • Ad-free • Open source*
+*Privacy-focused • Ad-free*
