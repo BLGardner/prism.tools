@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<!-- Copyright (c) 2025 BLGardner. All Rights Reserved. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON to TypeScript - Prism.Tools</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #3178c6 0%, #235a97 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #e4e4e7; }
+    .donate-btn {
+      padding: 0.4rem 1rem;
+      background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%);
+      color: white;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.875rem;
+      transition: transform 0.2s;
+      white-space: nowrap;
+    }
+    .donate-btn:hover { transform: translateY(-1px); }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #3178c6;
+    }
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    .options-bar {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 0.875rem;
+      margin-bottom: 1rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .option-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .option-label {
+      font-size: 0.75rem;
+      color: #71717a;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .option-controls {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      color: #a1a1aa;
+      cursor: pointer;
+    }
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: #3178c6;
+    }
+    input[type="text"] {
+      padding: 0.4rem 0.6rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-size: 0.85rem;
+      flex: 1;
+    }
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #3178c6;
+    }
+    select {
+      padding: 0.4rem 0.6rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-size: 0.85rem;
+      cursor: pointer;
+      flex: 1;
+    }
+    select:focus {
+      outline: none;
+      border-color: #3178c6;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .panel-header {
+      background: #1f1f23;
+      padding: 0.625rem 0.875rem;
+      border-bottom: 1px solid #27272a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .panel-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #3178c6;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .panel-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn-small {
+      padding: 0.25rem 0.625rem;
+      background: rgba(49, 120, 198, 0.1);
+      border: 1px solid rgba(49, 120, 198, 0.3);
+      color: #3178c6;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .btn-small:hover {
+      background: rgba(49, 120, 198, 0.2);
+    }
+    textarea {
+      flex: 1;
+      padding: 0.875rem;
+      background: #0a0a0f;
+      border: none;
+      color: #e4e4e7;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      resize: vertical;
+      line-height: 1.6;
+      min-height: 450px;
+    }
+    textarea:focus { outline: none; }
+    .controls {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      margin: 1rem 0;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 0.625rem 1.25rem;
+      background: #3178c6;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(49, 120, 198, 0.3);
+    }
+    .samples {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .samples-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #3178c6;
+      margin-bottom: 0.75rem;
+    }
+    .sample-buttons {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .sample-btn {
+      padding: 0.5rem 0.875rem;
+      background: rgba(49, 120, 198, 0.1);
+      border: 1px solid rgba(49, 120, 198, 0.3);
+      color: #3178c6;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .sample-btn:hover {
+      background: rgba(49, 120, 198, 0.2);
+    }
+    .info-box {
+      background: rgba(49, 120, 198, 0.1);
+      border: 1px solid rgba(49, 120, 198, 0.2);
+      border-radius: 8px;
+      padding: 0.875rem;
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      color: #a1a1aa;
+      line-height: 1.5;
+    }
+    .info-box strong {
+      color: #3178c6;
+    }
+    .error-message {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+      padding: 0.75rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+      display: none;
+    }
+    @media (max-width: 1024px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .options-bar {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="https://www.paypal.com/paypalme/BLGApps" target="_blank" class="donate-btn">☕ Donate</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>📘 JSON to TypeScript</h1>
+      <p>Generate TypeScript interfaces from JSON data</p>
+    </div>
+
+    <div class="error-message" id="error-message"></div>
+
+    <div class="options-bar">
+      <div class="option-group">
+        <label class="option-label">Root Interface Name</label>
+        <div class="option-controls">
+          <input type="text" id="root-name" value="RootObject" placeholder="InterfaceName">
+        </div>
+      </div>
+
+      <div class="option-group">
+        <label class="option-label">Style</label>
+        <div class="option-controls">
+          <select id="declaration-type">
+            <option value="interface">interface</option>
+            <option value="type">type</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="option-group">
+        <label class="option-label">Options</label>
+        <div class="option-controls">
+          <label class="checkbox-label">
+            <input type="checkbox" id="add-export" checked>
+            Export
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" id="optional-fields">
+            Optional
+          </label>
+        </div>
+      </div>
+
+      <div class="option-group">
+        <label class="option-label">Naming</label>
+        <div class="option-controls">
+          <label class="checkbox-label">
+            <input type="checkbox" id="prefix-interface">
+            I- Prefix
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" id="pascal-case" checked>
+            PascalCase
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">JSON Input</span>
+          <div class="panel-actions">
+            <button class="btn-small" onclick="pasteInput()">📋 Paste</button>
+            <button class="btn-small" onclick="formatJSON()">✨ Format</button>
+            <button class="btn-small" onclick="clearAll()">🗑️</button>
+          </div>
+        </div>
+        <textarea id="input" placeholder='Paste your JSON here...
+Example:
+{
+  "name": "John Doe",
+  "age": 30,
+  "email": "john@example.com"
+}'>{
+  "id": 1,
+  "name": "John Doe",
+  "email": "john@example.com",
+  "isActive": true,
+  "roles": ["admin", "user"],
+  "profile": {
+    "age": 30,
+    "city": "New York",
+    "preferences": {
+      "theme": "dark",
+      "notifications": true
+    }
+  },
+  "metadata": null
+}</textarea>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">TypeScript Output</span>
+          <div class="panel-actions">
+            <button class="btn-small" onclick="copyOutput()">📋 Copy</button>
+            <button class="btn-small" onclick="downloadOutput()">💾 Save .ts</button>
+          </div>
+        </div>
+        <textarea id="output" placeholder="TypeScript interfaces will appear here..." readonly></textarea>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn" onclick="convert()">✨ Generate TypeScript</button>
+    </div>
+
+    <div class="samples">
+      <div class="samples-title">Load Sample JSON</div>
+      <div class="sample-buttons">
+        <button class="sample-btn" onclick="loadSample('user')">User Profile</button>
+        <button class="sample-btn" onclick="loadSample('api')">API Response</button>
+        <button class="sample-btn" onclick="loadSample('nested')">Nested Data</button>
+        <button class="sample-btn" onclick="loadSample('array')">Array of Objects</button>
+        <button class="sample-btn" onclick="loadSample('complex')">Complex</button>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>💡 Features:</strong><br>
+      • Automatically detects nested objects and creates separate interfaces<br>
+      • Handles arrays with proper typing (Type[] or Array&lt;Type&gt;)<br>
+      • Supports null/undefined values with union types<br>
+      • Converts snake_case to PascalCase for interface names<br>
+      • Optional: Add export keyword, make all fields optional, use I- prefix
+    </div>
+  </div>
+
+  <script>
+    const samples = {
+      user: {
+        id: 1,
+        name: "John Doe",
+        email: "john@example.com",
+        isActive: true,
+        roles: ["admin", "user"],
+        profile: {
+          age: 30,
+          city: "New York"
+        }
+      },
+      api: {
+        status: "success",
+        data: {
+          users: [
+            { id: 1, username: "alice", score: 95.5 },
+            { id: 2, username: "bob", score: 87.3 }
+          ],
+          total: 2,
+          page: 1
+        },
+        timestamp: "2024-01-01T00:00:00Z"
+      },
+      nested: {
+        company: {
+          name: "Tech Corp",
+          address: {
+            street: "123 Main St",
+            city: "San Francisco",
+            coordinates: {
+              lat: 37.7749,
+              lng: -122.4194
+            }
+          },
+          departments: [
+            {
+              name: "Engineering",
+              employees: 50,
+              manager: {
+                name: "Jane Smith",
+                title: "VP of Engineering"
+              }
+            }
+          ]
+        }
+      },
+      array: [
+        {
+          id: 1,
+          title: "First Post",
+          author: "Alice",
+          tags: ["typescript", "javascript"]
+        },
+        {
+          id: 2,
+          title: "Second Post",
+          author: "Bob",
+          tags: ["react", "web"]
+        }
+      ],
+      complex: {
+        id: "abc123",
+        type: "order",
+        customer: {
+          firstName: "John",
+          lastName: "Doe",
+          email: "john@example.com",
+          phone: null
+        },
+        items: [
+          {
+            productId: "prod_1",
+            name: "Widget",
+            quantity: 2,
+            price: 29.99,
+            discount: null
+          }
+        ],
+        shipping: {
+          method: "express",
+          address: {
+            street: "123 Main St",
+            city: "New York",
+            state: "NY",
+            zipCode: "10001"
+          },
+          tracking: null
+        },
+        totals: {
+          subtotal: 59.98,
+          tax: 5.40,
+          shipping: 10.00,
+          total: 75.38
+        },
+        status: "pending",
+        createdAt: "2024-01-01T12:00:00Z"
+      }
+    };
+
+    let generatedInterfaces = new Map();
+
+    function toPascalCase(str) {
+      return str
+        .replace(/[_-](\w)/g, (_, c) => c.toUpperCase())
+        .replace(/^(\w)/, (_, c) => c.toUpperCase())
+        .replace(/[^a-zA-Z0-9]/g, '');
+    }
+
+    function getTypeName(key, value, depth = 0) {
+      const pascalCase = document.getElementById('pascal-case').checked;
+      const prefix = document.getElementById('prefix-interface').checked ? 'I' : '';
+      
+      let baseName = pascalCase ? toPascalCase(key) : key;
+      baseName = baseName || 'Type';
+      
+      return prefix + baseName;
+    }
+
+    function inferType(value, key, depth = 0) {
+      if (value === null) return 'null';
+      if (value === undefined) return 'undefined';
+      
+      const type = typeof value;
+      
+      if (type === 'string') return 'string';
+      if (type === 'number') return 'number';
+      if (type === 'boolean') return 'boolean';
+      
+      if (Array.isArray(value)) {
+        if (value.length === 0) return 'any[]';
+        
+        const firstItem = value[0];
+        const itemType = inferType(firstItem, key + 'Item', depth + 1);
+        
+        if (typeof firstItem === 'object' && firstItem !== null && !Array.isArray(firstItem)) {
+          return `${itemType}[]`;
+        }
+        
+        return `${itemType}[]`;
+      }
+      
+      if (type === 'object') {
+        const typeName = getTypeName(key, value, depth);
+        
+        if (!generatedInterfaces.has(typeName)) {
+          generatedInterfaces.set(typeName, generateInterface(value, typeName, depth + 1));
+        }
+        
+        return typeName;
+      }
+      
+      return 'any';
+    }
+
+    function generateInterface(obj, name, depth = 0) {
+      const declarationType = document.getElementById('declaration-type').value;
+      const optionalFields = document.getElementById('optional-fields').checked;
+      const addExport = document.getElementById('add-export').checked;
+      
+      const indent = '  ';
+      let result = '';
+      
+      if (depth === 0 && addExport) {
+        result += 'export ';
+      }
+      
+      if (declarationType === 'interface') {
+        result += `interface ${name} {\n`;
+      } else {
+        result += `type ${name} = {\n`;
+      }
+      
+      const entries = Object.entries(obj);
+      
+      entries.forEach(([key, value]) => {
+        const optional = optionalFields || value === null || value === undefined ? '?' : '';
+        let type = inferType(value, key, depth);
+        
+        if (value === null || value === undefined) {
+          type = type + ' | null';
+        }
+        
+        result += `${indent}${key}${optional}: ${type};\n`;
+      });
+      
+      if (declarationType === 'interface') {
+        result += '}';
+      } else {
+        result += '};';
+      }
+      
+      return result;
+    }
+
+    function convert() {
+      const input = document.getElementById('input').value.trim();
+      const errorMsg = document.getElementById('error-message');
+      
+      errorMsg.style.display = 'none';
+      
+      if (!input) {
+        showError('Please enter JSON data');
+        return;
+      }
+      
+      try {
+        const json = JSON.parse(input);
+        generatedInterfaces.clear();
+        
+        const rootName = document.getElementById('root-name').value || 'RootObject';
+        
+        let mainInterface;
+        if (Array.isArray(json)) {
+          if (json.length > 0) {
+            const itemType = getTypeName('Item', json[0], 0);
+            mainInterface = generateInterface(json[0], itemType, 0);
+            
+            const declarationType = document.getElementById('declaration-type').value;
+            const addExport = document.getElementById('add-export').checked;
+            
+            let arrayType = '';
+            if (addExport) arrayType += 'export ';
+            arrayType += `type ${rootName} = ${itemType}[];`;
+            
+            mainInterface = mainInterface + '\n\n' + arrayType;
+          } else {
+            mainInterface = `export type ${rootName} = any[];`;
+          }
+        } else {
+          mainInterface = generateInterface(json, rootName, 0);
+        }
+        
+        const otherInterfaces = Array.from(generatedInterfaces.values())
+          .filter(iface => !iface.includes(rootName));
+        
+        const output = otherInterfaces.length > 0
+          ? otherInterfaces.join('\n\n') + '\n\n' + mainInterface
+          : mainInterface;
+        
+        document.getElementById('output').value = output;
+        trackUsage();
+        
+      } catch (e) {
+        showError('Invalid JSON: ' + e.message);
+      }
+    }
+
+    function showError(message) {
+      const errorMsg = document.getElementById('error-message');
+      errorMsg.textContent = '❌ ' + message;
+      errorMsg.style.display = 'block';
+    }
+
+    function formatJSON() {
+      const input = document.getElementById('input').value.trim();
+      
+      try {
+        const json = JSON.parse(input);
+        document.getElementById('input').value = JSON.stringify(json, null, 2);
+      } catch (e) {
+        showError('Invalid JSON: ' + e.message);
+      }
+    }
+
+    function clearAll() {
+      document.getElementById('input').value = '';
+      document.getElementById('output').value = '';
+      document.getElementById('error-message').style.display = 'none';
+    }
+
+    async function pasteInput() {
+      try {
+        const text = await navigator.clipboard.readText();
+        document.getElementById('input').value = text;
+      } catch (e) {
+        alert('Could not paste from clipboard');
+      }
+    }
+
+    function copyOutput() {
+      const output = document.getElementById('output').value;
+      if (!output) {
+        alert('Generate TypeScript first');
+        return;
+      }
+      navigator.clipboard.writeText(output).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      });
+    }
+
+    function downloadOutput() {
+      const output = document.getElementById('output').value;
+      if (!output) {
+        alert('Generate TypeScript first');
+        return;
+      }
+      const rootName = document.getElementById('root-name').value || 'RootObject';
+      
+      const blob = new Blob([output], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = rootName + '.ts';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function loadSample(type) {
+      document.getElementById('input').value = JSON.stringify(samples[type], null, 2);
+      convert();
+    }
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    // Auto-convert on input
+    document.getElementById('input').addEventListener('input', () => {
+      const input = document.getElementById('input').value.trim();
+      if (input) {
+        try {
+          JSON.parse(input);
+          convert();
+        } catch (e) {
+          // Ignore parse errors during typing
+        }
+      }
+    });
+
+    // Auto-convert on option changes
+    ['root-name', 'declaration-type', 'add-export', 'optional-fields', 'prefix-interface', 'pascal-case'].forEach(id => {
+      const el = document.getElementById(id);
+      el.addEventListener('change', () => {
+        if (document.getElementById('input').value.trim()) {
+          convert();
+        }
+      });
+    });
+
+    // Initialize
+    convert();
+  </script>
+</body>
+</html>

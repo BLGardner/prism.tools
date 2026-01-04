@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<!-- Copyright (c) 2026 BLGardner. All Rights Reserved. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSS Timing Function Visualizer - Prism.Tools</title>
+  <style>
+    /* REQUIRED BASE STYLES */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    
+    .back-link:hover { color: #e4e4e7; }
+    
+    .donate-btn {
+      padding: 0.4rem 1rem;
+      background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%);
+      color: white;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.875rem;
+      transition: transform 0.2s;
+      white-space: nowrap;
+    }
+    
+    .donate-btn:hover { transform: translateY(-1px); }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #f59e0b;
+    }
+    
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    
+    /* TOOL-SPECIFIC STYLES */
+    .controls {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .control-label {
+      font-size: 0.8rem;
+      color: #a1a1aa;
+      font-weight: 600;
+    }
+    
+    input[type="number"] {
+      width: 70px;
+      padding: 0.4rem 0.5rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 4px;
+      color: #e4e4e7;
+      font-size: 0.8rem;
+    }
+    
+    .btn {
+      padding: 0.5rem 1.25rem;
+      background: #f59e0b;
+      color: #0a0a0f;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+    
+    .visualizers {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .viz-card {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    
+    .viz-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .viz-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #f59e0b;
+    }
+    
+    .remove-btn {
+      padding: 0.25rem 0.5rem;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .remove-btn:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+    
+    .track {
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      height: 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .ball {
+      width: 24px;
+      height: 24px;
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      left: 8px;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+    }
+    
+    .timing-input {
+      width: 100%;
+      padding: 0.5rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 4px;
+      color: #e4e4e7;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+    }
+    
+    .timing-input:focus {
+      outline: none;
+      border-color: #f59e0b;
+    }
+    
+    .code-output {
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 4px;
+      padding: 0.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: #a1a1aa;
+      word-break: break-all;
+    }
+    
+    .presets {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .presets-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #f59e0b;
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .preset-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 0.5rem;
+    }
+    
+    .preset-btn {
+      padding: 0.5rem 0.75rem;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: #f59e0b;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+      text-align: left;
+    }
+    
+    .preset-btn:hover {
+      background: rgba(245, 158, 11, 0.2);
+      transform: translateX(2px);
+    }
+    
+    .add-viz-btn {
+      padding: 0.625rem 1.25rem;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: #f59e0b;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 1rem;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .add-viz-btn:hover {
+      background: rgba(245, 158, 11, 0.2);
+    }
+    
+    @media (max-width: 768px) {
+      .visualizers {
+        grid-template-columns: 1fr;
+      }
+      
+      .preset-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="https://www.paypal.com/paypalme/BLGApps" target="_blank" class="donate-btn">☕ Donate</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>⏱️ CSS Timing Function Visualizer</h1>
+      <p>Compare animation timing functions side-by-side</p>
+    </div>
+
+    <div class="controls">
+      <div class="control-group">
+        <span class="control-label">Duration (ms):</span>
+        <input type="number" id="duration" value="2000" min="100" max="10000" step="100">
+      </div>
+      <button class="btn" onclick="playAll()">▶️ Play All</button>
+      <button class="btn" onclick="stopAll()">⏸️ Stop</button>
+    </div>
+
+    <div class="presets">
+      <div class="presets-title">Presets</div>
+      <div class="preset-grid">
+        <button class="preset-btn" onclick="addPreset('linear')">linear</button>
+        <button class="preset-btn" onclick="addPreset('ease')">ease</button>
+        <button class="preset-btn" onclick="addPreset('ease-in')">ease-in</button>
+        <button class="preset-btn" onclick="addPreset('ease-out')">ease-out</button>
+        <button class="preset-btn" onclick="addPreset('ease-in-out')">ease-in-out</button>
+        <button class="preset-btn" onclick="addPreset('cubic-bezier(0.68, -0.55, 0.265, 1.55)')">bounce</button>
+        <button class="preset-btn" onclick="addPreset('cubic-bezier(0.175, 0.885, 0.32, 1.275)')">anticipate</button>
+        <button class="preset-btn" onclick="addPreset('cubic-bezier(0.87, 0, 0.13, 1)')">expo</button>
+        <button class="preset-btn" onclick="addPreset('cubic-bezier(0.4, 0, 0.2, 1)')">material</button>
+      </div>
+    </div>
+
+    <button class="add-viz-btn" onclick="addVisualizer()">➕ Add Custom Timing Function</button>
+
+    <div class="visualizers" id="visualizers"></div>
+  </div>
+
+  <script>
+    let vizCount = 0;
+    let animating = false;
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    function addVisualizer(timingFunction = 'ease') {
+      vizCount++;
+      const id = `viz-${vizCount}`;
+      
+      const vizCard = document.createElement('div');
+      vizCard.className = 'viz-card';
+      vizCard.id = id;
+      vizCard.innerHTML = `
+        <div class="viz-header">
+          <span class="viz-title">Timing Function ${vizCount}</span>
+          <button class="remove-btn" onclick="removeVisualizer('${id}')">✕</button>
+        </div>
+        <div class="track">
+          <div class="ball" id="ball-${id}"></div>
+        </div>
+        <input type="text" class="timing-input" id="input-${id}" value="${timingFunction}" 
+               placeholder="e.g., ease-in-out or cubic-bezier(0.4, 0, 0.2, 1)"
+               onchange="updateTiming('${id}')">
+        <div class="code-output" id="code-${id}">transition-timing-function: ${timingFunction};</div>
+      `;
+      
+      document.getElementById('visualizers').appendChild(vizCard);
+      trackUsage();
+    }
+
+    function removeVisualizer(id) {
+      document.getElementById(id).remove();
+    }
+
+    function updateTiming(id) {
+      const input = document.getElementById(`input-${id}`);
+      const timing = input.value.trim() || 'ease';
+      document.getElementById(`code-${id}`).textContent = `transition-timing-function: ${timing};`;
+    }
+
+    function playAll() {
+      if (animating) return;
+      
+      animating = true;
+      const duration = parseInt(document.getElementById('duration').value);
+      const visualizers = document.querySelectorAll('.viz-card');
+      
+      visualizers.forEach(viz => {
+        const id = viz.id;
+        const ball = document.getElementById(`ball-${id}`);
+        const input = document.getElementById(`input-${id}`);
+        const timing = input.value.trim() || 'ease';
+        
+        // Reset position
+        ball.style.transition = 'none';
+        ball.style.left = '8px';
+        
+        // Force reflow
+        ball.offsetHeight;
+        
+        // Apply animation
+        ball.style.transition = `left ${duration}ms ${timing}`;
+        ball.style.left = 'calc(100% - 32px)';
+      });
+      
+      setTimeout(() => {
+        animating = false;
+      }, duration);
+    }
+
+    function stopAll() {
+      animating = false;
+      const visualizers = document.querySelectorAll('.viz-card');
+      
+      visualizers.forEach(viz => {
+        const ball = document.getElementById(`ball-${viz.id}`);
+        const computedLeft = window.getComputedStyle(ball).left;
+        ball.style.transition = 'none';
+        ball.style.left = computedLeft;
+      });
+    }
+
+    function addPreset(timing) {
+      addVisualizer(timing);
+    }
+
+    // Initialize with common presets
+    addVisualizer('linear');
+    addVisualizer('ease');
+    addVisualizer('ease-in-out');
+  </script>
+</body>
+</html>

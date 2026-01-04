@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<!-- Copyright (c) 2026 BLGardner. All Rights Reserved. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSS Grid Generator - Prism.Tools</title>
+  <style>
+    /* REQUIRED BASE STYLES */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    
+    .back-link:hover { color: #e4e4e7; }
+    
+    .donate-btn {
+      padding: 0.4rem 1rem;
+      background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%);
+      color: white;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.875rem;
+      transition: transform 0.2s;
+      white-space: nowrap;
+    }
+    
+    .donate-btn:hover { transform: translateY(-1px); }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #6366f1;
+    }
+    
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    
+    /* TOOL-SPECIFIC STYLES */
+    .controls {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .control-label {
+      font-size: 0.75rem;
+      color: #a1a1aa;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .control-input-wrapper {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    
+    input[type="number"] {
+      flex: 1;
+      padding: 0.5rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 4px;
+      color: #e4e4e7;
+      font-size: 0.85rem;
+    }
+    
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #6366f1;
+    }
+    
+    input[type="text"] {
+      flex: 1;
+      padding: 0.5rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 4px;
+      color: #e4e4e7;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+    }
+    
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #6366f1;
+    }
+    
+    .unit-select {
+      padding: 0.5rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 4px;
+      color: #e4e4e7;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    
+    .unit-select:focus {
+      outline: none;
+      border-color: #6366f1;
+    }
+    
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .panel-header {
+      background: #1f1f23;
+      padding: 0.625rem 0.875rem;
+      border-bottom: 1px solid #27272a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .panel-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #6366f1;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .panel-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .btn-small {
+      padding: 0.25rem 0.625rem;
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #6366f1;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    
+    .btn-small:hover {
+      background: rgba(99, 102, 241, 0.2);
+    }
+    
+    .grid-preview-wrapper {
+      padding: 1rem;
+      background: #0a0a0f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 400px;
+    }
+    
+    .grid-preview {
+      display: grid;
+      width: 100%;
+      max-width: 500px;
+      border: 2px solid #27272a;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    
+    .grid-cell {
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      color: #a1a1aa;
+      font-weight: 600;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    
+    .grid-cell:hover {
+      background: rgba(99, 102, 241, 0.2);
+    }
+    
+    .grid-cell.selected {
+      background: rgba(99, 102, 241, 0.3);
+      border-color: #6366f1;
+      color: #6366f1;
+    }
+    
+    .code-output {
+      padding: 0.875rem;
+      background: #0a0a0f;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.8;
+      color: #e4e4e7;
+      min-height: 400px;
+      overflow-x: auto;
+    }
+    
+    .code-keyword {
+      color: #c678dd;
+    }
+    
+    .code-property {
+      color: #e06c75;
+    }
+    
+    .code-value {
+      color: #98c379;
+    }
+    
+    .code-comment {
+      color: #5c6370;
+      font-style: italic;
+    }
+    
+    .presets {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .presets-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #6366f1;
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .preset-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 0.5rem;
+    }
+    
+    .preset-btn {
+      padding: 0.5rem 0.75rem;
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #6366f1;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+      text-align: left;
+    }
+    
+    .preset-btn:hover {
+      background: rgba(99, 102, 241, 0.2);
+      transform: translateX(2px);
+    }
+    
+    @media (max-width: 1024px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="https://www.paypal.com/paypalme/BLGApps" target="_blank" class="donate-btn">☕ Donate</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>📐 CSS Grid Generator</h1>
+      <p>Visual grid builder with instant CSS output</p>
+    </div>
+
+    <div class="presets">
+      <div class="presets-title">Quick Presets</div>
+      <div class="preset-grid">
+        <button class="preset-btn" onclick="loadPreset('2col')">2 Columns</button>
+        <button class="preset-btn" onclick="loadPreset('3col')">3 Columns</button>
+        <button class="preset-btn" onclick="loadPreset('sidebar')">Sidebar Layout</button>
+        <button class="preset-btn" onclick="loadPreset('holy-grail')">Holy Grail</button>
+        <button class="preset-btn" onclick="loadPreset('dashboard')">Dashboard</button>
+        <button class="preset-btn" onclick="loadPreset('masonry')">Masonry</button>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="control-group">
+        <label class="control-label">Columns</label>
+        <input type="number" id="cols" value="3" min="1" max="12" oninput="updateGrid()">
+      </div>
+      <div class="control-group">
+        <label class="control-label">Rows</label>
+        <input type="number" id="rows" value="3" min="1" max="12" oninput="updateGrid()">
+      </div>
+      <div class="control-group">
+        <label class="control-label">Column Gap</label>
+        <div class="control-input-wrapper">
+          <input type="number" id="colGap" value="16" min="0" max="100" oninput="updateGrid()">
+          <select class="unit-select" id="colGapUnit" onchange="updateGrid()">
+            <option value="px">px</option>
+            <option value="rem">rem</option>
+            <option value="%">%</option>
+          </select>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label">Row Gap</label>
+        <div class="control-input-wrapper">
+          <input type="number" id="rowGap" value="16" min="0" max="100" oninput="updateGrid()">
+          <select class="unit-select" id="rowGapUnit" onchange="updateGrid()">
+            <option value="px">px</option>
+            <option value="rem">rem</option>
+            <option value="%">%</option>
+          </select>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label">Column Template</label>
+        <input type="text" id="colTemplate" value="1fr 1fr 1fr" oninput="updateGrid()">
+      </div>
+      <div class="control-group">
+        <label class="control-label">Row Template</label>
+        <input type="text" id="rowTemplate" value="auto auto auto" oninput="updateGrid()">
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Grid Preview</span>
+          <div class="panel-actions">
+            <button class="btn-small" onclick="resetGrid()">↻ Reset</button>
+          </div>
+        </div>
+        <div class="grid-preview-wrapper">
+          <div class="grid-preview" id="gridPreview"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">CSS Output</span>
+          <div class="panel-actions">
+            <button class="btn-small" onclick="copyCSS()">📋 Copy</button>
+          </div>
+        </div>
+        <div class="code-output" id="codeOutput"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let gridState = {
+      cols: 3,
+      rows: 3,
+      colGap: 16,
+      rowGap: 16,
+      colGapUnit: 'px',
+      rowGapUnit: 'px',
+      colTemplate: '1fr 1fr 1fr',
+      rowTemplate: 'auto auto auto'
+    };
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    function updateGrid(autoUpdateTemplates = true) {
+      const prevCols = gridState.cols;
+      const prevRows = gridState.rows;
+      
+      gridState.cols = parseInt(document.getElementById('cols').value) || 1;
+      gridState.rows = parseInt(document.getElementById('rows').value) || 1;
+      gridState.colGap = parseInt(document.getElementById('colGap').value) || 0;
+      gridState.rowGap = parseInt(document.getElementById('rowGap').value) || 0;
+      gridState.colGapUnit = document.getElementById('colGapUnit').value;
+      gridState.rowGapUnit = document.getElementById('rowGapUnit').value;
+      gridState.colTemplate = document.getElementById('colTemplate').value || 'auto';
+      gridState.rowTemplate = document.getElementById('rowTemplate').value || 'auto';
+
+      // Auto-update templates only if explicitly requested (not from presets)
+      if (autoUpdateTemplates) {
+        if (prevCols !== gridState.cols) {
+          const newColTemplate = Array(gridState.cols).fill('1fr').join(' ');
+          gridState.colTemplate = newColTemplate;
+          document.getElementById('colTemplate').value = newColTemplate;
+        }
+        
+        if (prevRows !== gridState.rows) {
+          const newRowTemplate = Array(gridState.rows).fill('auto').join(' ');
+          gridState.rowTemplate = newRowTemplate;
+          document.getElementById('rowTemplate').value = newRowTemplate;
+        }
+      }
+
+      renderGrid();
+      generateCSS();
+      trackUsage();
+    }
+
+    function renderGrid() {
+      const preview = document.getElementById('gridPreview');
+      preview.innerHTML = '';
+      
+      // Always set the grid structure
+      preview.style.gridTemplateColumns = gridState.colTemplate;
+      preview.style.gridTemplateRows = gridState.rowTemplate;
+      preview.style.columnGap = `${gridState.colGap}${gridState.colGapUnit}`;
+      preview.style.rowGap = `${gridState.rowGap}${gridState.rowGapUnit}`;
+
+      // Create exactly cols * rows cells
+      const totalCells = gridState.cols * gridState.rows;
+      for (let i = 1; i <= totalCells; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'grid-cell';
+        cell.textContent = i;
+        preview.appendChild(cell);
+      }
+    }
+
+    function generateCSS() {
+      const css = `.container {
+  <span class="code-property">display</span>: <span class="code-value">grid</span>;
+  <span class="code-property">grid-template-columns</span>: <span class="code-value">${gridState.colTemplate}</span>;
+  <span class="code-property">grid-template-rows</span>: <span class="code-value">${gridState.rowTemplate}</span>;
+  <span class="code-property">column-gap</span>: <span class="code-value">${gridState.colGap}${gridState.colGapUnit}</span>;
+  <span class="code-property">row-gap</span>: <span class="code-value">${gridState.rowGap}${gridState.rowGapUnit}</span>;
+  
+  <span class="code-comment">/* Shorthand alternative: */</span>
+  <span class="code-property">gap</span>: <span class="code-value">${gridState.rowGap}${gridState.rowGapUnit} ${gridState.colGap}${gridState.colGapUnit}</span>;
+}
+
+<span class="code-comment">/* Common grid-template-columns patterns:
+   - repeat(3, 1fr)           → 3 equal columns
+   - 200px 1fr                → fixed + flexible
+   - repeat(auto-fit, minmax(250px, 1fr)) → responsive columns
+   - 1fr 2fr 1fr              → proportional sizing
+*/</span>`;
+
+      document.getElementById('codeOutput').innerHTML = css;
+    }
+
+    function copyCSS() {
+      const output = document.getElementById('codeOutput');
+      const text = output.innerText;
+      
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      });
+    }
+
+    function resetGrid() {
+      document.getElementById('cols').value = 3;
+      document.getElementById('rows').value = 3;
+      document.getElementById('colGap').value = 16;
+      document.getElementById('rowGap').value = 16;
+      document.getElementById('colGapUnit').value = 'px';
+      document.getElementById('rowGapUnit').value = 'px';
+      document.getElementById('colTemplate').value = '1fr 1fr 1fr';
+      document.getElementById('rowTemplate').value = 'auto auto auto';
+      updateGrid();
+    }
+
+    function loadPreset(preset) {
+      const presets = {
+        '2col': {
+          cols: 2, rows: 3, colTemplate: '1fr 1fr', rowTemplate: 'auto auto auto',
+          colGap: 16, rowGap: 16
+        },
+        '3col': {
+          cols: 3, rows: 2, colTemplate: '1fr 1fr 1fr', rowTemplate: 'auto auto',
+          colGap: 20, rowGap: 20
+        },
+        'sidebar': {
+          cols: 2, rows: 1, colTemplate: '250px 1fr', rowTemplate: '1fr',
+          colGap: 24, rowGap: 0
+        },
+        'holy-grail': {
+          cols: 3, rows: 3, 
+          colTemplate: '200px 1fr 200px', 
+          rowTemplate: 'auto 1fr auto',
+          colGap: 16, rowGap: 16
+        },
+        'dashboard': {
+          cols: 4, rows: 3,
+          colTemplate: 'repeat(4, 1fr)',
+          rowTemplate: 'auto 1fr 1fr',
+          colGap: 16, rowGap: 16
+        },
+        'masonry': {
+          cols: 3, rows: 4,
+          colTemplate: 'repeat(3, 1fr)',
+          rowTemplate: 'repeat(4, auto)',
+          colGap: 12, rowGap: 12
+        }
+      };
+
+      const config = presets[preset];
+      if (config) {
+        document.getElementById('cols').value = config.cols;
+        document.getElementById('rows').value = config.rows;
+        document.getElementById('colTemplate').value = config.colTemplate;
+        document.getElementById('rowTemplate').value = config.rowTemplate;
+        document.getElementById('colGap').value = config.colGap;
+        document.getElementById('rowGap').value = config.rowGap;
+        document.getElementById('colGapUnit').value = 'px';
+        document.getElementById('rowGapUnit').value = 'px';
+        updateGrid(false); // Don't auto-update templates when loading presets
+      }
+    }
+
+    // Initialize
+    updateGrid();
+  </script>
+</body>
+</html>

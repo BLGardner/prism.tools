@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<!-- Copyright (c) 2026 BLGardner. All Rights Reserved. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTTP Status Code Reference - Prism.Tools</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+
+    .back-link { color: #a1a1aa; text-decoration: none; font-size: 0.875rem; }
+
+    .donate-btn {
+      padding: 0.4rem 1rem;
+      background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%);
+      color: white;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.875rem;
+      white-space: nowrap;
+    }
+
+    .container { max-width: 1300px; margin: 0 auto; padding: 1rem; }
+
+    .header { text-align: center; padding: 1.5rem 0 1rem; }
+    .header h1 { font-size: 1.75rem; margin-bottom: 0.25rem; color: #0ea5e9; }
+    .header p { color: #a1a1aa; font-size: 0.875rem; }
+
+    .controls {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 0.75rem;
+      align-items: center;
+    }
+
+    .controls input[type="text"] {
+      flex: 1;
+      min-width: 240px;
+      padding: 0.5rem 0.75rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-size: 0.875rem;
+    }
+
+    .filter-group { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+    .filter-group label { font-size: 0.75rem; color: #a1a1aa; font-weight: 600; }
+    .filter-group input { accent-color: #0ea5e9; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    thead { background: #1f1f23; }
+    th, td { padding: 0.6rem 0.75rem; text-align: left; vertical-align: top; }
+
+    th {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #0ea5e9;
+    }
+
+    tr { border-top: 1px solid #27272a; }
+    tr:hover { background: #1f1f23; }
+
+    .code { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: #38bdf8; }
+
+    .group {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      background: rgba(14,165,233,0.15);
+      color: #7dd3fc;
+      margin-left: 0.35rem;
+      display: inline-block;
+    }
+
+    .pill {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      background: #27272a;
+      color: #a1a1aa;
+      display: inline-block;
+      margin-right: 0.25rem;
+    }
+
+    @media (max-width: 900px) {
+      table, thead, tbody, th, td, tr { display: block; }
+      thead { display: none; }
+      tr { margin-bottom: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="https://www.paypal.com/paypalme/BLGApps" target="_blank" class="donate-btn">☕ Donate</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>🌐 HTTP Status Code Reference</h1>
+      <p>Complete HTTP 1xx–5xx reference with practical API guidance</p>
+    </div>
+
+    <div class="controls">
+      <input id="search" type="text" placeholder="Search code, name, RFC, keyword, or use-case…" />
+      <div class="filter-group">
+        <label><input type="checkbox" checked data-group="1xx" /> 1xx</label>
+        <label><input type="checkbox" checked data-group="2xx" /> 2xx</label>
+        <label><input type="checkbox" checked data-group="3xx" /> 3xx</label>
+        <label><input type="checkbox" checked data-group="4xx" /> 4xx</label>
+        <label><input type="checkbox" checked data-group="5xx" /> 5xx</label>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Name</th>
+          <th>When to Use</th>
+          <th>Notes</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+
+  <script>
+    function copyCode(code) {
+      navigator.clipboard.writeText(String(code));
+    }
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      localStorage.setItem('prism-usage-count', ++count);
+    }
+
+    const data = [
+      // Legend: x = short pro note, m = common / high-frequency
+      // 1xx
+      { c:100,n:'Continue',u:'Large uploads, expect body next',g:'1xx',x:'Rare in APIs' },
+      { c:101,n:'Switching Protocols',u:'WebSocket or protocol upgrade',g:'1xx',x:'Handshake response' },
+      { c:102,n:'Processing',u:'Long-running request acknowledged',g:'1xx',x:'WebDAV' },
+
+      // 2xx
+      { c:200,n:'OK',u:'Successful read or update',g:'2xx',x:'Default success',m:true },
+      { c:201,n:'Created',u:'New resource created',g:'2xx',x:'Return Location header',m:true },
+      { c:202,n:'Accepted',u:'Async processing started',g:'2xx',x:'Job-based APIs' },
+      { c:204,n:'No Content',u:'Success with empty body',g:'2xx',x:'DELETE responses',m:true },
+      { c:206,n:'Partial Content',u:'Range-based responses',g:'2xx',x:'Media / downloads' },
+
+      // 3xx
+      { c:301,n:'Moved Permanently',u:'Permanent URL change',g:'3xx',x:'Cacheable, SEO safe',m:true },
+      { c:302,n:'Found',u:'Temporary redirect',g:'3xx',x:'Legacy behavior',m:true },
+      { c:303,n:'See Other',u:'Redirect after POST',g:'3xx',x:'PRG pattern' },
+      { c:304,n:'Not Modified',u:'Client cache still valid',g:'3xx',x:'Conditional GET' },
+      { c:307,n:'Temporary Redirect',u:'Redirect preserving method',g:'3xx',x:'Safer 302' },
+      { c:308,n:'Permanent Redirect',u:'Permanent, method-safe redirect',g:'3xx',x:'Modern 301' },
+
+      // 4xx
+      { c:400,n:'Bad Request',u:'Malformed request',g:'4xx',x:'Client bug',m:true },
+      { c:401,n:'Unauthorized',u:'Auth required or failed',g:'4xx',x:'WWW-Authenticate header',m:true },
+      { c:403,n:'Forbidden',u:'Auth OK, access denied',g:'4xx',x:'Do not retry',m:true },
+      { c:404,n:'Not Found',u:'Resource missing',g:'4xx',x:'Hide existence if needed',m:true },
+      { c:405,n:'Method Not Allowed',u:'HTTP verb not supported',g:'4xx',x:'Allow header' },
+      { c:409,n:'Conflict',u:'State conflict',g:'4xx',x:'Versioning / locking' },
+      { c:410,n:'Gone',u:'Resource permanently removed',g:'4xx',x:'Stronger than 404' },
+      { c:415,n:'Unsupported Media Type',u:'Invalid Content-Type',g:'4xx',x:'JSON vs XML issues' },
+      { c:422,n:'Unprocessable Entity',u:'Validation errors',g:'4xx',x:'Semantic failure' },
+      { c:429,n:'Too Many Requests',u:'Rate limit exceeded',g:'4xx',x:'Retry-After header' },
+
+      // 5xx
+      { c:500,n:'Internal Server Error',u:'Unhandled server error',g:'5xx',x:'Log + alert',m:true },
+      { c:502,n:'Bad Gateway',u:'Upstream failure',g:'5xx',x:'Reverse proxy issue' },
+      { c:503,n:'Service Unavailable',u:'Overloaded or down',g:'5xx',x:'Temporary' },
+      { c:504,n:'Gateway Timeout',u:'Upstream timeout',g:'5xx',x:'Network latency' }
+    ];
+
+    const rows = document.getElementById('rows');
+    const search = document.getElementById('search');
+    const checks = document.querySelectorAll('[data-group]');
+
+    function render() {
+      const q = search.value.toLowerCase();
+      const enabled = [...checks].filter(c => c.checked).map(c => c.dataset.group);
+      rows.innerHTML = '';
+
+      data.filter(d => enabled.includes(d.g))
+          .filter(d =>
+            String(d.c).includes(q) ||
+            d.n.toLowerCase().includes(q) ||
+            d.u.toLowerCase().includes(q) ||
+            d.x.toLowerCase().includes(q)
+          )
+          .forEach(d => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td class="code">${d.c}${d.m ? '<span class="group">common</span>' : '<span class="group">'+d.g+'</span>'}</td>
+              <td>${d.n}</td>
+              <td>${d.u}</td>
+              <td><span class="pill">${d.x}</span></td>
+              <td><button class="btn-small" onclick="copyCode(${d.c})">📋</button></td>`;
+            rows.appendChild(tr);
+          });
+    }
+
+    search.addEventListener('input', render);
+    checks.forEach(c => c.addEventListener('change', render));
+
+    trackUsage();
+    render();
+  </script>
+</body>
+</html>
+
+<!-- { id: 'http-status-codes', name: 'HTTP Status Codes', icon: '🌐', description: 'API status reference', color: '#0ea5e9', file: 'tools/http-status-codes.html', category: 'security' }, -->

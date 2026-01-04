@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<!-- Copyright (c) 2026 BLGardner. All Rights Reserved. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Git Command Helper - Prism.Tools</title>
+  <style>
+    /* REQUIRED BASE STYLES */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    
+    .back-link:hover { color: #e4e4e7; }
+    
+    .donate-btn {
+      padding: 0.4rem 1rem;
+      background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%);
+      color: white;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.875rem;
+      transition: transform 0.2s;
+      white-space: nowrap;
+    }
+    
+    .donate-btn:hover { transform: translateY(-1px); }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #f43f5e;
+    }
+    
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    
+    /* TOOL-SPECIFIC STYLES */
+    .search-box {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    
+    .search-input {
+      width: 100%;
+      max-width: 600px;
+      padding: 0.75rem 1rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-size: 0.9rem;
+      transition: border-color 0.2s;
+    }
+    
+    .search-input:focus {
+      outline: none;
+      border-color: #f43f5e;
+    }
+    
+    .search-input::placeholder {
+      color: #52525b;
+    }
+    
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .category {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .category-header {
+      background: #1f1f23;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #27272a;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.2s;
+    }
+    
+    .category-header:hover {
+      background: #27272a;
+    }
+    
+    .category-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #f43f5e;
+    }
+    
+    .category-toggle {
+      color: #71717a;
+      transition: transform 0.2s;
+    }
+    
+    .category-toggle.open {
+      transform: rotate(180deg);
+    }
+    
+    .category-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    
+    .category-content.open {
+      max-height: 2000px;
+    }
+    
+    .task-item {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #27272a;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .task-item:last-child {
+      border-bottom: none;
+    }
+    
+    .task-item:hover {
+      background: rgba(244, 63, 94, 0.05);
+    }
+    
+    .task-name {
+      font-size: 0.85rem;
+      color: #e4e4e7;
+    }
+    
+    .task-arrow {
+      color: #71717a;
+      font-size: 0.75rem;
+    }
+    
+    .command-panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+      display: none;
+      margin-bottom: 1rem;
+    }
+    
+    .command-panel.active {
+      display: block;
+    }
+    
+    .panel-header {
+      background: #1f1f23;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #27272a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .panel-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #f43f5e;
+    }
+    
+    .close-btn {
+      background: none;
+      border: none;
+      color: #71717a;
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s;
+    }
+    
+    .close-btn:hover {
+      color: #e4e4e7;
+    }
+    
+    .panel-body {
+      padding: 1rem;
+    }
+    
+    .description {
+      color: #a1a1aa;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+    
+    .command-block {
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+      position: relative;
+    }
+    
+    .command-block:last-child {
+      margin-bottom: 0;
+    }
+    
+    .command-label {
+      font-size: 0.7rem;
+      color: #71717a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+    
+    .command {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: #f43f5e;
+      word-break: break-all;
+      line-height: 1.6;
+    }
+    
+    .copy-btn {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      padding: 0.35rem 0.65rem;
+      background: rgba(244, 63, 94, 0.1);
+      border: 1px solid rgba(244, 63, 94, 0.3);
+      color: #f43f5e;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    
+    .copy-btn:hover {
+      background: rgba(244, 63, 94, 0.2);
+    }
+    
+    .warning {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 6px;
+      padding: 0.75rem;
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      color: #fbbf24;
+      line-height: 1.6;
+    }
+    
+    .warning-title {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    
+    .no-results {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #71717a;
+      font-size: 0.9rem;
+    }
+    
+    @media (max-width: 768px) {
+      .categories {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="https://www.paypal.com/paypalme/BLGApps" target="_blank" class="donate-btn">☕ Donate</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>🔀 Git Command Helper</h1>
+      <p>Find the exact Git commands you need</p>
+    </div>
+
+    <div class="search-box">
+      <input type="text" class="search-input" id="searchInput" placeholder="Search for a task... (e.g., undo commit, fix merge conflict)">
+    </div>
+
+    <div id="commandPanel" class="command-panel"></div>
+
+    <div class="categories" id="categories"></div>
+    <div id="noResults" class="no-results" style="display: none;">
+      No commands found. Try a different search term.
+    </div>
+  </div>
+
+  <script>
+    const gitCommands = {
+      'Undo & Revert': [
+        {
+          name: 'Undo last commit (keep changes)',
+          description: 'Removes the last commit but keeps all changes in your working directory. Useful when you committed too early or want to modify the commit.',
+          commands: [
+            { label: 'Basic', cmd: 'git reset --soft HEAD~1' }
+          ]
+        },
+        {
+          name: 'Undo last commit (discard changes)',
+          description: 'Completely removes the last commit and all its changes. Be careful - this cannot be undone!',
+          commands: [
+            { label: 'Danger', cmd: 'git reset --hard HEAD~1' }
+          ],
+          warning: 'This will permanently delete your changes. Make sure you really want to do this!'
+        },
+        {
+          name: 'Undo multiple commits',
+          description: 'Reset your branch to a specific number of commits back. Replace N with the number of commits to undo.',
+          commands: [
+            { label: 'Keep changes', cmd: 'git reset --soft HEAD~N' },
+            { label: 'Discard changes', cmd: 'git reset --hard HEAD~N' }
+          ]
+        },
+        {
+          name: 'Revert a specific commit',
+          description: 'Creates a new commit that undoes the changes from a specific commit. This is safer for shared branches.',
+          commands: [
+            { label: 'Basic', cmd: 'git revert <commit-hash>' }
+          ]
+        },
+        {
+          name: 'Undo git add (unstage files)',
+          description: 'Removes files from staging area but keeps your changes.',
+          commands: [
+            { label: 'Specific file', cmd: 'git reset HEAD <file>' },
+            { label: 'All files', cmd: 'git reset HEAD' }
+          ]
+        },
+        {
+          name: 'Discard local changes',
+          description: 'Throw away all uncommitted changes in your working directory.',
+          commands: [
+            { label: 'Specific file', cmd: 'git checkout -- <file>' },
+            { label: 'All files', cmd: 'git checkout -- .' }
+          ],
+          warning: 'This permanently deletes your uncommitted changes!'
+        }
+      ],
+      'Branches': [
+        {
+          name: 'Create and switch to new branch',
+          description: 'Creates a new branch and immediately switches to it.',
+          commands: [
+            { label: 'Basic', cmd: 'git checkout -b <branch-name>' },
+            { label: 'Modern', cmd: 'git switch -c <branch-name>' }
+          ]
+        },
+        {
+          name: 'Switch branches',
+          description: 'Move to a different branch.',
+          commands: [
+            { label: 'Classic', cmd: 'git checkout <branch-name>' },
+            { label: 'Modern', cmd: 'git switch <branch-name>' }
+          ]
+        },
+        {
+          name: 'Delete local branch',
+          description: 'Remove a branch from your local repository.',
+          commands: [
+            { label: 'Safe delete', cmd: 'git branch -d <branch-name>' },
+            { label: 'Force delete', cmd: 'git branch -D <branch-name>' }
+          ]
+        },
+        {
+          name: 'Delete remote branch',
+          description: 'Remove a branch from the remote repository.',
+          commands: [
+            { label: 'Basic', cmd: 'git push origin --delete <branch-name>' }
+          ]
+        },
+        {
+          name: 'Rename current branch',
+          description: 'Change the name of the branch you\'re currently on.',
+          commands: [
+            { label: 'Basic', cmd: 'git branch -m <new-name>' }
+          ]
+        },
+        {
+          name: 'List all branches',
+          description: 'View all local and remote branches.',
+          commands: [
+            { label: 'Local only', cmd: 'git branch' },
+            { label: 'All (local + remote)', cmd: 'git branch -a' }
+          ]
+        }
+      ],
+      'Merging & Conflicts': [
+        {
+          name: 'Merge another branch into current',
+          description: 'Brings changes from another branch into your current branch.',
+          commands: [
+            { label: 'Basic', cmd: 'git merge <branch-name>' }
+          ]
+        },
+        {
+          name: 'Abort a merge',
+          description: 'Cancel an in-progress merge and return to the state before the merge.',
+          commands: [
+            { label: 'Basic', cmd: 'git merge --abort' }
+          ]
+        },
+        {
+          name: 'See merge conflicts',
+          description: 'List all files with merge conflicts.',
+          commands: [
+            { label: 'Basic', cmd: 'git diff --name-only --diff-filter=U' }
+          ]
+        },
+        {
+          name: 'Accept all changes from their branch',
+          description: 'For merge conflicts, keep all changes from the branch being merged in.',
+          commands: [
+            { label: 'Basic', cmd: 'git checkout --theirs .' },
+            { label: 'Then add', cmd: 'git add .' }
+          ]
+        },
+        {
+          name: 'Accept all changes from your branch',
+          description: 'For merge conflicts, keep all changes from your current branch.',
+          commands: [
+            { label: 'Basic', cmd: 'git checkout --ours .' },
+            { label: 'Then add', cmd: 'git add .' }
+          ]
+        }
+      ],
+      'Stashing': [
+        {
+          name: 'Stash current changes',
+          description: 'Temporarily save your uncommitted changes and clean your working directory.',
+          commands: [
+            { label: 'Basic', cmd: 'git stash' },
+            { label: 'With message', cmd: 'git stash save "description"' }
+          ]
+        },
+        {
+          name: 'Apply stashed changes',
+          description: 'Bring back your stashed changes.',
+          commands: [
+            { label: 'Most recent', cmd: 'git stash apply' },
+            { label: 'Specific stash', cmd: 'git stash apply stash@{n}' }
+          ]
+        },
+        {
+          name: 'Apply and delete stash',
+          description: 'Restore stashed changes and remove them from the stash list.',
+          commands: [
+            { label: 'Most recent', cmd: 'git stash pop' }
+          ]
+        },
+        {
+          name: 'List all stashes',
+          description: 'View all saved stashes.',
+          commands: [
+            { label: 'Basic', cmd: 'git stash list' }
+          ]
+        },
+        {
+          name: 'Delete a stash',
+          description: 'Remove a stash without applying it.',
+          commands: [
+            { label: 'Specific', cmd: 'git stash drop stash@{n}' },
+            { label: 'All stashes', cmd: 'git stash clear' }
+          ]
+        }
+      ],
+      'Commits': [
+        {
+          name: 'Amend last commit message',
+          description: 'Change the message of your most recent commit.',
+          commands: [
+            { label: 'Basic', cmd: 'git commit --amend -m "new message"' }
+          ]
+        },
+        {
+          name: 'Add files to last commit',
+          description: 'Include forgotten files in your last commit without creating a new one.',
+          commands: [
+            { label: 'Stage files', cmd: 'git add <file>' },
+            { label: 'Amend commit', cmd: 'git commit --amend --no-edit' }
+          ]
+        },
+        {
+          name: 'View commit history',
+          description: 'See the log of commits.',
+          commands: [
+            { label: 'Detailed', cmd: 'git log' },
+            { label: 'One line', cmd: 'git log --oneline' },
+            { label: 'With graph', cmd: 'git log --oneline --graph --all' }
+          ]
+        },
+        {
+          name: 'See changes in a commit',
+          description: 'View what was changed in a specific commit.',
+          commands: [
+            { label: 'Basic', cmd: 'git show <commit-hash>' }
+          ]
+        },
+        {
+          name: 'Cherry-pick a commit',
+          description: 'Apply a specific commit from another branch to your current branch.',
+          commands: [
+            { label: 'Basic', cmd: 'git cherry-pick <commit-hash>' }
+          ]
+        }
+      ],
+      'Remote & Sync': [
+        {
+          name: 'Clone a repository',
+          description: 'Download a repository from a remote source.',
+          commands: [
+            { label: 'Basic', cmd: 'git clone <repository-url>' }
+          ]
+        },
+        {
+          name: 'Pull latest changes',
+          description: 'Fetch and merge changes from remote branch.',
+          commands: [
+            { label: 'Basic', cmd: 'git pull' },
+            { label: 'Specific branch', cmd: 'git pull origin <branch-name>' }
+          ]
+        },
+        {
+          name: 'Force pull (overwrite local)',
+          description: 'Discard all local changes and match remote exactly.',
+          commands: [
+            { label: 'Fetch', cmd: 'git fetch origin' },
+            { label: 'Reset', cmd: 'git reset --hard origin/<branch-name>' }
+          ],
+          warning: 'This will delete all your local changes!'
+        },
+        {
+          name: 'Push to remote',
+          description: 'Send your commits to the remote repository.',
+          commands: [
+            { label: 'Basic', cmd: 'git push' },
+            { label: 'First push', cmd: 'git push -u origin <branch-name>' }
+          ]
+        },
+        {
+          name: 'Force push',
+          description: 'Overwrite remote branch with your local version.',
+          commands: [
+            { label: 'Basic', cmd: 'git push --force' },
+            { label: 'Safer', cmd: 'git push --force-with-lease' }
+          ],
+          warning: 'Be very careful! This can overwrite others\' work on shared branches.'
+        },
+        {
+          name: 'Update remote URL',
+          description: 'Change the remote repository URL.',
+          commands: [
+            { label: 'Basic', cmd: 'git remote set-url origin <new-url>' }
+          ]
+        }
+      ]
+    };
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    function copyCommand(cmd, btn) {
+      navigator.clipboard.writeText(cmd).then(() => {
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      });
+      trackUsage();
+    }
+
+    function showCommand(task, categoryName) {
+      const panel = document.getElementById('commandPanel');
+      
+      let commandsHTML = '';
+      task.commands.forEach(cmd => {
+        commandsHTML += `
+          <div class="command-block">
+            <div class="command-label">${cmd.label}</div>
+            <div class="command">${cmd.cmd}</div>
+            <button class="copy-btn" onclick="copyCommand('${cmd.cmd.replace(/'/g, "\\'")}', this)">Copy</button>
+          </div>
+        `;
+      });
+
+      let warningHTML = '';
+      if (task.warning) {
+        warningHTML = `
+          <div class="warning">
+            <div class="warning-title">⚠️ Warning</div>
+            ${task.warning}
+          </div>
+        `;
+      }
+
+      panel.innerHTML = `
+        <div class="panel-header">
+          <span class="panel-title">${task.name}</span>
+          <button class="close-btn" onclick="closePanel()">×</button>
+        </div>
+        <div class="panel-body">
+          <div class="description">${task.description}</div>
+          ${commandsHTML}
+          ${warningHTML}
+        </div>
+      `;
+      
+      panel.classList.add('active');
+      panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function closePanel() {
+      document.getElementById('commandPanel').classList.remove('active');
+    }
+
+    function toggleCategory(categoryId) {
+      const content = document.getElementById(categoryId);
+      const toggle = document.getElementById(`toggle-${categoryId}`);
+      
+      content.classList.toggle('open');
+      toggle.classList.toggle('open');
+    }
+
+    function renderCategories(filter = '') {
+      const container = document.getElementById('categories');
+      const noResults = document.getElementById('noResults');
+      container.innerHTML = '';
+      
+      let hasResults = false;
+      const filterLower = filter.toLowerCase();
+
+      Object.keys(gitCommands).forEach((categoryName, idx) => {
+        const categoryId = `cat-${idx}`;
+        const tasks = gitCommands[categoryName];
+        
+        let filteredTasks = tasks;
+        if (filter) {
+          filteredTasks = tasks.filter(task => 
+            task.name.toLowerCase().includes(filterLower) ||
+            task.description.toLowerCase().includes(filterLower)
+          );
+        }
+        
+        if (filteredTasks.length === 0) return;
+        
+        hasResults = true;
+        
+        const tasksHTML = filteredTasks.map(task => `
+          <div class="task-item" onclick='showCommand(${JSON.stringify(task).replace(/'/g, "\\'")},"${categoryName}")'>
+            <span class="task-name">${task.name}</span>
+            <span class="task-arrow">→</span>
+          </div>
+        `).join('');
+
+        const categoryHTML = `
+          <div class="category">
+            <div class="category-header" onclick="toggleCategory('${categoryId}')">
+              <span class="category-title">${categoryName}</span>
+              <span class="category-toggle ${filter ? 'open' : ''}" id="toggle-${categoryId}">▼</span>
+            </div>
+            <div class="category-content ${filter ? 'open' : ''}" id="${categoryId}">
+              ${tasksHTML}
+            </div>
+          </div>
+        `;
+        
+        container.innerHTML += categoryHTML;
+      });
+
+      noResults.style.display = hasResults ? 'none' : 'block';
+      container.style.display = hasResults ? 'grid' : 'none';
+    }
+
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      renderCategories(e.target.value);
+      if (e.target.value) {
+        closePanel();
+      }
+    });
+
+    // Initial render
+    renderCategories();
+  </script>
+</body>
+</html>

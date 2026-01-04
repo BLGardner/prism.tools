@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<!-- Copyright (c) 2026 BLGardner. All Rights Reserved. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>URL Parser - Prism.Tools</title>
+  <style>
+    /* REQUIRED BASE STYLES */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    
+    .back-link:hover { color: #e4e4e7; }
+    
+    .donate-btn {
+      padding: 0.4rem 1rem;
+      background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%);
+      color: white;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.875rem;
+      transition: transform 0.2s;
+      white-space: nowrap;
+    }
+    
+    .donate-btn:hover { transform: translateY(-1px); }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #0ea5e9;
+    }
+    
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    
+    /* TOOL-SPECIFIC STYLES */
+    .input-panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+    
+    .panel-header {
+      background: #1f1f23;
+      padding: 0.625rem 0.875rem;
+      border-bottom: 1px solid #27272a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .panel-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #0ea5e9;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .panel-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .btn-small {
+      padding: 0.25rem 0.625rem;
+      background: rgba(14, 165, 233, 0.1);
+      border: 1px solid rgba(14, 165, 233, 0.3);
+      color: #0ea5e9;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    
+    .btn-small:hover {
+      background: rgba(14, 165, 233, 0.2);
+    }
+    
+    .url-input {
+      padding: 0.875rem;
+      background: #0a0a0f;
+      border: none;
+      color: #e4e4e7;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      resize: vertical;
+      min-height: 80px;
+      width: 100%;
+      line-height: 1.6;
+    }
+    
+    .url-input:focus { outline: none; }
+    
+    .url-input::placeholder {
+      color: #52525b;
+    }
+    
+    .examples {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 0.875rem;
+      margin-bottom: 1rem;
+    }
+    
+    .examples-title {
+      font-size: 0.75rem;
+      color: #71717a;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .example-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    
+    .example-link {
+      padding: 0.35rem 0.65rem;
+      background: rgba(14, 165, 233, 0.1);
+      border: 1px solid rgba(14, 165, 233, 0.2);
+      color: #0ea5e9;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+    
+    .example-link:hover {
+      background: rgba(14, 165, 233, 0.2);
+    }
+    
+    .results {
+      display: none;
+    }
+    
+    .results.active {
+      display: block;
+    }
+    
+    .section {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+    
+    .section-header {
+      background: #1f1f23;
+      padding: 0.625rem 0.875rem;
+      border-bottom: 1px solid #27272a;
+    }
+    
+    .section-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #0ea5e9;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .section-body {
+      padding: 0;
+    }
+    
+    .info-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0;
+    }
+    
+    .info-label {
+      padding: 0.75rem 0.875rem;
+      background: #1f1f23;
+      border-bottom: 1px solid #27272a;
+      border-right: 1px solid #27272a;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #71717a;
+      white-space: nowrap;
+    }
+    
+    .info-value {
+      padding: 0.75rem 0.875rem;
+      background: #0a0a0f;
+      border-bottom: 1px solid #27272a;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: #e4e4e7;
+      word-break: break-all;
+      position: relative;
+    }
+    
+    .info-grid > .info-label:nth-last-child(2),
+    .info-grid > .info-value:last-child {
+      border-bottom: none;
+    }
+    
+    .copy-icon {
+      position: absolute;
+      right: 0.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      padding: 0.25rem 0.5rem;
+      background: rgba(14, 165, 233, 0.1);
+      border: 1px solid rgba(14, 165, 233, 0.3);
+      color: #0ea5e9;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+      opacity: 0.6;
+    }
+    
+    .copy-icon:hover {
+      opacity: 1;
+      background: rgba(14, 165, 233, 0.2);
+    }
+    
+    .empty-state {
+      padding: 2rem 0.875rem;
+      text-align: center;
+      color: #71717a;
+      font-size: 0.85rem;
+    }
+    
+    .query-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .query-table th {
+      background: #1f1f23;
+      padding: 0.625rem 0.875rem;
+      text-align: left;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #71717a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid #27272a;
+    }
+    
+    .query-table td {
+      padding: 0.75rem 0.875rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: #e4e4e7;
+      border-bottom: 1px solid #27272a;
+      word-break: break-all;
+      position: relative;
+    }
+    
+    .query-table tr:last-child td {
+      border-bottom: none;
+    }
+    
+    .query-table tbody tr {
+      background: #0a0a0f;
+    }
+    
+    .query-table tbody tr:hover {
+      background: rgba(14, 165, 233, 0.05);
+    }
+    
+    .key-cell {
+      color: #0ea5e9;
+      font-weight: 600;
+      width: 30%;
+    }
+    
+    .error {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      color: #ef4444;
+      font-size: 0.85rem;
+      line-height: 1.6;
+    }
+    
+    .error-title {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    
+    @media (max-width: 768px) {
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .info-label {
+        border-right: none;
+        border-bottom: 1px solid #27272a;
+      }
+      
+      .query-table {
+        font-size: 0.75rem;
+      }
+      
+      .key-cell {
+        width: 40%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="https://www.paypal.com/paypalme/BLGApps" target="_blank" class="donate-btn">☕ Donate</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>🔗 URL Parser</h1>
+      <p>Break down URLs into their components</p>
+    </div>
+
+    <div class="input-panel">
+      <div class="panel-header">
+        <span class="panel-title">URL Input</span>
+        <div class="panel-actions">
+          <button class="btn-small" onclick="pasteURL()">📋 Paste</button>
+          <button class="btn-small" onclick="clearAll()">🗑️ Clear</button>
+        </div>
+      </div>
+      <textarea 
+        class="url-input" 
+        id="urlInput" 
+        placeholder="Paste a URL here...
+e.g., https://example.com:8080/path/to/page?foo=bar&utm_source=google"
+        oninput="parseURL()"></textarea>
+    </div>
+
+    <div class="examples">
+      <div class="examples-title">Try Examples</div>
+      <div class="example-links">
+        <button class="example-link" onclick="loadExample(0)">Simple HTTPS</button>
+        <button class="example-link" onclick="loadExample(1)">With Port</button>
+        <button class="example-link" onclick="loadExample(2)">Complex Query</button>
+        <button class="example-link" onclick="loadExample(3)">With Fragment</button>
+        <button class="example-link" onclick="loadExample(4)">Analytics URL</button>
+      </div>
+    </div>
+
+    <div id="error" class="error" style="display: none;">
+      <div class="error-title">Invalid URL</div>
+      <div id="errorMessage"></div>
+    </div>
+
+    <div id="results" class="results">
+      <div class="section">
+        <div class="section-header">
+          <span class="section-title">URL Components</span>
+        </div>
+        <div class="section-body">
+          <div class="info-grid" id="components"></div>
+        </div>
+      </div>
+
+      <div class="section" id="querySection" style="display: none;">
+        <div class="section-header">
+          <span class="section-title">Query Parameters</span>
+        </div>
+        <div class="section-body">
+          <table class="query-table">
+            <thead>
+              <tr>
+                <th>Key</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody id="queryParams"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const examples = [
+      'https://example.com/path/to/page',
+      'https://api.example.com:8080/v1/users',
+      'https://shop.example.com/products?category=electronics&sort=price&order=desc&page=2',
+      'https://docs.example.com/guide#installation',
+      'https://example.com/landing?utm_source=google&utm_medium=cpc&utm_campaign=summer_sale&utm_content=ad_variant_a&gclid=abc123xyz'
+    ];
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    async function pasteURL() {
+      try {
+        const text = await navigator.clipboard.readText();
+        document.getElementById('urlInput').value = text;
+        parseURL();
+      } catch (e) {
+        alert('Could not paste from clipboard');
+      }
+    }
+
+    function clearAll() {
+      document.getElementById('urlInput').value = '';
+      document.getElementById('results').classList.remove('active');
+      document.getElementById('error').style.display = 'none';
+    }
+
+    function loadExample(index) {
+      document.getElementById('urlInput').value = examples[index];
+      parseURL();
+      trackUsage();
+    }
+
+    function copyValue(value, btn) {
+      navigator.clipboard.writeText(value).then(() => {
+        const original = btn.textContent;
+        btn.textContent = '✓';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      });
+    }
+
+    function parseURL() {
+      const input = document.getElementById('urlInput').value.trim();
+      const results = document.getElementById('results');
+      const error = document.getElementById('error');
+      const errorMessage = document.getElementById('errorMessage');
+
+      if (!input) {
+        results.classList.remove('active');
+        error.style.display = 'none';
+        return;
+      }
+
+      try {
+        const url = new URL(input);
+        
+        error.style.display = 'none';
+        results.classList.add('active');
+
+        // Build components grid
+        const components = [
+          { label: 'Protocol', value: url.protocol },
+          { label: 'Host', value: url.hostname },
+          { label: 'Port', value: url.port || '(default)' },
+          { label: 'Path', value: url.pathname || '/' },
+          { label: 'Hash', value: url.hash || '(none)' },
+          { label: 'Origin', value: url.origin },
+          { label: 'Full URL', value: url.href }
+        ];
+
+        let componentsHTML = '';
+        components.forEach(comp => {
+          componentsHTML += `
+            <div class="info-label">${comp.label}</div>
+            <div class="info-value">
+              ${comp.value}
+              <button class="copy-icon" onclick="copyValue('${comp.value.replace(/'/g, "\\'")}', this)">📋</button>
+            </div>
+          `;
+        });
+
+        document.getElementById('components').innerHTML = componentsHTML;
+
+        // Parse query parameters
+        const querySection = document.getElementById('querySection');
+        const queryParams = document.getElementById('queryParams');
+        
+        if (url.search) {
+          querySection.style.display = 'block';
+          
+          let queryHTML = '';
+          url.searchParams.forEach((value, key) => {
+            queryHTML += `
+              <tr>
+                <td class="key-cell">${key}</td>
+                <td>
+                  ${value}
+                  <button class="copy-icon" onclick="copyValue('${value.replace(/'/g, "\\'")}', this)">📋</button>
+                </td>
+              </tr>
+            `;
+          });
+          
+          queryParams.innerHTML = queryHTML;
+        } else {
+          querySection.style.display = 'none';
+        }
+
+        trackUsage();
+
+      } catch (e) {
+        results.classList.remove('active');
+        error.style.display = 'block';
+        errorMessage.textContent = 'Please enter a valid URL with a protocol (e.g., https://example.com)';
+      }
+    }
+
+    // Parse URL on page load if there's a hash
+    if (window.location.hash) {
+      try {
+        const url = decodeURIComponent(window.location.hash.substring(1));
+        document.getElementById('urlInput').value = url;
+        parseURL();
+      } catch (e) {}
+    }
+  </script>
+</body>
+</html>

@@ -324,7 +324,7 @@
   </style>
 </head>
 <body>
-    <nav class="navbar">
+  <nav class="navbar">
     <a href="../index.html" class="logo">PRISM</a>
     <a href="https://www.paypal.com/paypalme/BLGApps" target="_blank" class="donate-btn">☕ Donate</a>
     <a href="../index.html" class="back-link">← All Tools</a>
@@ -342,6 +342,8 @@
         <button class="view-btn" onclick="setView('editor')">Editor</button>
         <button class="view-btn" onclick="setView('preview')">Preview</button>
       </div>
+      <button class="action-btn" onclick="document.getElementById('md-file-input').click()">📂 Import MD</button>
+      <input type="file" id="md-file-input" accept=".md,.markdown,text/markdown" style="display: none;">
       <button class="action-btn" onclick="copyMarkdown()">📋 Copy MD</button>
       <button class="action-btn" onclick="copyHTML()">📋 Copy HTML</button>
       <button class="action-btn" onclick="downloadMarkdown()">💾 Download MD</button>
@@ -511,6 +513,50 @@ console.log('Hello, World!');
       count++;
       localStorage.setItem('prism-usage-count', count);
     }
+
+    // Import Markdown file
+    document.getElementById('md-file-input').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      // Check if it's a text-based file
+      if (!file.name.match(/\.(md|markdown|txt)$/i) && !file.type.match(/^text\//)) {
+        alert('Please select a valid Markdown file (.md, .markdown, or .txt)');
+        e.target.value = '';
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        try {
+          const content = event.target.result;
+          
+          // Check if current editor has content
+          if (editor.value.trim() && !confirm('Replace current content with imported file?')) {
+            e.target.value = '';
+            return;
+          }
+
+          editor.value = content;
+          updatePreview();
+          alert('Markdown file imported successfully!');
+          
+        } catch (error) {
+          console.error('Error importing file:', error);
+          alert('Error importing file. Please ensure it\'s a valid text/markdown file.');
+        }
+        
+        // Reset file input
+        e.target.value = '';
+      };
+
+      reader.onerror = function() {
+        alert('Error reading file. Please try again.');
+        e.target.value = '';
+      };
+
+      reader.readAsText(file);
+    });
 
     // Keyboard shortcuts
     editor.addEventListener('keydown', (e) => {

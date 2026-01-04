@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<!-- Copyright (c) 2025 BLGardner. All Rights Reserved. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SVG to JSX Converter - Prism.Tools</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #22D3EE 0%, #06B6D4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #e4e4e7; }
+    .donate-btn {
+      padding: 0.4rem 1rem;
+      background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%);
+      color: white;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.875rem;
+      transition: transform 0.2s;
+      white-space: nowrap;
+    }
+    .donate-btn:hover { transform: translateY(-1px); }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #22D3EE;
+    }
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    .options-bar {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 0.875rem;
+      margin-bottom: 1rem;
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .option-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .option-label {
+      font-size: 0.8rem;
+      color: #a1a1aa;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+    }
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: #22D3EE;
+    }
+    input[type="text"] {
+      padding: 0.4rem 0.6rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-size: 0.85rem;
+      width: 150px;
+    }
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #22D3EE;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .panel-header {
+      background: #1f1f23;
+      padding: 0.625rem 0.875rem;
+      border-bottom: 1px solid #27272a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .panel-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #22D3EE;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .panel-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn-small {
+      padding: 0.25rem 0.625rem;
+      background: rgba(34, 211, 238, 0.1);
+      border: 1px solid rgba(34, 211, 238, 0.3);
+      color: #22D3EE;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .btn-small:hover {
+      background: rgba(34, 211, 238, 0.2);
+    }
+    textarea {
+      flex: 1;
+      padding: 0.875rem;
+      background: #0a0a0f;
+      border: none;
+      color: #e4e4e7;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      resize: vertical;
+      line-height: 1.6;
+      min-height: 400px;
+    }
+    textarea:focus { outline: none; }
+    .controls {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      margin: 1rem 0;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 0.625rem 1.25rem;
+      background: #22D3EE;
+      color: #0a0a0f;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(34, 211, 238, 0.3);
+    }
+    .btn-secondary {
+      background: rgba(34, 211, 238, 0.1);
+      color: #22D3EE;
+      border: 1px solid rgba(34, 211, 238, 0.3);
+    }
+    .samples {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .samples-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #22D3EE;
+      margin-bottom: 0.75rem;
+    }
+    .sample-buttons {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .sample-btn {
+      padding: 0.5rem 0.875rem;
+      background: rgba(34, 211, 238, 0.1);
+      border: 1px solid rgba(34, 211, 238, 0.3);
+      color: #22D3EE;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    .sample-btn:hover {
+      background: rgba(34, 211, 238, 0.2);
+    }
+    .info-box {
+      background: rgba(34, 211, 238, 0.1);
+      border: 1px solid rgba(34, 211, 238, 0.2);
+      border-radius: 8px;
+      padding: 0.875rem;
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      color: #a1a1aa;
+      line-height: 1.5;
+    }
+    .info-box strong {
+      color: #22D3EE;
+    }
+    .stats {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      padding: 0.75rem;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    .stat {
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #22D3EE;
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 0.7rem;
+      color: #71717a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 0.25rem;
+    }
+    @media (max-width: 1024px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="https://www.paypal.com/paypalme/BLGApps" target="_blank" class="donate-btn">☕ Donate</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>⚛️ SVG to JSX Converter</h1>
+      <p>Convert SVG markup to React-compatible JSX</p>
+    </div>
+
+    <div class="options-bar">
+      <div class="option-group">
+        <label class="option-label">
+          <input type="checkbox" id="remove-dimensions" checked>
+          Remove width/height
+        </label>
+      </div>
+      <div class="option-group">
+        <label class="option-label">
+          <input type="checkbox" id="add-props" checked>
+          Add {...props}
+        </label>
+      </div>
+      <div class="option-group">
+        <label class="option-label">
+          <input type="checkbox" id="typescript">
+          TypeScript
+        </label>
+      </div>
+      <div class="option-group">
+        <label class="option-label">Component Name:</label>
+        <input type="text" id="component-name" value="SvgComponent" placeholder="ComponentName">
+      </div>
+    </div>
+
+    <div class="stats" id="stats" style="display: none;">
+      <div class="stat">
+        <div class="stat-value" id="attr-count">0</div>
+        <div class="stat-label">Attributes Converted</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="element-count">0</div>
+        <div class="stat-label">Elements</div>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">SVG Input</span>
+          <div class="panel-actions">
+            <button class="btn-small" onclick="pasteInput()">📋 Paste</button>
+            <button class="btn-small" onclick="loadFile()">📂 Load File</button>
+            <button class="btn-small" onclick="clearAll()">🗑️</button>
+          </div>
+        </div>
+        <textarea id="input" placeholder="Paste your SVG code here..."><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="12" cy="12" r="10"/>
+  <line x1="12" y1="8" x2="12" y2="12"/>
+  <line x1="12" y1="16" x2="12.01" y2="16"/>
+</svg></textarea>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">JSX Output</span>
+          <div class="panel-actions">
+            <button class="btn-small" onclick="copyOutput()">📋 Copy</button>
+            <button class="btn-small" onclick="downloadOutput()">💾 Save</button>
+          </div>
+        </div>
+        <textarea id="output" placeholder="JSX output will appear here..." readonly></textarea>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn" onclick="convert()">✨ Convert to JSX</button>
+      <button class="btn btn-secondary" onclick="convertToComponent()">📦 Generate Component</button>
+    </div>
+
+    <div class="samples">
+      <div class="samples-title">Load Sample SVG</div>
+      <div class="sample-buttons">
+        <button class="sample-btn" onclick="loadSample('icon')">Icon</button>
+        <button class="sample-btn" onclick="loadSample('logo')">Logo</button>
+        <button class="sample-btn" onclick="loadSample('illustration')">Illustration</button>
+        <button class="sample-btn" onclick="loadSample('complex')">Complex</button>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>💡 What gets converted:</strong><br>
+      • Attributes: stroke-width → strokeWidth, fill-opacity → fillOpacity<br>
+      • class → className, for → htmlFor<br>
+      • Style strings → JavaScript objects<br>
+      • Removes XML namespaces and comments<br>
+      • Optional: Wraps in React component with TypeScript support
+    </div>
+  </div>
+
+  <input type="file" id="file-input" accept=".svg,image/svg+xml" style="display: none;">
+
+  <script>
+    const samples = {
+      icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="12" cy="12" r="10"/>
+  <line x1="12" y1="8" x2="12" y2="12"/>
+  <line x1="12" y1="16" x2="12.01" y2="16"/>
+</svg>`,
+      logo: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <rect x="10" y="10" width="80" height="80" fill="#22D3EE" stroke="#0891B2" stroke-width="2"/>
+  <text x="50" y="60" font-family="Arial" font-size="40" fill="white" text-anchor="middle">R</text>
+</svg>`,
+      illustration: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#22D3EE;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0891B2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <circle cx="100" cy="100" r="80" fill="url(#grad)"/>
+</svg>`,
+      complex: `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <g id="layer1" transform="translate(10,10)">
+    <path d="M 50,50 L 150,50 L 150,150 L 50,150 Z" fill="#22D3EE" stroke-width="3" stroke-linejoin="round"/>
+    <circle cx="100" cy="100" r="30" fill="white" fill-opacity="0.5"/>
+  </g>
+</svg>`
+    };
+
+    const attrMap = {
+      'class': 'className',
+      'for': 'htmlFor',
+      'stroke-width': 'strokeWidth',
+      'stroke-linecap': 'strokeLinecap',
+      'stroke-linejoin': 'strokeLinejoin',
+      'stroke-dasharray': 'strokeDasharray',
+      'stroke-dashoffset': 'strokeDashoffset',
+      'fill-opacity': 'fillOpacity',
+      'stroke-opacity': 'strokeOpacity',
+      'fill-rule': 'fillRule',
+      'clip-path': 'clipPath',
+      'clip-rule': 'clipRule',
+      'font-family': 'fontFamily',
+      'font-size': 'fontSize',
+      'font-weight': 'fontWeight',
+      'text-anchor': 'textAnchor',
+      'text-decoration': 'textDecoration',
+      'stop-color': 'stopColor',
+      'stop-opacity': 'stopOpacity',
+      'xml:space': 'xmlSpace'
+    };
+
+    function convertAttributes(svgString) {
+      let converted = svgString;
+      let conversionCount = 0;
+
+      // Convert hyphenated attributes to camelCase
+      Object.keys(attrMap).forEach(attr => {
+        const regex = new RegExp(`\\b${attr}=`, 'g');
+        const matches = converted.match(regex);
+        if (matches) conversionCount += matches.length;
+        converted = converted.replace(regex, `${attrMap[attr]}=`);
+      });
+
+      // Remove xmlns attributes
+      converted = converted.replace(/\s*xmlns[^=]*="[^"]*"/g, '');
+
+      // Convert style attribute
+      converted = converted.replace(/style="([^"]*)"/g, (match, styleStr) => {
+        const styleObj = styleStr.split(';')
+          .filter(s => s.trim())
+          .map(s => {
+            const [key, value] = s.split(':').map(x => x.trim());
+            const camelKey = key.replace(/-([a-z])/g, g => g[1].toUpperCase());
+            return `${camelKey}: "${value}"`;
+          })
+          .join(', ');
+        return `style={{${styleObj}}}`;
+      });
+
+      return { converted, conversionCount };
+    }
+
+    function countElements(svgString) {
+      const tagRegex = /<(\w+)[\s>]/g;
+      const matches = svgString.match(tagRegex);
+      return matches ? matches.length : 0;
+    }
+
+    function convert() {
+      const input = document.getElementById('input').value.trim();
+      
+      if (!input) {
+        alert('Please enter SVG code');
+        return;
+      }
+
+      const removeDimensions = document.getElementById('remove-dimensions').checked;
+      let { converted, conversionCount } = convertAttributes(input);
+
+      if (removeDimensions) {
+        converted = converted.replace(/\s*(width|height)="[^"]*"/g, '');
+      }
+
+      // Pretty format
+      converted = converted
+        .replace(/></g, '>\n<')
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line)
+        .join('\n');
+
+      document.getElementById('output').value = converted;
+      
+      // Update stats
+      document.getElementById('attr-count').textContent = conversionCount;
+      document.getElementById('element-count').textContent = countElements(converted);
+      document.getElementById('stats').style.display = 'flex';
+      
+      trackUsage();
+    }
+
+    function convertToComponent() {
+      const input = document.getElementById('input').value.trim();
+      
+      if (!input) {
+        alert('Please enter SVG code');
+        return;
+      }
+
+      const componentName = document.getElementById('component-name').value || 'SvgComponent';
+      const removeDimensions = document.getElementById('remove-dimensions').checked;
+      const addProps = document.getElementById('add-props').checked;
+      const typescript = document.getElementById('typescript').checked;
+
+      let { converted } = convertAttributes(input);
+
+      if (removeDimensions) {
+        converted = converted.replace(/\s*(width|height)="[^"]*"/g, '');
+      }
+
+      // Format SVG
+      converted = converted
+        .replace(/></g, '>\n    <')
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line)
+        .map((line, i) => i === 0 ? line : '    ' + line)
+        .join('\n');
+
+      // Add props to svg tag if requested
+      if (addProps) {
+        converted = converted.replace('<svg', '<svg {...props}');
+      }
+
+      // Generate component
+      let component;
+      if (typescript) {
+        component = `import React from 'react';
+
+interface ${componentName}Props extends React.SVGProps<SVGSVGElement> {}
+
+const ${componentName}: React.FC<${componentName}Props> = (props) => {
+  return (
+    ${converted}
+  );
+};
+
+export default ${componentName};`;
+      } else {
+        component = `import React from 'react';
+
+const ${componentName} = (props) => {
+  return (
+    ${converted}
+  );
+};
+
+export default ${componentName};`;
+      }
+
+      document.getElementById('output').value = component;
+      
+      // Update stats
+      const conversionCount = (input.match(/-/g) || []).length;
+      document.getElementById('attr-count').textContent = conversionCount;
+      document.getElementById('element-count').textContent = countElements(converted);
+      document.getElementById('stats').style.display = 'flex';
+      
+      trackUsage();
+    }
+
+    function clearAll() {
+      document.getElementById('input').value = '';
+      document.getElementById('output').value = '';
+      document.getElementById('stats').style.display = 'none';
+    }
+
+    async function pasteInput() {
+      try {
+        const text = await navigator.clipboard.readText();
+        document.getElementById('input').value = text;
+      } catch (e) {
+        alert('Could not paste from clipboard');
+      }
+    }
+
+    function copyOutput() {
+      const output = document.getElementById('output').value;
+      if (!output) {
+        alert('Convert SVG first');
+        return;
+      }
+      navigator.clipboard.writeText(output).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      });
+    }
+
+    function downloadOutput() {
+      const output = document.getElementById('output').value;
+      if (!output) {
+        alert('Convert SVG first');
+        return;
+      }
+      const componentName = document.getElementById('component-name').value || 'SvgComponent';
+      const typescript = document.getElementById('typescript').checked;
+      const ext = typescript ? '.tsx' : '.jsx';
+      
+      const blob = new Blob([output], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = componentName + ext;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function loadSample(type) {
+      document.getElementById('input').value = samples[type];
+    }
+
+    function loadFile() {
+      document.getElementById('file-input').click();
+    }
+
+    document.getElementById('file-input').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          document.getElementById('input').value = event.target.result;
+        };
+        reader.readAsText(file);
+      }
+      e.target.value = '';
+    });
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    // Auto-convert on input
+    document.getElementById('input').addEventListener('input', () => {
+      if (document.getElementById('input').value.trim()) {
+        convert();
+      }
+    });
+
+    // Initialize
+    convert();
+  </script>
+</body>
+</html>

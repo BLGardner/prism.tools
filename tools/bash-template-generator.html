@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<!-- Copyright (c) 2026 BLGardner. All Rights Reserved. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bash Script Generator - Prism.Tools</title>
+  <style>
+    /* REQUIRED BASE STYLES */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #84cc16 0%, #65a30d 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    
+    .back-link:hover { color: #e4e4e7; }
+    
+    .donate-btn {
+      padding: 0.4rem 1rem;
+      background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%);
+      color: white;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.875rem;
+      transition: transform 0.2s;
+      white-space: nowrap;
+    }
+    
+    .donate-btn:hover { transform: translateY(-1px); }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+    
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #84cc16;
+    }
+    
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    
+    /* TOOL-SPECIFIC STYLES */
+    .search-box {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    
+    .search-input {
+      width: 100%;
+      max-width: 600px;
+      padding: 0.75rem 1rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      color: #e4e4e7;
+      font-size: 0.9rem;
+      transition: border-color 0.2s;
+    }
+    
+    .search-input:focus {
+      outline: none;
+      border-color: #84cc16;
+    }
+    
+    .search-input::placeholder {
+      color: #52525b;
+    }
+    
+    .layout {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      height: fit-content;
+      position: sticky;
+      top: 80px;
+    }
+    
+    .categories {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .category {
+      border-bottom: 1px solid #27272a;
+    }
+    
+    .category:last-child {
+      border-bottom: none;
+    }
+    
+    .category-header {
+      background: #1f1f23;
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.2s;
+    }
+    
+    .category-header:hover {
+      background: #27272a;
+    }
+    
+    .category-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #84cc16;
+    }
+    
+    .category-toggle {
+      color: #71717a;
+      transition: transform 0.2s;
+      font-size: 0.75rem;
+    }
+    
+    .category-toggle.open {
+      transform: rotate(180deg);
+    }
+    
+    .category-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    
+    .category-content.open {
+      max-height: 1000px;
+    }
+    
+    .template-item {
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid #27272a;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0a0a0f;
+    }
+    
+    .template-item:last-child {
+      border-bottom: none;
+    }
+    
+    .template-item:hover {
+      background: rgba(132, 204, 22, 0.05);
+    }
+    
+    .template-item.selected {
+      background: rgba(132, 204, 22, 0.1);
+      border-left: 3px solid #84cc16;
+    }
+    
+    .template-name {
+      font-size: 0.8rem;
+      color: #e4e4e7;
+    }
+    
+    .add-icon {
+      color: #71717a;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    
+    .template-item:hover .add-icon {
+      color: #84cc16;
+    }
+    
+    .panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .panel-header {
+      background: #1f1f23;
+      padding: 0.625rem 0.875rem;
+      border-bottom: 1px solid #27272a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .panel-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #84cc16;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .panel-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .btn-small {
+      padding: 0.25rem 0.625rem;
+      background: rgba(132, 204, 22, 0.1);
+      border: 1px solid rgba(132, 204, 22, 0.3);
+      color: #84cc16;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+    
+    .btn-small:hover {
+      background: rgba(132, 204, 22, 0.2);
+    }
+    
+    .script-output {
+      flex: 1;
+      padding: 0.875rem;
+      background: #0a0a0f;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.8;
+      color: #e4e4e7;
+      overflow-x: auto;
+      min-height: 600px;
+      white-space: pre;
+    }
+    
+    .selected-templates {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 0.875rem;
+    }
+    
+    .selected-title {
+      font-size: 0.75rem;
+      color: #71717a;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .selected-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    
+    .selected-tag {
+      padding: 0.35rem 0.65rem;
+      background: rgba(132, 204, 22, 0.1);
+      border: 1px solid rgba(132, 204, 22, 0.3);
+      color: #84cc16;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+    }
+    
+    .remove-tag {
+      cursor: pointer;
+      color: #71717a;
+      transition: color 0.2s;
+      font-weight: 600;
+    }
+    
+    .remove-tag:hover {
+      color: #ef4444;
+    }
+    
+    .empty-state {
+      padding: 2rem 1rem;
+      text-align: center;
+      color: #71717a;
+      font-size: 0.85rem;
+    }
+    
+    .no-results {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #71717a;
+      font-size: 0.9rem;
+    }
+    
+    @media (max-width: 1024px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      
+      .sidebar {
+        position: static;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM</a>
+    <a href="https://www.paypal.com/paypalme/BLGApps" target="_blank" class="donate-btn">☕ Donate</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>🐚 Bash Script Generator</h1>
+      <p>Build shell scripts with common templates and patterns</p>
+    </div>
+
+    <div class="search-box">
+      <input type="text" class="search-input" id="searchInput" placeholder="Search templates... (e.g., file exists, parse json, error handling)">
+    </div>
+
+    <div class="layout">
+      <div class="sidebar">
+        <div class="selected-templates" id="selectedTemplates">
+          <div class="selected-title">Selected Templates (0)</div>
+          <div class="selected-list" id="selectedList">
+            <div class="empty-state" style="width: 100%;">Click templates to add them</div>
+          </div>
+        </div>
+
+        <div class="categories" id="categories"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Generated Script</span>
+          <div class="panel-actions">
+            <button class="btn-small" onclick="copyScript()">📋 Copy</button>
+            <button class="btn-small" onclick="downloadScript()">💾 Download</button>
+            <button class="btn-small" onclick="clearAll()">🗑️ Clear</button>
+          </div>
+        </div>
+        <pre class="script-output" id="scriptOutput">#!/bin/bash
+# Generated with Prism.Tools
+# Select templates from the sidebar to build your script</pre>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const templates = {
+      'Basics': [
+        {
+          name: 'Shebang + Strict Mode',
+          code: `#!/bin/bash
+set -euo pipefail  # Exit on error, undefined vars, pipe failures
+IFS=$'\\n\\t'       # Better word splitting`
+        },
+        {
+          name: 'Script Header',
+          code: `#
+# Script: \${0##*/}
+# Description: [Add description here]
+# Author: [Your Name]
+# Date: $(date +%Y-%m-%d)
+#`
+        },
+        {
+          name: 'Error Trap Handler',
+          code: `trap 'echo "Error on line $LINENO. Exit code: $?" >&2' ERR`
+        },
+        {
+          name: 'Cleanup on Exit',
+          code: `cleanup() {
+  # Add cleanup code here
+  rm -f "$temp_file" 2>/dev/null || true
+}
+trap cleanup EXIT`
+        }
+      ],
+      'Argument Parsing': [
+        {
+          name: 'Basic Argument Parsing',
+          code: `# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -h|--help)
+      echo "Usage: $0 [options]"
+      exit 0
+      ;;
+    -v|--verbose)
+      VERBOSE=1
+      shift
+      ;;
+    -f|--file)
+      FILE="$2"
+      shift 2
+      ;;
+    *)
+      echo "Unknown option: $1"
+      exit 1
+      ;;
+  esac
+done`
+        },
+        {
+          name: 'getopts Parsing',
+          code: `# Parse options with getopts
+while getopts "hvf:o:" opt; do
+  case $opt in
+    h)
+      echo "Usage: $0 [-h] [-v] [-f file] [-o output]"
+      exit 0
+      ;;
+    v)
+      VERBOSE=1
+      ;;
+    f)
+      INPUT_FILE="$OPTARG"
+      ;;
+    o)
+      OUTPUT_FILE="$OPTARG"
+      ;;
+    \\?)
+      echo "Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+  esac
+done
+shift $((OPTIND-1))`
+        },
+        {
+          name: 'Require Arguments',
+          code: `# Check if required arguments are provided
+if [[ $# -lt 1 ]]; then
+  echo "Error: Missing required argument"
+  echo "Usage: $0 <argument>"
+  exit 1
+fi`
+        }
+      ],
+      'File Operations': [
+        {
+          name: 'Check if File Exists',
+          code: `if [[ -f "$file" ]]; then
+  echo "File exists: $file"
+else
+  echo "File not found: $file"
+  exit 1
+fi`
+        },
+        {
+          name: 'Check if Directory Exists',
+          code: `if [[ -d "$directory" ]]; then
+  echo "Directory exists: $directory"
+else
+  echo "Directory not found: $directory"
+  exit 1
+fi`
+        },
+        {
+          name: 'Create Directory if Not Exists',
+          code: `mkdir -p "$directory" || {
+  echo "Failed to create directory: $directory" >&2
+  exit 1
+}`
+        },
+        {
+          name: 'Loop Through Directory',
+          code: `for file in "$directory"/*; do
+  if [[ -f "$file" ]]; then
+    echo "Processing: $file"
+    # Add processing logic here
+  fi
+done`
+        },
+        {
+          name: 'Read File Line by Line',
+          code: `while IFS= read -r line; do
+  echo "Line: $line"
+  # Process each line
+done < "$file"`
+        },
+        {
+          name: 'Write to File',
+          code: `# Overwrite file
+echo "Content" > "$file"
+
+# Append to file
+echo "More content" >> "$file"`
+        },
+        {
+          name: 'Find Files by Pattern',
+          code: `# Find all .txt files
+find "$directory" -type f -name "*.txt" -print0 | while IFS= read -r -d '' file; do
+  echo "Found: $file"
+done`
+        },
+        {
+          name: 'Backup File with Timestamp',
+          code: `timestamp=$(date +%Y%m%d_%H%M%S)
+backup_file="\${file}.backup_\${timestamp}"
+cp "$file" "$backup_file" && echo "Backup created: $backup_file"`
+        },
+        {
+          name: 'Get File Size',
+          code: `file_size=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file" 2>/dev/null)
+echo "File size: $file_size bytes"`
+        },
+        {
+          name: 'Temporary File Cleanup',
+          code: `temp_file=$(mktemp)
+trap 'rm -f "$temp_file"' EXIT
+
+# Use $temp_file for temporary operations`
+        }
+      ],
+      'Input/Output': [
+        {
+          name: 'Prompt Yes/No Confirmation',
+          code: `read -p "Are you sure? (y/n) " -n 1 -r
+echo
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+  echo "Operation cancelled"
+  exit 0
+fi`
+        },
+        {
+          name: 'Read User Input',
+          code: `read -p "Enter value: " user_input
+if [[ -z "$user_input" ]]; then
+  echo "Error: Input cannot be empty"
+  exit 1
+fi`
+        },
+        {
+          name: 'Colored Output',
+          code: `# Color codes
+RED='\\033[0;31m'
+GREEN='\\033[0;32m'
+YELLOW='\\033[1;33m'
+NC='\\033[0m' # No Color
+
+echo -e "\${GREEN}Success!\${NC}"
+echo -e "\${RED}Error!\${NC}"
+echo -e "\${YELLOW}Warning!\${NC}"`
+        },
+        {
+          name: 'Log to File with Timestamp',
+          code: `log_file="script.log"
+log() {
+  echo "[$(date +'%Y-%m-%d %H:%M:%S')] $*" | tee -a "$log_file"
+}
+
+log "Script started"
+log "Processing data..."`
+        },
+        {
+          name: 'Progress Spinner',
+          code: `spinner() {
+  local pid=$1
+  local delay=0.1
+  local spinstr='|/-\\\\'
+  while kill -0 "$pid" 2>/dev/null; do
+    local temp=\${spinstr#?}
+    printf " [%c]  " "$spinstr"
+    spinstr=$temp\${spinstr%"$temp"}
+    sleep $delay
+    printf "\\b\\b\\b\\b\\b\\b"
+  done
+  printf "    \\b\\b\\b\\b"
+}
+
+# Usage: long_command & spinner $!`
+        },
+        {
+          name: 'Simple Menu',
+          code: `echo "Select an option:"
+echo "1) Option One"
+echo "2) Option Two"
+echo "3) Exit"
+read -p "Choice: " choice
+
+case $choice in
+  1) echo "Option One selected" ;;
+  2) echo "Option Two selected" ;;
+  3) exit 0 ;;
+  *) echo "Invalid choice" ;;
+esac`
+        }
+      ],
+      'System & Process': [
+        {
+          name: 'Check if Command Exists',
+          code: `if ! command -v jq &> /dev/null; then
+  echo "Error: jq is not installed"
+  exit 1
+fi`
+        },
+        {
+          name: 'Check if Running as Root',
+          code: `if [[ $EUID -ne 0 ]]; then
+  echo "This script must be run as root"
+  exit 1
+fi`
+        },
+        {
+          name: 'Run Command with Timeout',
+          code: `timeout 30s command_to_run || {
+  echo "Command timed out after 30 seconds"
+  exit 1
+}`
+        },
+        {
+          name: 'Check Disk Space',
+          code: `# Check available space in current directory
+available=$(df -P . | awk 'NR==2 {print $4}')
+if [[ $available -lt 1048576 ]]; then  # Less than 1GB
+  echo "Warning: Low disk space"
+fi`
+        },
+        {
+          name: 'Kill Process by Name',
+          code: `process_name="example"
+pkill -f "$process_name" && echo "Process killed: $process_name"`
+        },
+        {
+          name: 'Check if Port is Open',
+          code: `port=8080
+if nc -z localhost "$port" 2>/dev/null; then
+  echo "Port $port is open"
+else
+  echo "Port $port is closed"
+fi`
+        },
+        {
+          name: 'Get OS Info',
+          code: `if [[ -f /etc/os-release ]]; then
+  . /etc/os-release
+  echo "OS: $NAME"
+  echo "Version: $VERSION"
+else
+  echo "OS: $(uname -s)"
+fi`
+        }
+      ],
+      'String & Data Processing': [
+        {
+          name: 'String Manipulation',
+          code: `text="  Example Text  "
+
+# Trim whitespace
+trimmed="\${text// /}"
+
+# Uppercase
+upper="\${text^^}"
+
+# Lowercase
+lower="\${text,,}"
+
+# Replace
+replaced="\${text//Example/Sample}"`
+        },
+        {
+          name: 'Parse JSON with jq',
+          code: `json_file="data.json"
+
+# Extract value
+value=$(jq -r '.key' "$json_file")
+
+# Filter array
+items=$(jq -r '.items[] | select(.active == true) | .name' "$json_file")`
+        },
+        {
+          name: 'Parse CSV',
+          code: `csv_file="data.csv"
+while IFS=, read -r col1 col2 col3; do
+  echo "Column 1: $col1, Column 2: $col2, Column 3: $col3"
+done < <(tail -n +2 "$csv_file")  # Skip header`
+        },
+        {
+          name: 'Regular Expression Match',
+          code: `text="Email: user@example.com"
+if [[ $text =~ ([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}) ]]; then
+  email="\${BASH_REMATCH[1]}"
+  echo "Found email: $email"
+fi`
+        },
+        {
+          name: 'Array Operations',
+          code: `# Declare array
+my_array=("apple" "banana" "cherry")
+
+# Loop through array
+for item in "\${my_array[@]}"; do
+  echo "Item: $item"
+done
+
+# Array length
+echo "Length: \${#my_array[@]}"
+
+# Add to array
+my_array+=("date")`
+        },
+        {
+          name: 'Date/Time Formatting',
+          code: `# Current timestamp
+now=$(date +%s)
+
+# Format date
+formatted=$(date +"%Y-%m-%d %H:%M:%S")
+
+# Date arithmetic
+yesterday=$(date -d "yesterday" +%Y-%m-%d)
+week_ago=$(date -d "7 days ago" +%Y-%m-%d)`
+        }
+      ],
+      'Network': [
+        {
+          name: 'Check URL Reachability',
+          code: `url="https://example.com"
+if curl -sSf "$url" > /dev/null 2>&1; then
+  echo "URL is reachable: $url"
+else
+  echo "URL is not reachable: $url"
+  exit 1
+fi`
+        },
+        {
+          name: 'Download File',
+          code: `url="https://example.com/file.zip"
+output="downloaded_file.zip"
+
+curl -fSL "$url" -o "$output" || {
+  echo "Download failed"
+  exit 1
+}
+echo "Downloaded to: $output"`
+        },
+        {
+          name: 'HTTP Request with Error Handling',
+          code: `response=$(curl -s -w "\\n%{http_code}" "$url")
+body=$(echo "$response" | head -n -1)
+status=$(echo "$response" | tail -n 1)
+
+if [[ $status -eq 200 ]]; then
+  echo "Success: $body"
+else
+  echo "HTTP Error: $status"
+  exit 1
+fi`
+        },
+        {
+          name: 'Check Internet Connectivity',
+          code: `if ping -c 1 8.8.8.8 &> /dev/null; then
+  echo "Internet connection available"
+else
+  echo "No internet connection"
+  exit 1
+fi`
+        }
+      ],
+      'Git Operations': [
+        {
+          name: 'Check if Git Repository',
+          code: `if git rev-parse --git-dir > /dev/null 2>&1; then
+  echo "Inside a git repository"
+else
+  echo "Not a git repository"
+  exit 1
+fi`
+        },
+        {
+          name: 'Get Current Branch',
+          code: `branch=$(git rev-parse --abbrev-ref HEAD)
+echo "Current branch: $branch"`
+        },
+        {
+          name: 'Check for Uncommitted Changes',
+          code: `if [[ -n $(git status -s) ]]; then
+  echo "Warning: Uncommitted changes detected"
+  git status -s
+  exit 1
+else
+  echo "Working directory clean"
+fi`
+        },
+        {
+          name: 'Clone with Error Handling',
+          code: `repo_url="https://github.com/user/repo.git"
+destination="./repo"
+
+git clone "$repo_url" "$destination" || {
+  echo "Failed to clone repository"
+  exit 1
+}
+echo "Repository cloned to: $destination"`
+        }
+      ],
+      'Docker': [
+        {
+          name: 'Check if Docker is Running',
+          code: `if ! docker info > /dev/null 2>&1; then
+  echo "Docker is not running"
+  exit 1
+fi`
+        },
+        {
+          name: 'List Running Containers',
+          code: `docker ps --format "table {{.ID}}\\t{{.Names}}\\t{{.Status}}"`
+        },
+        {
+          name: 'Stop All Containers',
+          code: `containers=$(docker ps -q)
+if [[ -n "$containers" ]]; then
+  docker stop $containers
+  echo "Stopped all running containers"
+else
+  echo "No running containers"
+fi`
+        },
+        {
+          name: 'Build and Tag Image',
+          code: `image_name="myapp"
+tag="latest"
+
+docker build -t "\${image_name}:\${tag}" . || {
+  echo "Docker build failed"
+  exit 1
+}
+echo "Image built: \${image_name}:\${tag}"`
+        },
+        {
+          name: 'Docker Compose Up/Down',
+          code: `# Start services
+docker-compose up -d || {
+  echo "Failed to start services"
+  exit 1
+}
+
+# Stop services
+# docker-compose down`
+        }
+      ],
+      'Database': [
+        {
+          name: 'MySQL Connection Test',
+          code: `mysql -h "$host" -u "$user" -p"$password" -e "SELECT 1;" > /dev/null 2>&1 || {
+  echo "MySQL connection failed"
+  exit 1
+}
+echo "MySQL connection successful"`
+        },
+        {
+          name: 'Execute SQL Query',
+          code: `query="SELECT * FROM users WHERE active = 1;"
+result=$(mysql -h "$host" -u "$user" -p"$password" "$database" -e "$query")
+echo "$result"`
+        },
+        {
+          name: 'Backup MySQL Database',
+          code: `timestamp=$(date +%Y%m%d_%H%M%S)
+backup_file="backup_\${database}_\${timestamp}.sql"
+
+mysqldump -h "$host" -u "$user" -p"$password" "$database" > "$backup_file" || {
+  echo "Backup failed"
+  exit 1
+}
+echo "Backup created: $backup_file"`
+        }
+      ],
+      'Parallel Processing': [
+        {
+          name: 'Run Commands in Parallel',
+          code: `# Run multiple commands in background
+command1 &
+command2 &
+command3 &
+
+# Wait for all to complete
+wait
+echo "All commands completed"`
+        },
+        {
+          name: 'Process Files with xargs',
+          code: `# Process files in parallel (4 at a time)
+find . -name "*.txt" | xargs -P 4 -I {} bash -c 'process_file "{}"'`
+        },
+        {
+          name: 'Parallel Loop',
+          code: `process_item() {
+  local item=$1
+  echo "Processing: $item"
+  # Add processing logic
+}
+export -f process_item
+
+# Process array items in parallel
+printf '%s\\n' "\${items[@]}" | xargs -P 4 -I {} bash -c 'process_item "{}"'`
+        }
+      ],
+      'Configuration': [
+        {
+          name: 'Load .env File',
+          code: `env_file=".env"
+if [[ -f "$env_file" ]]; then
+  export $(grep -v '^#' "$env_file" | xargs)
+  echo "Environment variables loaded from $env_file"
+else
+  echo "Warning: $env_file not found"
+fi`
+        },
+        {
+          name: 'Default Values',
+          code: `# Set default values
+HOST=\${HOST:-"localhost"}
+PORT=\${PORT:-8080}
+TIMEOUT=\${TIMEOUT:-30}
+
+echo "Host: $HOST"
+echo "Port: $PORT"
+echo "Timeout: $TIMEOUT"`
+        },
+        {
+          name: 'Parse Config File',
+          code: `config_file="config.conf"
+while IFS='=' read -r key value; do
+  [[ $key =~ ^#.*$ ]] && continue  # Skip comments
+  [[ -z $key ]] && continue        # Skip empty lines
+  declare "$key=$value"
+done < "$config_file"`
+        }
+      ]
+    };
+
+    let selectedTemplates = [];
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    function renderCategories(filter = '') {
+      const container = document.getElementById('categories');
+      container.innerHTML = '';
+      
+      const filterLower = filter.toLowerCase();
+      let hasResults = false;
+
+      Object.keys(templates).forEach((categoryName, idx) => {
+        const categoryId = `cat-${idx}`;
+        const items = templates[categoryName];
+        
+        let filteredItems = items;
+        if (filter) {
+          filteredItems = items.filter(item => 
+            item.name.toLowerCase().includes(filterLower) ||
+            item.code.toLowerCase().includes(filterLower)
+          );
+        }
+        
+        if (filteredItems.length === 0) return;
+        hasResults = true;
+        
+        const itemsHTML = filteredItems.map((item, itemIdx) => {
+          const isSelected = selectedTemplates.some(t => t.name === item.name);
+          return `
+            <div class="template-item ${isSelected ? 'selected' : ''}" onclick="toggleTemplate('${categoryName}', ${itemIdx})">
+              <span class="template-name">${item.name}</span>
+              <span class="add-icon">${isSelected ? '✓' : '+'}</span>
+            </div>
+          `;
+        }).join('');
+
+        const categoryHTML = `
+          <div class="category">
+            <div class="category-header" onclick="toggleCategory('${categoryId}')">
+              <span class="category-title">${categoryName}</span>
+              <span class="category-toggle ${filter ? 'open' : ''}" id="toggle-${categoryId}">▼</span>
+            </div>
+            <div class="category-content ${filter ? 'open' : ''}" id="${categoryId}">
+              ${itemsHTML}
+            </div>
+          </div>
+        `;
+        
+        container.innerHTML += categoryHTML;
+      });
+
+      if (!hasResults) {
+        container.innerHTML = '<div class="no-results">No templates found</div>';
+      }
+    }
+
+    function toggleCategory(categoryId) {
+      const content = document.getElementById(categoryId);
+      const toggle = document.getElementById(`toggle-${categoryId}`);
+      
+      content.classList.toggle('open');
+      toggle.classList.toggle('open');
+    }
+
+    function toggleTemplate(categoryName, itemIdx) {
+      const template = templates[categoryName][itemIdx];
+      const existingIdx = selectedTemplates.findIndex(t => t.name === template.name);
+      
+      if (existingIdx >= 0) {
+        selectedTemplates.splice(existingIdx, 1);
+      } else {
+        selectedTemplates.push(template);
+      }
+      
+      updateSelectedList();
+      generateScript();
+      renderCategories(document.getElementById('searchInput').value);
+      trackUsage();
+    }
+
+    function removeTemplate(idx) {
+      selectedTemplates.splice(idx, 1);
+      updateSelectedList();
+      generateScript();
+      renderCategories(document.getElementById('searchInput').value);
+    }
+
+    function updateSelectedList() {
+      const container = document.getElementById('selectedList');
+      const title = document.querySelector('.selected-title');
+      
+      title.textContent = `Selected Templates (${selectedTemplates.length})`;
+      
+      if (selectedTemplates.length === 0) {
+        container.innerHTML = '<div class="empty-state" style="width: 100%;">Click templates to add them</div>';
+        return;
+      }
+      
+      container.innerHTML = selectedTemplates.map((template, idx) => `
+        <div class="selected-tag">
+          ${template.name}
+          <span class="remove-tag" onclick="removeTemplate(${idx})">×</span>
+        </div>
+      `).join('');
+    }
+
+    function generateScript() {
+      const output = document.getElementById('scriptOutput');
+      
+      if (selectedTemplates.length === 0) {
+        output.textContent = `#!/bin/bash
+# Generated with Prism.Tools
+# Select templates from the sidebar to build your script`;
+        return;
+      }
+      
+      const script = selectedTemplates.map(t => t.code).join('\n\n');
+      output.textContent = script;
+    }
+
+    function copyScript() {
+      const output = document.getElementById('scriptOutput').textContent;
+      navigator.clipboard.writeText(output).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      });
+    }
+
+    function downloadScript() {
+      const output = document.getElementById('scriptOutput').textContent;
+      const blob = new Blob([output], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'script.sh';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function clearAll() {
+      selectedTemplates = [];
+      updateSelectedList();
+      generateScript();
+      renderCategories();
+    }
+
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      renderCategories(e.target.value);
+    });
+
+    // Initialize
+    renderCategories();
+  </script>
+</body>
+</html>
