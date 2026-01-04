@@ -10,7 +10,7 @@
   <meta name="author" content="BLGardner">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#FF79C6">
-  <link rel="canonical" href="https://blgardner.github.io/prism.tools">
+  <link rel="canonical" href="https://blgardner.github.io/prism.tools/">
   
   <!-- Open Graph -->
   <meta property="og:title" content="Prism.Tools | Standalone Client-Side Developer Utilities">
@@ -506,7 +506,7 @@
   </div>
 
   <footer class="footer">
-    <p>Made with 💜 by developers, for developers</p>
+    <p>Made with 💜 for developers</p>
     <p style="font-size: 0.75rem;">- Your donations fund development time -</p>
     <div class="footer-links">
       <a href="https://github.com/blgardner/prism.tools" target="_blank">GitHub</a>
@@ -514,11 +514,13 @@
       <a href="#" onclick="showSupporters(); return false;">💜 Supporters</a>
     </div>
     <p style="font-size: 0.7rem; margin-top: 1rem; color: #555;">
-      Available on: <a href="https://blgardner.github.io/prism.tools/" target="_blank" style="color: #a78bfa;">GitHub Pages</a> • Netlify: Coming Soon
+      Available on: <a href="https://blgardner.github.io/prism.tools/" target="_blank" style="color: #a78bfa;">GitHub Pages</a>
     </p>
   </footer>
 
   <script>
+      // { id: '', name: '', icon: '', description: '', color: '', file: '', category: '' },
+  
     const tools = [
       // Formatters & Parsers
       { id: 'code-formatter', name: 'Code Formatter', icon: '📋', description: 'Format & beautify code', color: '#a78bfa', file: 'tools/code-formatter.html', category: 'formatters' },
@@ -526,14 +528,18 @@
       { id: 'sql-formatter', name: 'SQL Formatter', icon: '🗄️', description: 'Format SQL queries', color: '#82AAFF', file: 'tools/sql-formatter.html', category: 'formatters' },
       { id: 'yaml-json-converter', name: 'YAML ↔ JSON', icon: '🔄', description: 'Convert YAML & JSON', color: '#FFB86C', file: 'tools/yaml-json-converter.html', category: 'formatters' },
       { id: 'curl-to-fetch', name: 'CURL to Fetch', icon: '🔄', description: 'Convert CURL to JS', color: '#ec4899', file: 'tools/curl-to-fetch.html', category: 'formatters' },
-      
+      { id: 'svg-to-jsx', name: 'SVG to JSX', icon: '⚛️', description: 'Convert SVG to React JSX', color: '#22D3EE', file: 'tools/svg-to-jsx.html', category: 'formatters' },
+	  { id: 'json-to-typescript', name: 'JSON to TypeScript', icon: '📘', description: 'Generate TS interfaces from JSON', color: '#3178c6', file: 'tools/json-to-typescript.html', category: 'formatters' },
+	  
       // Security & Dev
       { id: 'jwt-decoder', name: 'JWT Decoder', icon: '🎫', description: 'Decode JWT tokens', color: '#6BCF7F', file: 'tools/jwt-decoder.html', category: 'security' },
       { id: 'password-generator', name: 'Password', icon: '🔐', description: 'Generate secure passwords', color: '#FF5555', file: 'tools/password-generator.html', category: 'security' },
       { id: 'hash-generator', name: 'Hash Generator', icon: '🔒', description: 'MD5, SHA-256, SHA-512', color: '#FFD93D', file: 'tools/hash-generator.html', category: 'security' },
       { id: 'uuid-generator', name: 'UUID Generator', icon: '🆔', description: 'Generate UUIDs v1/v4', color: '#82AAFF', file: 'tools/uuid-generator.html', category: 'security' },
       { id: 'subnet-calculator', name: 'Subnet Calculator', icon: '🌐', description: 'IP & network calculations', color: '#3b82f6', file: 'tools/subnet-calculator.html', category: 'security' },
-      
+      { id: 'http-status-codes', name: 'HTTP Status Codes', icon: '🌐', description: 'API status reference', color: '#0ea5e9', file: 'tools/http-status-codes.html', category: 'security' },
+	  { id: 'git-command-helper', name: 'Git Command Helper', icon: '🔀', description: 'Find the right Git commands', color: '#f43f5e', file: 'tools/git-command-helper.html', category: 'security' },
+
       // Visual & CSS
       { id: 'svg-editor', name: 'SVG Editor', icon: '🎨', description: 'Create & edit SVG graphics', color: '#a78bfa', file: 'tools/svg-editor.html', category: 'visual' },
       { id: 'css-gradient-generator', name: 'CSS Gradient', icon: '🌈', description: 'Create CSS gradients', color: '#FF6B9D', file: 'tools/css-gradient-generator.html', category: 'visual' },
@@ -542,7 +548,9 @@
       { id: 'glassmorphism-generator', name: 'Glassmorphism', icon: '💎', description: 'Frosted glass effects', color: '#FFCB6B', file: 'tools/glassmorphism-generator.html', category: 'visual' },
       { id: 'favicon-generator', name: 'Favicon Generator', icon: '📱', description: 'Create favicons', color: '#C77DFF', file: 'tools/favicon-generator.html', category: 'visual' },
       { id: 'color-converter', name: 'Color Converter', icon: '🎨', description: 'HEX, RGB, HSL converter', color: '#FF6B9D', file: 'tools/color-converter.html', category: 'visual' },
-      
+      { id: 'css-timing-visualizer', name: 'CSS Timing Visualizer', icon: '⏱️', description: 'Compare animation timing functions', color: '#f59e0b', file: 'tools/css-timing-visualizer.html', category: 'visual' },
+	  { id: 'css-grid-generator', name: 'CSS Grid Generator', icon: '📐', description: 'Visual grid layout builder', color: '#6366f1', file: 'tools/css-grid-generator.html', category: 'visual' },
+
       // Generators & Content
       { id: 'lorem-ipsum', name: 'Lorem Ipsum', icon: '📄', description: 'Generate placeholder text', color: '#FF79C6', file: 'tools/lorem-ipsum.html', category: 'generators' },
       { id: 'random-data', name: 'Random Data', icon: '🎲', description: 'Generate test data', color: '#F1FA8C', file: 'tools/random-data.html', category: 'generators' },
@@ -551,6 +559,7 @@
       { id: 'slug-generator', name: 'Slug Generator', icon: '🔗', description: 'Generate URL-safe slugs', color: '#8BE9FD', file: 'tools/slug-generator.html', category: 'generators' },
       { id: 'meta-tag-generator', name: 'Meta Tags', icon: '🏷️', description: 'Generate SEO meta tags', color: '#FF79C6', file: 'tools/meta-tag-generator.html', category: 'generators' },
       { id: 'robots-txt-generator', name: 'Robots.txt', icon: '🤖', description: 'Generate robots.txt', color: '#50FA7B', file: 'tools/robots-txt-generator.html', category: 'generators' },
+	  { id: 'bash-template-generator', name: 'Bash Script Generator', icon: '🐚', description: 'Shell boilerplate builder', color: '#84cc16', file: 'tools/bash-template-generator.html', category: 'generators' },
       
       // Encoders & Transformers
       { id: 'base64', name: 'Base64', icon: '📄', description: 'Encode/decode Base64', color: '#4ECDC4', file: 'tools/base64.html', category: 'encoders' },
@@ -561,7 +570,8 @@
       { id: 'minifier', name: 'Minifier', icon: '📦', description: 'Minify CSS/JS/HTML', color: '#BD93F9', file: 'tools/minifier.html', category: 'encoders' },
       { id: 'timestamp-converter', name: 'Timestamp', icon: '⏰', description: 'Unix timestamp converter', color: '#FFB86C', file: 'tools/timestamp-converter.html', category: 'encoders' },
       { id: 'list-sorter', name: 'List Sorter', icon: '📋', description: 'Sort & filter lists', color: '#F1FA8C', file: 'tools/list-sorter.html', category: 'encoders' },
-      
+      { id: 'url-parser', name: 'URL Parser', icon: '🔗', description: 'Break down URL components', color: '#0ea5e9', file: 'tools/url-parser.html', category: 'encoders' },
+
       // Other tools
       { id: 'regex-tester', name: 'Regex Tester', icon: '🎯', description: 'Test regex patterns', color: '#A78BFA', file: 'tools/regex-tester.html', category: 'encoders' },
       { id: 'diff-checker', name: 'Diff Checker', icon: '⚖️', description: 'Compare text differences', color: '#FF6B6B', file: 'tools/diff-checker.html', category: 'encoders' },

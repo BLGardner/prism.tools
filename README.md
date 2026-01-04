@@ -13,7 +13,7 @@ A collection of privacy-focused, client-side developer tools. No tracking, no ad
 - **Client-Side** - All processing happens in your browser
 - **Privacy First** - No data collection, no tracking, no analytics
 - **Always Free** - Free to use, online and local
-- **38 Tools** - Constantly growing collection
+- **40+ Tools** - Constantly growing collection
 - **Modern UI** - Clean, dark-themed interface
 - **Keyboard Shortcuts** - Press `/` to search tools
 - **Recent Tools** - Quick access to your last used tools
@@ -27,14 +27,20 @@ A collection of privacy-focused, client-side developer tools. No tracking, no ad
 - SQL Formatter - Format SQL queries
 - YAML ↔ JSON Converter - Convert between YAML and JSON
 - CURL to Fetch - Convert CURL commands to JavaScript
-
+- JSON to TypeScript - Generate TypeScript interfaces from JSON data
+- SVG to JSX - Convert SVG markup to React-compatible JSX
+- URL Parser & Breakdown - Break down URLs into their components
+	
 ### 🔒 Security & Dev
 - JWT Decoder - Decode JWT tokens
 - Password Generator - Generate secure passwords
 - Hash Generator - MD5, SHA-256, SHA-512
 - UUID Generator - Generate UUIDs v1/v4
 - Subnet Calculator - IP & network calculations
-
+- HTTP Status Codes- Complete HTTP 1xx–5xx reference with practical API guidance
+- Bash Script Generator - Generate clean, safe shell script boilerplate instantly
+- Git Command Helper - Find the exact Git commands you need
+	
 ### 🎨 Visual & CSS
 - SVG Editor - Create & edit SVG graphics
 - CSS Gradient Generator - Create CSS gradients
@@ -44,7 +50,9 @@ A collection of privacy-focused, client-side developer tools. No tracking, no ad
 - Favicon Generator - Create favicons from text/images/emoji
 - Color Converter - HEX, RGB, HSL converter
 - Image Tools - Resize, convert images
-
+- Animation Timing Visualizer - Compare animation timing functions side-by-side
+- CSS Grid Layout Generator - Visual grid builder with instant CSS output
+	
 ### ✨ Generators & Content
 - Lorem Ipsum - Generate placeholder text
 - Random Data - Generate test data
@@ -134,7 +142,7 @@ License - see [LICENSE](LICENSE.md) file for details
 
 ## 🔗 Links
 
-- **Live Demo:** [https://blgardner.github.io/prism.tools/](https://blgardner.github.io/prism.tools/)
+- **Live:** [https://blgardner.github.io/prism.tools/](https://blgardner.github.io/prism.tools/)
 - **GitHub:** [https://github.com/blgardner/prism.tools](https://github.com/blgardner/prism.tools)
 - **Donate:** [https://www.paypal.com/paypalme/BLGApps](https://www.paypal.com/paypalme/BLGApps)
 
@@ -150,6 +158,6 @@ Special thanks to all contributors and supporters! 💜
 
 ---
 
-Made with 💜 by developers, for developers
+Made with 💜 for developers
 
 *Privacy-focused • Ad-free*
