@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<!-- Copyright (c) 2025 BLGardner. All Rights Reserved. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTML Viewer - Prism.Tools</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #e4e4e7;
+      line-height: 1.4;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+    .navbar {
+      background: rgba(10, 10, 15, 0.98);
+      backdrop-filter: blur(12px);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #27272a;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #50FA7B 0%, #37C768 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .back-link {
+      color: #a1a1aa;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #e4e4e7; }
+    .container {
+      max-width: 100%;
+      height: calc(100vh - 110px);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+    }
+    .donate-btn {
+      padding: 0.4rem 1rem;
+      background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%);
+      color: white;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.875rem;
+      transition: transform 0.2s;
+      white-space: nowrap;
+    }
+
+    .donate-btn:hover { transform: translateY(-1px); }
+
+    .header {
+      text-align: center;
+      padding: 1rem 0 0.75rem;
+    }
+    .header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.25rem;
+      color: #50FA7B;
+    }
+    .header p {
+      color: #a1a1aa;
+      font-size: 0.875rem;
+    }
+    .controls {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .view-toggle {
+      display: flex;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .view-btn {
+      padding: 0.4rem 0.875rem;
+      background: transparent;
+      border: none;
+      color: #a1a1aa;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .view-btn.active {
+      background: #50FA7B;
+      color: #0a0a0f;
+    }
+    .action-btn {
+      padding: 0.4rem 0.875rem;
+      background: rgba(80, 250, 123, 0.1);
+      border: 1px solid rgba(80, 250, 123, 0.3);
+      color: #50FA7B;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .action-btn:hover {
+      background: rgba(80, 250, 123, 0.2);
+    }
+    .editor-container {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      overflow: hidden;
+    }
+    .editor-container.editor-only {
+      grid-template-columns: 1fr;
+    }
+    .editor-container.preview-only {
+      grid-template-columns: 1fr;
+    }
+    .panel {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .panel.hidden {
+      display: none;
+    }
+    .panel-header {
+      background: #1f1f23;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid #27272a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .panel-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #a1a1aa;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .char-count {
+      font-size: 0.7rem;
+      color: #71717a;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    textarea {
+      flex: 1;
+      padding: 0.875rem;
+      background: #0a0a0f;
+      border: none;
+      color: #e4e4e7;
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
+      font-size: 0.85rem;
+      resize: none;
+      line-height: 1.6;
+    }
+    textarea:focus { outline: none; }
+    .preview-frame {
+      flex: 1;
+      border: none;
+      background: #ffffff;
+    }
+    .toolbar {
+      padding: 0.5rem 0.75rem;
+      background: #18181b;
+      border-bottom: 1px solid #27272a;
+      display: flex;
+      gap: 0.25rem;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+    .toolbar-btn {
+      padding: 0.3rem 0.5rem;
+      background: #0a0a0f;
+      border: 1px solid #27272a;
+      border-radius: 4px;
+      color: #a1a1aa;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .toolbar-btn:hover {
+      border-color: #50FA7B;
+      color: #50FA7B;
+    }
+    .bg-toggle {
+      display: flex;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .bg-btn {
+      padding: 0.4rem 0.6rem;
+      background: transparent;
+      border: none;
+      color: #a1a1aa;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .bg-btn.active {
+      background: #50FA7B;
+      color: #0a0a0f;
+    }
+    @media (max-width: 768px) {
+      .editor-container {
+        grid-template-columns: 1fr;
+      }
+      .view-toggle {
+        width: 100%;
+      }
+      .view-btn {
+        flex: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">PRISM.TOOLS</a>
+    <a href="https://www.paypal.com/paypalme/BLGApps" target="_blank" class="donate-btn">☕ Donate</a>
+    <a href="../index.html" class="back-link">← All Tools</a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1>🌐 HTML Viewer</h1>
+      <p>Write HTML code and see the live rendered preview</p>
+    </div>
+
+    <div class="controls">
+      <div class="view-toggle">
+        <button class="view-btn active" onclick="setView('split')">Split</button>
+        <button class="view-btn" onclick="setView('editor')">Editor</button>
+        <button class="view-btn" onclick="setView('preview')">Preview</button>
+      </div>
+      <div class="bg-toggle">
+        <button class="bg-btn active" onclick="setBackground('white')" title="White background">◻️</button>
+        <button class="bg-btn" onclick="setBackground('dark')" title="Dark background">◼️</button>
+        <button class="bg-btn" onclick="setBackground('transparent')" title="Transparent (checkered)">🔲</button>
+      </div>
+      <button class="action-btn" onclick="document.getElementById('html-file-input').click()">📂 Import HTML</button>
+      <input type="file" id="html-file-input" accept=".html,.htm,text/html" style="display: none;">
+      <button class="action-btn" onclick="copyHTML()">📋 Copy HTML</button>
+      <button class="action-btn" onclick="downloadHTML()">💾 Download</button>
+      <button class="action-btn" onclick="clearEditor()">🗑️ Clear</button>
+    </div>
+
+    <div class="editor-container" id="editor-container">
+      <div class="panel" id="editor-panel">
+        <div class="panel-header">
+          <span class="panel-title">HTML Editor</span>
+          <span class="char-count" id="char-count">0 chars</span>
+        </div>
+        <div class="toolbar">
+          <button class="toolbar-btn" onclick="insertHTML('&lt;div&gt;', '&lt;/div&gt;')">div</button>
+          <button class="toolbar-btn" onclick="insertHTML('&lt;p&gt;', '&lt;/p&gt;')">p</button>
+          <button class="toolbar-btn" onclick="insertHTML('&lt;span&gt;', '&lt;/span&gt;')">span</button>
+          <button class="toolbar-btn" onclick="insertHTML('&lt;h1&gt;', '&lt;/h1&gt;')">h1</button>
+          <button class="toolbar-btn" onclick="insertHTML('&lt;a href=&quot;&quot;&gt;', '&lt;/a&gt;')">a</button>
+          <button class="toolbar-btn" onclick="insertHTML('&lt;img src=&quot;&quot; alt=&quot;&quot;&gt;', '')">img</button>
+          <button class="toolbar-btn" onclick="insertHTML('&lt;ul&gt;\n  &lt;li&gt;', '&lt;/li&gt;\n&lt;/ul&gt;')">ul</button>
+          <button class="toolbar-btn" onclick="insertHTML('&lt;button&gt;', '&lt;/button&gt;')">button</button>
+          <button class="toolbar-btn" onclick="insertHTML('&lt;input type=&quot;text&quot; placeholder=&quot;&quot;&gt;', '')">input</button>
+          <button class="toolbar-btn" onclick="insertHTML('&lt;style&gt;\n', '\n&lt;/style&gt;')">style</button>
+          <button class="toolbar-btn" onclick="insertHTML('&lt;script&gt;\n', '\n&lt;/script&gt;')">script</button>
+        </div>
+        <textarea id="html-input" placeholder="<!-- Start typing HTML here -->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    h1 { color: #50FA7B; }
+  </style>
+</head>
+<body>
+  <h1>Hello, World!</h1>
+  <p>This is a live HTML preview.</p>
+</body>
+</html>"></textarea>
+      </div>
+
+      <div class="panel" id="preview-panel">
+        <div class="panel-header">
+          <span class="panel-title">Live Preview</span>
+        </div>
+        <iframe id="preview" class="preview-frame" sandbox="allow-scripts allow-same-origin"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const editor = document.getElementById('html-input');
+    const preview = document.getElementById('preview');
+    let currentView = 'split';
+    let currentBg = 'white';
+
+    function updatePreview() {
+      const html = editor.value;
+      const doc = preview.contentDocument || preview.contentWindow.document;
+      doc.open();
+      doc.write(html);
+      doc.close();
+      updateCharCount();
+      applyBackground();
+      trackUsage();
+    }
+
+    function updateCharCount() {
+      const text = editor.value;
+      const chars = text.length;
+      const lines = text.split('\n').length;
+      document.getElementById('char-count').textContent = `${chars} chars, ${lines} lines`;
+    }
+
+    function setView(view) {
+      currentView = view;
+      document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+
+      const container = document.getElementById('editor-container');
+      const editorPanel = document.getElementById('editor-panel');
+      const previewPanel = document.getElementById('preview-panel');
+
+      container.className = 'editor-container';
+      editorPanel.classList.remove('hidden');
+      previewPanel.classList.remove('hidden');
+
+      if (view === 'editor') {
+        container.classList.add('editor-only');
+        previewPanel.classList.add('hidden');
+      } else if (view === 'preview') {
+        container.classList.add('preview-only');
+        editorPanel.classList.add('hidden');
+      }
+    }
+
+    function setBackground(bg) {
+      currentBg = bg;
+      document.querySelectorAll('.bg-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      applyBackground();
+    }
+
+    function applyBackground() {
+      const doc = preview.contentDocument || preview.contentWindow.document;
+      if (!doc.body) return;
+
+      if (currentBg === 'white') {
+        preview.style.background = '#ffffff';
+        doc.body.style.background = '';
+      } else if (currentBg === 'dark') {
+        preview.style.background = '#1a1a1a';
+        doc.body.style.background = '';
+      } else {
+        // Checkered pattern for transparent
+        preview.style.background = 'repeating-conic-gradient(#808080 0% 25%, #c0c0c0 0% 50%) 50% / 20px 20px';
+        doc.body.style.background = 'transparent';
+      }
+    }
+
+    function insertHTML(before, after) {
+      const start = editor.selectionStart;
+      const end = editor.selectionEnd;
+      const text = editor.value;
+      const selectedText = text.substring(start, end);
+
+      // Decode HTML entities for insertion
+      const decodeBefore = before.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
+      const decodeAfter = after.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
+
+      const newText = text.substring(0, start) + decodeBefore + selectedText + decodeAfter + text.substring(end);
+      editor.value = newText;
+
+      const newCursorPos = start + decodeBefore.length + selectedText.length;
+      editor.setSelectionRange(newCursorPos, newCursorPos);
+      editor.focus();
+      updatePreview();
+    }
+
+    function copyHTML() {
+      const html = editor.value;
+      if (!html) {
+        alert('Nothing to copy');
+        return;
+      }
+      navigator.clipboard.writeText(html).then(() => {
+        const btn = event.target;
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      });
+    }
+
+    function downloadHTML() {
+      const html = editor.value;
+      if (!html) {
+        alert('Nothing to download');
+        return;
+      }
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'document.html';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function clearEditor() {
+      if (confirm('Clear all content?')) {
+        editor.value = '';
+        updatePreview();
+      }
+    }
+
+    function trackUsage() {
+      let count = parseInt(localStorage.getItem('prism-usage-count') || '0');
+      count++;
+      localStorage.setItem('prism-usage-count', count);
+    }
+
+    // Import HTML file
+    document.getElementById('html-file-input').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      // Check if it's a valid HTML file
+      if (!file.name.match(/\.(html?|txt)$/i) && !file.type.match(/^text\//)) {
+        alert('Please select a valid HTML file (.html, .htm, or .txt)');
+        e.target.value = '';
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        try {
+          const content = event.target.result;
+
+          // Check if current editor has content
+          if (editor.value.trim() && !confirm('Replace current content with imported file?')) {
+            e.target.value = '';
+            return;
+          }
+
+          editor.value = content;
+          updatePreview();
+          alert('HTML file imported successfully!');
+
+        } catch (error) {
+          console.error('Error importing file:', error);
+          alert('Error importing file. Please ensure it\'s a valid HTML file.');
+        }
+
+        // Reset file input
+        e.target.value = '';
+      };
+
+      reader.onerror = function() {
+        alert('Error reading file. Please try again.');
+        e.target.value = '';
+      };
+
+      reader.readAsText(file);
+    });
+
+    // Keyboard shortcuts
+    editor.addEventListener('keydown', (e) => {
+      // Tab for indentation
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = editor.selectionStart;
+        const end = editor.selectionEnd;
+
+        if (e.shiftKey) {
+          // Shift+Tab: remove indentation
+          const lineStart = editor.value.lastIndexOf('\n', start - 1) + 1;
+          const lineText = editor.value.substring(lineStart, start);
+          if (lineText.startsWith('  ')) {
+            editor.value = editor.value.substring(0, lineStart) + editor.value.substring(lineStart + 2);
+            editor.selectionStart = editor.selectionEnd = start - 2;
+          }
+        } else {
+          // Tab: add indentation
+          editor.value = editor.value.substring(0, start) + '  ' + editor.value.substring(end);
+          editor.selectionStart = editor.selectionEnd = start + 2;
+        }
+        updatePreview();
+      }
+    });
+
+    // Auto-update preview with debounce for performance
+    let debounceTimer;
+    editor.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(updatePreview, 150);
+    });
+
+    // Initialize
+    updatePreview();
+  </script>
+</body>
+</html>
