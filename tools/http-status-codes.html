@@ -82,8 +82,14 @@
     }
 
     .filter-group { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
-    .filter-group label { font-size: 0.75rem; color: #a1a1aa; font-weight: 600; }
+    .filter-group label { font-size: 0.75rem; color: #a1a1aa; font-weight: 600; display: flex; align-items: center; gap: 4px; cursor: pointer; }
     .filter-group input { accent-color: #0ea5e9; }
+
+    .popular-toggle {
+      border-left: 1px solid #27272a;
+      padding-left: 0.75rem;
+      margin-left: 0.25rem;
+    }
 
     table {
       width: 100%;
@@ -107,7 +113,7 @@
     tr { border-top: 1px solid #27272a; }
     tr:hover { background: #1f1f23; }
 
-    .code { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: #38bdf8; }
+    .code { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: #38bdf8; white-space: nowrap; }
 
     .group {
       font-size: 0.7rem;
@@ -119,6 +125,8 @@
       margin-left: 0.35rem;
       display: inline-block;
     }
+    
+    .group.popular { background: rgba(167, 139, 250, 0.2); color: #c4b5fd; }
 
     .pill {
       font-size: 0.7rem;
@@ -131,10 +139,21 @@
       margin-right: 0.25rem;
     }
 
+    .btn-small {
+      background: transparent;
+      border: 1px solid #27272a;
+      color: #a1a1aa;
+      padding: 2px 6px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-small:hover { background: #27272a; color: #fff; }
+
     @media (max-width: 900px) {
       table, thead, tbody, th, td, tr { display: block; }
       thead { display: none; }
       tr { margin-bottom: 0.75rem; }
+      .popular-toggle { border-left: none; padding-left: 0; margin-left: 0; width: 100%; }
     }
   </style>
 </head>
@@ -159,6 +178,9 @@
         <label><input type="checkbox" checked data-group="3xx" /> 3xx</label>
         <label><input type="checkbox" checked data-group="4xx" /> 4xx</label>
         <label><input type="checkbox" checked data-group="5xx" /> 5xx</label>
+        <div class="popular-toggle">
+            <label><input type="checkbox" id="popular-only" /> ⭐ Popular Only</label>
+        </div>
       </div>
     </div>
 
@@ -186,56 +208,93 @@
     }
 
     const data = [
-      // Legend: x = short pro note, m = common / high-frequency
-      // 1xx
-      { c:100,n:'Continue',u:'Large uploads, expect body next',g:'1xx',x:'Rare in APIs' },
-      { c:101,n:'Switching Protocols',u:'WebSocket or protocol upgrade',g:'1xx',x:'Handshake response' },
-      { c:102,n:'Processing',u:'Long-running request acknowledged',g:'1xx',x:'WebDAV' },
+      // 1xx Informational
+      { c:100,n:'Continue',u:'Large uploads, expect body next',g:'1xx',x:'Rare in REST' },
+      { c:101,n:'Switching Protocols',u:'WebSocket upgrade',g:'1xx',x:'Handshake response' },
+      { c:102,n:'Processing',u:'Long request acknowledged',g:'1xx',x:'WebDAV' },
+      { c:103,n:'Early Hints',u:'Preload headers before body',g:'1xx',x:'Performance' },
 
-      // 2xx
+      // 2xx Success
       { c:200,n:'OK',u:'Successful read or update',g:'2xx',x:'Default success',m:true },
-      { c:201,n:'Created',u:'New resource created',g:'2xx',x:'Return Location header',m:true },
-      { c:202,n:'Accepted',u:'Async processing started',g:'2xx',x:'Job-based APIs' },
-      { c:204,n:'No Content',u:'Success with empty body',g:'2xx',x:'DELETE responses',m:true },
-      { c:206,n:'Partial Content',u:'Range-based responses',g:'2xx',x:'Media / downloads' },
+      { c:201,n:'Created',u:'New resource created',g:'2xx',x:'Include Location header',m:true },
+      { c:202,n:'Accepted',u:'Async processing started',g:'2xx',x:'Job-based APIs',m:true },
+      { c:203,n:'Non-Authoritative Info',u:'Proxy-modified metadata',g:'2xx',x:'Rare' },
+      { c:204,n:'No Content',u:'Success with empty body',g:'2xx',x:'DELETE/PUT responses',m:true },
+      { c:205,n:'Reset Content',u:'Refresh UI after action',g:'2xx',x:'Form reset' },
+      { c:206,n:'Partial Content',u:'Range-based responses',g:'2xx',x:'Large downloads' },
+      { c:207,n:'Multi-Status',u:'Mixed results for batch',g:'2xx',x:'WebDAV / Bulk' },
+      { c:208,n:'Already Reported',u:'Prevents DAV loops',g:'2xx',x:'Internal sync' },
+      { c:226,n:'IM Used',u:'Delta encoding',g:'2xx',x:'HTTP Delta' },
 
-      // 3xx
-      { c:301,n:'Moved Permanently',u:'Permanent URL change',g:'3xx',x:'Cacheable, SEO safe',m:true },
-      { c:302,n:'Found',u:'Temporary redirect',g:'3xx',x:'Legacy behavior',m:true },
-      { c:303,n:'See Other',u:'Redirect after POST',g:'3xx',x:'PRG pattern' },
-      { c:304,n:'Not Modified',u:'Client cache still valid',g:'3xx',x:'Conditional GET' },
-      { c:307,n:'Temporary Redirect',u:'Redirect preserving method',g:'3xx',x:'Safer 302' },
-      { c:308,n:'Permanent Redirect',u:'Permanent, method-safe redirect',g:'3xx',x:'Modern 301' },
+      // 3xx Redirection
+      { c:300,n:'Multiple Choices',u:'Multiple representation options',g:'3xx',x:'Ambiguous URI' },
+      { c:301,n:'Moved Permanently',u:'Permanent URL change',g:'3xx',x:'Cacheable / SEO',m:true },
+      { c:302,n:'Found',u:'Temporary redirect',g:'3xx',x:'Standard redirect',m:true },
+      { c:303,n:'See Other',u:'Redirect after POST',g:'3xx',x:'PRG pattern',m:true },
+      { c:304,n:'Not Modified',u:'Client cache still valid',g:'3xx',x:'Conditional GET',m:true },
+      { c:305,n:'Use Proxy',u:'Redirect via proxy',g:'3xx',x:'Deprecated' },
+      { c:307,n:'Temporary Redirect',u:'Redirect preserving method',g:'3xx',x:'Strict 302',m:true },
+      { c:308,n:'Permanent Redirect',u:'Permanent, preserves method',g:'3xx',x:'Strict 301',m:true },
 
-      // 4xx
-      { c:400,n:'Bad Request',u:'Malformed request',g:'4xx',x:'Client bug',m:true },
-      { c:401,n:'Unauthorized',u:'Auth required or failed',g:'4xx',x:'WWW-Authenticate header',m:true },
-      { c:403,n:'Forbidden',u:'Auth OK, access denied',g:'4xx',x:'Do not retry',m:true },
-      { c:404,n:'Not Found',u:'Resource missing',g:'4xx',x:'Hide existence if needed',m:true },
-      { c:405,n:'Method Not Allowed',u:'HTTP verb not supported',g:'4xx',x:'Allow header' },
-      { c:409,n:'Conflict',u:'State conflict',g:'4xx',x:'Versioning / locking' },
-      { c:410,n:'Gone',u:'Resource permanently removed',g:'4xx',x:'Stronger than 404' },
-      { c:415,n:'Unsupported Media Type',u:'Invalid Content-Type',g:'4xx',x:'JSON vs XML issues' },
-      { c:422,n:'Unprocessable Entity',u:'Validation errors',g:'4xx',x:'Semantic failure' },
-      { c:429,n:'Too Many Requests',u:'Rate limit exceeded',g:'4xx',x:'Retry-After header' },
+      // 4xx Client Error
+      { c:400,n:'Bad Request',u:'Malformed request',g:'4xx',x:'General client error',m:true },
+      { c:401,n:'Unauthorized',u:'Auth required or failed',g:'4xx',x:'Missing/Invalid Token',m:true },
+      { c:402,n:'Payment Required',u:'Quota/Subscription limits',g:'4xx',x:'SaaS / billing' },
+      { c:403,n:'Forbidden',u:'Authenticated but no access',g:'4xx',x:'ACL issues',m:true },
+      { c:404,n:'Not Found',u:'Resource missing',g:'4xx',x:'Default missing',m:true },
+      { c:405,n:'Method Not Allowed',u:'Unsupported HTTP verb',g:'4xx',x:'Check Allow header',m:true },
+      { c:406,n:'Not Acceptable',u:'Invalid Accept header',g:'4xx',x:'Format mismatch' },
+      { c:407,n:'Proxy Auth Required',u:'Proxy auth missing',g:'4xx',x:'Corp firewalls' },
+      { c:408,n:'Request Timeout',u:'Idle client connection',g:'4xx',x:'Network drop' },
+      { c:409,n:'Conflict',u:'State conflict (e.g. unique constraint)',g:'4xx',x:'Versioning/Dupes',m:true },
+      { c:410,n:'Gone',u:'Permanently deleted',g:'4xx',x:'Stronger than 404' },
+      { c:411,n:'Length Required',u:'Missing Content-Length',g:'4xx',x:'Reject empty size' },
+      { c:412,n:'Precondition Failed',u:'ETag / Header mismatch',g:'4xx',x:'Optimistic Locking' },
+      { c:413,n:'Payload Too Large',u:'Request body size exceeded',g:'4xx',x:'Upload limits' },
+      { c:414,n:'URI Too Long',u:'URL string too long',g:'4xx',x:'Query param abuse' },
+      { c:415,n:'Unsupported Media Type',u:'Invalid Content-Type',g:'4xx',x:'Format support',m:true },
+      { c:416,n:'Range Not Satisfiable',u:'Invalid Byte Range',g:'4xx',x:'Media requests' },
+      { c:417,n:'Expectation Failed',u:'Expect header mismatch',g:'4xx',x:'Edge case' },
+      { c:418,n:"I'm a teapot",u:'April Fools / Easter egg',g:'4xx',x:'HTCPCP' },
+      { c:421,n:'Misdirected Request',u:'Server cannot produce response',g:'4xx',x:'DNS/SNI issues' },
+      { c:422,n:'Unprocessable Entity',u:'Semantic validation failed',g:'4xx',x:'Business logic error',m:true },
+      { c:423,n:'Locked',u:'Resource is locked',g:'4xx',x:'WebDAV' },
+      { c:424,n:'Failed Dependency',u:'Prev. request failed',g:'4xx',x:'WebDAV' },
+      { c:425,n:'Too Early',u:'Replay attack risk',g:'4xx',x:'TLS 1.3 Early Data' },
+      { c:426,n:'Upgrade Required',u:'Protocol upgrade needed',g:'4xx',x:'TLS/WS enforcement' },
+      { c:428,n:'Precondition Required',u:'Missing conditional headers',g:'4xx',x:'Prevent "lost update"' },
+      { c:429,n:'Too Many Requests',u:'Rate limit hit',g:'4xx',x:'Retry-After header',m:true },
+      { c:431,n:'Header Fields Too Large',u:'Individual/Total headers too big',g:'4xx',x:'Cookie overflow' },
+      { c:451,n:'Unavailable For Legal Reasons',u:'Censorship / DMCA',g:'4xx',x:'Legal compliance' },
 
-      // 5xx
-      { c:500,n:'Internal Server Error',u:'Unhandled server error',g:'5xx',x:'Log + alert',m:true },
-      { c:502,n:'Bad Gateway',u:'Upstream failure',g:'5xx',x:'Reverse proxy issue' },
-      { c:503,n:'Service Unavailable',u:'Overloaded or down',g:'5xx',x:'Temporary' },
-      { c:504,n:'Gateway Timeout',u:'Upstream timeout',g:'5xx',x:'Network latency' }
+      // 5xx Server Error
+      { c:500,n:'Internal Server Error',u:'Crashed/Unhandled error',g:'5xx',x:'Log immediately',m:true },
+      { c:501,n:'Not Implemented',u:'Server lacks functionality',g:'5xx',x:'Feature coming soon' },
+      { c:502,n:'Bad Gateway',u:'Upstream server failure',g:'5xx',x:'Reverse proxy issue',m:true },
+      { c:503,n:'Service Unavailable',u:'Overload or maintenance',g:'5xx',x:'Temporary down',m:true },
+      { c:504,n:'Gateway Timeout',u:'Upstream server timed out',g:'5xx',x:'Latency issues',m:true },
+      { c:505,n:'HTTP Version Not Supported',u:'Unsupported protocol',g:'5xx',x:'Old clients' },
+      { c:506,n:'Variant Also Negotiates',u:'Circular reference',g:'5xx',x:'Content negotiation' },
+      { c:507,n:'Insufficient Storage',u:'Disk full',g:'5xx',x:'WebDAV' },
+      { c:508,n:'Loop Detected',u:'Infinite redirect loop',g:'5xx',x:'WebDAV' },
+      { c:510,n:'Not Extended',u:'Policy check failed',g:'5xx',x:'Ext. header error' },
+      { c:511,n:'Network Auth Required',u:'Captive portal / login',g:'5xx',x:'Wifi hotspots' }
     ];
 
     const rows = document.getElementById('rows');
     const search = document.getElementById('search');
     const checks = document.querySelectorAll('[data-group]');
+    const popularToggle = document.getElementById('popular-only');
 
     function render() {
       const q = search.value.toLowerCase();
-      const enabled = [...checks].filter(c => c.checked).map(c => c.dataset.group);
+      const enabledGroups = [...checks].filter(c => c.checked).map(c => c.dataset.group);
+      const isPopularOnly = popularToggle.checked;
+      
       rows.innerHTML = '';
 
-      data.filter(d => enabled.includes(d.g))
+      data.filter(d => enabledGroups.includes(d.g))
+          .filter(d => !isPopularOnly || d.m === true)
           .filter(d =>
             String(d.c).includes(q) ||
             d.n.toLowerCase().includes(q) ||
@@ -245,8 +304,8 @@
           .forEach(d => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-              <td class="code">${d.c}${d.m ? '<span class="group">common</span>' : '<span class="group">'+d.g+'</span>'}</td>
-              <td>${d.n}</td>
+              <td class="code">${d.c}${d.m ? '<span class="group popular">popular</span>' : '<span class="group">'+d.g+'</span>'}</td>
+              <td><strong>${d.n}</strong></td>
               <td>${d.u}</td>
               <td><span class="pill">${d.x}</span></td>
               <td><button class="btn-small" onclick="copyCode(${d.c})">📋</button></td>`;
@@ -255,6 +314,7 @@
     }
 
     search.addEventListener('input', render);
+    popularToggle.addEventListener('change', render);
     checks.forEach(c => c.addEventListener('change', render));
 
     trackUsage();
@@ -262,5 +322,3 @@
   </script>
 </body>
 </html>
-
-<!-- { id: 'http-status-codes', name: 'HTTP Status Codes', icon: '🌐', description: 'API status reference', color: '#0ea5e9', file: 'tools/http-status-codes.html', category: 'security' }, -->

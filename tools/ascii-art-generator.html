@@ -511,7 +511,7 @@
         alert('Please enter text');
         return;
       }
-
+    
       if (fontType === 'standard') {
         const font = fonts.standard;
         let lines = ['', '', '', '', ''];
@@ -521,40 +521,73 @@
             for (let i = 0; i < 5; i++) {
               lines[i] += font[char][i] + ' ';
             }
+          } else {
+            // Handle unknown characters as spaces
+            for (let i = 0; i < 5; i++) {
+              lines[i] += '     ';
+            }
           }
         }
         
         document.getElementById('ascii-output').textContent = lines.join('\n');
+        
       } else if (fontType === 'banner') {
         let result = '';
         for (let char of text) {
+          if (char === ' ') {
+            result += '\n\n\n\n\n\n\n';
+            continue;
+          }
+          // Top line
           result += char.repeat(7) + '\n';
+          // Middle lines with sides
           for (let i = 0; i < 4; i++) {
             result += char + '     ' + char + '\n';
           }
+          // Bottom line
           result += char.repeat(7) + '\n\n';
         }
         document.getElementById('ascii-output').textContent = result;
+        
       } else if (fontType === 'small') {
-        document.getElementById('ascii-output').textContent = text;
+        // Small just shows the text as-is but with some spacing
+        let result = '';
+        for (let char of text) {
+          result += char + ' ';
+        }
+        document.getElementById('ascii-output').textContent = result;
+        
       } else if (fontType === 'block') {
         let result = '';
         for (let char of text) {
-          result += '█████\n█   █\n█████\n\n';
+          if (char === ' ') {
+            result += '\n\n\n\n';
+            continue;
+          }
+          result += '█████\n';
+          result += '█   █\n';
+          result += '█████\n\n';
         }
         document.getElementById('ascii-output').textContent = result;
+        
       } else if (fontType === 'slant') {
-        let result = '';
         const height = 5;
+        let lines = [];
+        
         for (let i = 0; i < height; i++) {
           let line = '';
           for (let j = 0; j < text.length; j++) {
-            const spaces = ' '.repeat(j + i);
-            line += spaces + text[j] + ' ';
+            // Add increasing indentation for slant effect
+            const indent = ' '.repeat(height - i - 1);
+            if (i === 0) {
+              line += indent;
+            }
+            line += text[j] + ' ';
           }
-          result += line + '\n';
+          lines.push(line);
         }
-        document.getElementById('ascii-output').textContent = result;
+        
+        document.getElementById('ascii-output').textContent = lines.join('\n');
       }
       
       trackUsage();
